@@ -170,11 +170,16 @@ namespace HM
          LOG_DEBUG(Formatter::Format(_T("SURBL: Lookup: {0}"), sHostToLookup));
 
          std::vector<String> saFoundNames;
+
          DNSResolver resolver;
-         if (!resolver.GetIpAddresses(sHostToLookup, saFoundNames, false))
+         if (!resolver.GetIpAddressesWithRetry(sHostToLookup, saFoundNames, false))
          {
+            // The lookup failed rather than came back empty. Skip this host rather
+            // than treating the entire message as clean.
             LOG_DEBUG("SURBL: DNS query failed.");
-            return true;
+
+            processedAddresses++;
+            continue;
          }
 
          if (saFoundNames.size() > 0)

@@ -58,13 +58,40 @@ namespace HM
    }
    
    bool 
-   DNSResolver::GetIpAddresses(const String &sDomain, std::vector<String> &vecFoundNames, bool followCnameRecords)
+   DNSResolver::GetIpAddresses(const String &sDomain, std::vector<String> &vecFoundNames, bool followCnameRecords, bool bypassCache)
    {
-      return GetIpAddressesRecursive_(sDomain, vecFoundNames, 0, followCnameRecords);
+      return GetIpAddressesRecursive_(sDomain, vecFoundNames, 0, followCnameRecords, bypassCache);
+   }
+
+   const int lookupAttempts = 2;
+
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Looks up a host, retrying if the lookup itself fails. Intended for callers
+   // which need a definitive answer, such as SURBL and the DNS blacklists, where a
+   // single bad response would otherwise turn a listed host into a clean one.
+   //---------------------------------------------------------------------------()
+   bool
+   DNSResolver::GetIpAddressesWithRetry(const String &sDomain, std::vector<String> &saFoundNames, bool followCnameRecords)
+   {
+      for (int attempt = 1; attempt <= lookupAttempts; attempt++)
+      {
+         // Windows caches the failure, so a plain retry is served the same bad result
+         // from the cache. Later attempts have to go to the wire.
+         bool bypassCache = attempt > 1;
+
+         if (GetIpAddresses(sDomain, saFoundNames, followCnameRecords, bypassCache))
+            return true;
+
+         if (attempt < lookupAttempts)
+            LOG_DEBUG(Formatter::Format(_T("DNS - Retrying lookup: {0}"), sDomain));
+      }
+
+      return false;
    }
 
    bool
-   DNSResolver::GetIpAddressesRecursive_(const String &hostName, std::vector<String> &addresses, int recursionLevel, bool followCnameRecords)
+   DNSResolver::GetIpAddressesRecursive_(const String &hostName, std::vector<String> &addresses, int recursionLevel, bool followCnameRecords, bool bypassCache)
    {
       if (hostName.IsEmpty())
       {
@@ -84,38 +111,47 @@ namespace HM
 
       std::vector<DNSRecord> foundRecords;
 
-      bool ipv4QueryResult = false;
-      bool ipv6QueryResult = false;
+      bool ipv6Available = Configuration::Instance()->IsIPv6Available();
+
+      // A query that fails tells us nothing; a query that succeeds without records
+      // tells us the host has none. Keep the two apart, so that callers needing a
+      // definitive answer can tell them apart.
+      bool querySucceeded = true;
+
       // if IPv6 is preferred first do IPv6 DNS Lookup(s)
-      if (Configuration::Instance()->IsIPv6Available() && Configuration::Instance()->GetIPv6Preferred())
+      if (ipv6Available && Configuration::Instance()->GetIPv6Preferred())
       {
-         ipv6QueryResult = resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords);
-         ipv4QueryResult = resolver.Query(hostName, DNS_TYPE_A, foundRecords);
+         querySucceeded &= resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords, bypassCache);
+         querySucceeded &= resolver.Query(hostName, DNS_TYPE_A, foundRecords, bypassCache);
       }
       else // Standard 
       {
-         ipv4QueryResult = resolver.Query(hostName, DNS_TYPE_A, foundRecords);
-         ipv6QueryResult = Configuration::Instance()->IsIPv6Available() ? resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords) : false;
+         querySucceeded &= resolver.Query(hostName, DNS_TYPE_A, foundRecords, bypassCache);
+
+         if (ipv6Available)
+            querySucceeded &= resolver.Query(hostName, DNS_TYPE_AAAA, foundRecords, bypassCache);
       }
 
       if (foundRecords.size() == 0 && followCnameRecords)
       {
          // The queries for A/AAAA didn't return any records. Attempt to look up via CNAME
          std::vector<DNSRecord> foundCNames;
-         bool cnameQueryResult = resolver.Query(hostName, DNS_TYPE_CNAME, foundCNames);
+         bool cnameQueryResult = resolver.Query(hostName, DNS_TYPE_CNAME, foundCNames, bypassCache);
 
          // A CNAME should only point at a single host name.
          if (cnameQueryResult && foundCNames.size() == 1)
          {
             auto cnameHostName = foundCNames[0].GetValue();
-            return GetIpAddressesRecursive_(cnameHostName, addresses, recursionLevel + 1, followCnameRecords);
+            return GetIpAddressesRecursive_(cnameHostName, addresses, recursionLevel + 1, followCnameRecords, bypassCache);
          }
       }
 
       std::vector<String> foundValues = GetDnsRecordsValues_(foundRecords);
       addresses.insert(addresses.end(), foundValues.begin(), foundValues.end());
 
-      return ipv4QueryResult || ipv6QueryResult;
+      // Records are usable even if the other query type failed. Without any records,
+      // a failed query means the result is unknown rather than empty.
+      return !foundRecords.empty() || querySucceeded;
    }
 
 

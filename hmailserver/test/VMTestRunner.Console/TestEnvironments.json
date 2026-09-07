@@ -1,214 +1,214 @@
 ﻿[
-  //{
-  //  "operatingSystem": "Windows 10",
-  //  "description": "Internal: Upgrade, 4.1.1",
-  //  "vmName": "Windows-10-hMailServer-4.4.4-InternalMySQL",
-  //  "snapshotName": "Ready",
-  //  "preInstallCommands": [
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "stop hMailServer"
-  //    }
-  //  ],
-  //  "preInstallFileCopy": [
-  //    {
-  //      "from": "{{MySQLLib}}",
-  //      "to": "C:\\Program Files (x86)\\hMailServer\\Bin\\libmySQL.dll"
-  //    }
-  //  ],
-  //  "postInstallCommands": [
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "stop hMailServer"
-  //    },
-  //    {
-  //      "executable": "C:\\Windows\\System32\\cmd.exe",
-  //      "parameters": "/c del /f /q \"C:\\Program Files (x86)\\hMailServer\\Bin\\libmariadb.dll\""
-  //    },
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "start hMailServer"
-  //    }
-  //  ],
-  //  "postInstallFileCopy": []
-  //},
-  //{
-  //  "operatingSystem": "Windows 10",
-  //  "description": "PostgreSQL 9.6.24: Upgrade, 5.0.0",
-  //  "vmName": "Windows-10-hMailServer-5.0.0-PostgreSQL9.6.24",
-  //  "snapshotName": "Ready",
-  //  "preInstallCommands": [
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "stop hMailServer"
-  //    }
-  //  ],
-  //  "preInstallFileCopy": [],
-  //  "postInstallCommands": [],
-  //  "postInstallFileCopy": []
-  //},
-  //{
-  //  "operatingSystem": "Windows 10",
-  //  "description": "Internal: Upgrade, 5.0.0",
-  //  "vmName": "Windows-10-hMailServer-5.0.0-InternalSQLCompact",
-  //  "snapshotName": "Ready",
-  //  "preInstallCommands": [
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "stop hMailServer"
-  //    }
-  //  ],
-  //  "preInstallFileCopy": [],
-  //  "postInstallCommands": [],
-  //  "postInstallFileCopy": []
-  //},
-  //{
-  //  "operatingSystem": "Windows 10",
-  //  "description": "SQL Server 2019: Upgrade, 4.4.4",
-  //  "vmName": "Windows-10-hMailServer-4.4.4-SQLServer2019",
-  //  "snapshotName": "Ready",
-  //  "preInstallCommands": [
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "stop hMailServer"
-  //    }
-  //  ],
-  //  "preInstallFileCopy": [],
-  //  "postInstallCommands": [],
-  //  "postInstallFileCopy": []
-  //},
-  //{
-  //  "operatingSystem": "Windows 10",
-  //  "description": "MySQL 8.0.29: Upgrade, 4.4.4",
-  //  "vmName": "Windows-10-hMailServer-4.4.4-MySQL 8.0.29",
-  //  "snapshotName": "Ready",
-  //  "preInstallCommands": [
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "stop hMailServer"
-  //    }
-  //  ],
-  //  "preInstallFileCopy": [
-  //    {
-  //      "from": "{{MySQLLib}}",
-  //      "to": "C:\\Program Files (x86)\\hMailServer\\Bin\\libmySQL.dll"
-  //    }
-  //  ],
-  //  "postInstallCommands": [
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "stop hMailServer"
-  //    },
-  //    {
-  //      "executable": "C:\\Windows\\System32\\cmd.exe",
-  //      "parameters": "/c del /f /q \"C:\\Program Files (x86)\\hMailServer\\Bin\\libmariadb.dll\""
-  //    },
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "start hMailServer"
-  //    }
-  //  ],
-  //  "postInstallFileCopy": []
-  //},
-  //{
-  //  "operatingSystem": "Windows 10",
-  //  "description": "PostgreSQL 9.6.24: New installation",
-  //  "vmName": "Windows10-PostgreSQL9.6.24",
-  //  "snapshotName": "Ready",
-  //  "preInstallCommands": [],
-  //  "preInstallFileCopy": [],
-  //  "postInstallCommands": [
-  //    {
-  //      "executable": "C:\\Program Files\\hMailServer\\Bin\\DBSetup.exe",
-  //      "parameters": "/silent ServerType:PGSQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:postgres Password:Secret123"
-  //    }
-  //  ],
-  //  "postInstallFileCopy": [],
-  //  "includeStressTests": true
-  //},
-  //{
-  //  "operatingSystem": "Windows 10",
-  //  "description": "SQL Server 2019: New installation",
-  //  "vmName": "Windows10-SQLServer2019",
-  //  "snapshotName": "Ready",
-  //  "preInstallCommands": [],
-  //  "preInstallFileCopy": [],
-  //  "postInstallCommands": [
-  //    {
-  //      "executable": "C:\\Program Files\\hMailServer\\Bin\\DBSetup.exe",
-  //      "parameters": "/silent ServerType:MSSQL ServerAddress:.\\SQLEXPRESS DatabaseName:hMailServer Authentication:SServer CreateNew:Yes Username:sa Password:Secret123"
-  //    }
-  //  ],
-  //  "postInstallFileCopy": []
-  //},
-  //{
-  //  "operatingSystem": "Windows 10",
-  //  "description": "MySQL 8.0.29: New installation - MySQL client",
-  //  "vmName": "Windows10-MySQL8.0.29",
-  //  "snapshotName": "Ready",
-  //  "preInstallCommands": [
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "stop hMailServer"
-  //    }
-  //  ],
-  //  "preInstallFileCopy": [],
-  //  "postInstallCommands": [
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "stop hMailServer"
-  //    },
-  //    {
-  //      "executable": "C:\\Windows\\System32\\cmd.exe",
-  //      "parameters": "/c del /f /q \"C:\\Program Files\\hMailServer\\Bin\\libmariadb.dll\""
-  //    },
-  //    {
-  //      "executable": "C:\\Program Files\\hMailServer\\Bin\\DBSetup.exe",
-  //      "parameters": "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:Secret123"
-  //    },
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "start hMailServer"
-  //    }
-  //  ],
-  //  "postInstallFileCopy": [
-  //    {
-  //      "from": "{{MySQLLib}}",
-  //      "to": "C:\\Program Files\\hMailServer\\Bin\\libmySQL.dll"
-  //    }
-  //  ]
-  //},
-  //{
-  //  "operatingSystem": "Windows 10",
-  //  "description": "MySQL 26.7.0: New installation - MariaDB client",
-  //  "vmName": "Windows10-MySQL-26.7.0",
-  //  "snapshotName": "Ready",
-  //  "preInstallCommands": [
-  //    {
-  //      "executable": "C:\\Windows\\System32\\net.exe",
-  //      "parameters": "stop hMailServer"
-  //    }
-  //  ],
-  //  "preInstallFileCopy": [],
-  //  "postInstallCommands": [
-  //    {
-  //      "executable": "C:\\Program Files\\hMailServer\\Bin\\DBSetup.exe",
-  //      "parameters": "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:Secret123"
-  //    }
-  //  ],
-  //  "postInstallFileCopy": []
-  //},
+  {
+    "operatingSystem": "Windows 10",
+    "description": "Internal: Upgrade, 4.1.1",
+    "vmName": "Windows-10-hMailServer-4.4.4-InternalMySQL",
+    "snapshotName": "Ready",
+    "preInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      }
+    ],
+    "preInstallFileCopy": [
+      {
+        "from": "{{MySQLLib}}",
+        "to": "C:\\Program Files (x86)\\hMailServer\\Bin\\libmySQL.dll"
+      }
+    ],
+    "postInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      },
+      {
+        "executable": "C:\\Windows\\System32\\cmd.exe",
+        "parameters": "/c del /f /q \"C:\\Program Files (x86)\\hMailServer\\Bin\\libmariadb.dll\""
+      },
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "start hMailServer"
+      }
+    ],
+    "postInstallFileCopy": []
+  },
+  {
+    "operatingSystem": "Windows 10",
+    "description": "PostgreSQL 9.6.24: Upgrade, 5.0.0",
+    "vmName": "Windows-10-hMailServer-5.0.0-PostgreSQL9.6.24",
+    "snapshotName": "Ready",
+    "preInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      }
+    ],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [],
+    "postInstallFileCopy": []
+  },
+  {
+    "operatingSystem": "Windows 10",
+    "description": "Internal: Upgrade, 5.0.0",
+    "vmName": "Windows-10-hMailServer-5.0.0-InternalSQLCompact",
+    "snapshotName": "Ready",
+    "preInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      }
+    ],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [],
+    "postInstallFileCopy": []
+  },
+  {
+    "operatingSystem": "Windows 10",
+    "description": "SQL Server 2019: Upgrade, 4.4.4",
+    "vmName": "Windows-10-hMailServer-4.4.4-SQLServer2019",
+    "snapshotName": "Ready",
+    "preInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      }
+    ],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [],
+    "postInstallFileCopy": []
+  },
+  {
+    "operatingSystem": "Windows 10",
+    "description": "MySQL 8.0.29: Upgrade, 4.4.4",
+    "vmName": "Windows-10-hMailServer-4.4.4-MySQL 8.0.29",
+    "snapshotName": "Ready",
+    "preInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      }
+    ],
+    "preInstallFileCopy": [
+      {
+        "from": "{{MySQLLib}}",
+        "to": "C:\\Program Files (x86)\\hMailServer\\Bin\\libmySQL.dll"
+      }
+    ],
+    "postInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      },
+      {
+        "executable": "C:\\Windows\\System32\\cmd.exe",
+        "parameters": "/c del /f /q \"C:\\Program Files (x86)\\hMailServer\\Bin\\libmariadb.dll\""
+      },
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "start hMailServer"
+      }
+    ],
+    "postInstallFileCopy": []
+  },
+  {
+    "operatingSystem": "Windows 10",
+    "description": "PostgreSQL 9.6.24: New installation",
+    "vmName": "Windows10-PostgreSQL9.6.24",
+    "snapshotName": "Ready",
+    "preInstallCommands": [],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [
+      {
+        "executable": "C:\\Program Files\\hMailServer\\Bin\\DBSetup.exe",
+        "parameters": "/silent ServerType:PGSQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:postgres Password:Secret123"
+      }
+    ],
+    "postInstallFileCopy": [],
+    "includeStressTests": true
+  },
+  {
+    "operatingSystem": "Windows 10",
+    "description": "SQL Server 2019: New installation",
+    "vmName": "Windows10-SQLServer2019",
+    "snapshotName": "Ready",
+    "preInstallCommands": [],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [
+      {
+        "executable": "C:\\Program Files\\hMailServer\\Bin\\DBSetup.exe",
+        "parameters": "/silent ServerType:MSSQL ServerAddress:.\\SQLEXPRESS DatabaseName:hMailServer Authentication:SServer CreateNew:Yes Username:sa Password:Secret123"
+      }
+    ],
+    "postInstallFileCopy": []
+  },
+  {
+    "operatingSystem": "Windows 10",
+    "description": "MySQL 8.0.29: New installation - MySQL client",
+    "vmName": "Windows10-MySQL8.0.29",
+    "snapshotName": "Ready",
+    "preInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      }
+    ],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      },
+      {
+        "executable": "C:\\Windows\\System32\\cmd.exe",
+        "parameters": "/c del /f /q \"C:\\Program Files\\hMailServer\\Bin\\libmariadb.dll\""
+      },
+      {
+        "executable": "C:\\Program Files\\hMailServer\\Bin\\DBSetup.exe",
+        "parameters": "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:Secret123"
+      },
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "start hMailServer"
+      }
+    ],
+    "postInstallFileCopy": [
+      {
+        "from": "{{MySQLLib}}",
+        "to": "C:\\Program Files\\hMailServer\\Bin\\libmySQL.dll"
+      }
+    ]
+  },
+  {
+    "operatingSystem": "Windows 10",
+    "description": "MySQL 26.7.0: New installation - MariaDB client",
+    "vmName": "Windows10-MySQL-26.7.0",
+    "snapshotName": "Ready",
+    "preInstallCommands": [
+      {
+        "executable": "C:\\Windows\\System32\\net.exe",
+        "parameters": "stop hMailServer"
+      }
+    ],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [
+      {
+        "executable": "C:\\Program Files\\hMailServer\\Bin\\DBSetup.exe",
+        "parameters": "/silent ServerType:MySQL ServerAddress:localhost DatabaseName:hMailServer Authentication:Server CreateNew:Yes Username:root Password:Secret123"
+      }
+    ],
+    "postInstallFileCopy": []
+  },
 
-  //{
-  //  "operatingSystem": "Windows 10",
-  //  "description": "Internal (SQL Compact): New installation",
-  //  "vmName": "Windows10",
-  //  "snapshotName": "Ready",
-  //  "preInstallCommands": [],
-  //  "preInstallFileCopy": [],
-  //  "postInstallCommands": [],
-  //  "postInstallFileCopy": []
-  //},
+  {
+    "operatingSystem": "Windows 10",
+    "description": "Internal (SQL Compact): New installation",
+    "vmName": "Windows10",
+    "snapshotName": "Ready",
+    "preInstallCommands": [],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [],
+    "postInstallFileCopy": []
+  },
   {
     "operatingSystem": "Windows Server 2025",
     "description": "Internal (SQL Compact): New installation",
@@ -218,36 +218,36 @@
     "preInstallFileCopy": [],
     "postInstallCommands": [],
     "postInstallFileCopy": []
-  }
+  },
 
-  //// PowerShell Direct needs a Windows 10 or later guest, so anything older is reached
-  //// over the network instead ("guestTransport": "Network"), at the fixed address its
-  //// adapter on the TestNet switch has. Scripts\Add-TestVMTestNetAdapter.ps1 sets those
-  //// adapters up; the guest must also allow File and Printer Sharing and WMI through its
-  //// firewall, and have HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
-  //// \LocalAccountTokenFilterPolicy set to 1.
-  //{
-  //  "operatingSystem": "Windows Vista SP2",
-  //  "description": "Internal (SQL Compact): New installation",
-  //  "vmName": "Windows-Vista-SP2",
-  //  "snapshotName": "Ready",
-  //  "guestTransport": "Network",
-  //  "guestAddress": "192.168.210.12",
-  //  "preInstallCommands": [],
-  //  "preInstallFileCopy": [],
-  //  "postInstallCommands": [],
-  //  "postInstallFileCopy": []
-  //},
-  //{
-  //  "operatingSystem": "Windows 8.1",
-  //  "description": "Internal (SQL Compact): New installation",
-  //  "vmName": "Windows-8.1",
-  //  "snapshotName": "Ready",
-  //  "guestTransport": "Network",
-  //  "guestAddress": "192.168.210.11",
-  //  "preInstallCommands": [],
-  //  "preInstallFileCopy": [],
-  //  "postInstallCommands": [],
-  //  "postInstallFileCopy": []
-  //}
+  // PowerShell Direct needs a Windows 10 or later guest, so anything older is reached
+  // over the network instead ("guestTransport": "Network"), at the fixed address its
+  // adapter on the TestNet switch has. Scripts\Add-TestVMTestNetAdapter.ps1 sets those
+  // adapters up; the guest must also allow File and Printer Sharing and WMI through its
+  // firewall, and have HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+  // \LocalAccountTokenFilterPolicy set to 1.
+  {
+    "operatingSystem": "Windows Vista SP2",
+    "description": "Internal (SQL Compact): New installation",
+    "vmName": "Windows-Vista-SP2",
+    "snapshotName": "Ready",
+    "guestTransport": "Network",
+    "guestAddress": "192.168.210.12",
+    "preInstallCommands": [],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [],
+    "postInstallFileCopy": []
+  },
+  {
+    "operatingSystem": "Windows 8.1",
+    "description": "Internal (SQL Compact): New installation",
+    "vmName": "Windows-8.1",
+    "snapshotName": "Ready",
+    "guestTransport": "Network",
+    "guestAddress": "192.168.210.11",
+    "preInstallCommands": [],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [],
+    "postInstallFileCopy": []
+  }
 ]
