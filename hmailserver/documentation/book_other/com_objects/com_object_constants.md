@@ -186,6 +186,14 @@ The constants available in the hMailServer COM API.
 
 <div class="api_description"> </div>
 
+<div class="api_method_name">ePasswordHashAlgorithm</div>
+
+<div class="api_description"> Const ePWHashArgon2id = 1</div>
+
+<div class="api_description"> Const ePWHashPBKDF2SHA256 = 2</div>
+
+<div class="api_description"> </div>
+
 <div class="api_method_name">eRuleActionType</div>
 
 <div class="api_description"> Const eRAUnknown = 0</div>

@@ -44,7 +44,7 @@ The Rule object represents a single hMailServer rule.
 
 <div class="api_method_name"><a href="?page=com_object_rulecriterias">RuleCriterias</a> Criterias</div>
 
-<div class="api_description">The criterias for this rule.<br> <i>(read-only)</i></div>
+<div class="api_description">The criteria for this rule.<br> <i>(read-only)</i></div>
 
 <div class="api_method_name">long ID</div>
 
