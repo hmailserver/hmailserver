@@ -2263,7 +2263,7 @@ public:
 		// seems to be a bit faster when anything other then the "C" locale is
 		// used...
 
-		if ( !empty() )
+		if ( !this->empty() )
 		{
 			sslwr(this->GetBuf(), this->size(), loc);
 			this->RelBuf();
@@ -2320,7 +2320,7 @@ public:
       }
       else
       {
-         return _wcsicmp(c_str(), pT) == 0;
+         return _wcsicmp(this->c_str(), pT) == 0;
       }
 	} 
 
