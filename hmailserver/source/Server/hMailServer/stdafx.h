@@ -88,7 +88,10 @@
 
 
 // Start: Common files
-   #include "..\Common\Util\StdString.h"
+   // The Windows-free part of this header. Kept separate so that a toolchain
+   // other than MSVC can include it without the Windows SDK, ATL and ADO above.
+   // See Common/PortableCore.h. It brings in StdString.h and StringParser.h.
+   #include "../Common/PortableCore.h"
 
    #include "..\Common\Util\XMLite.h"
    #include "..\Common\Util\Singleton.h"
@@ -105,7 +108,6 @@
    #include "..\Common\SQL\DALRecordset.h"
    #include "..\Common\SQL\DALRecordsetFactory.h"
    #include "..\Common\SQL\SQLCommand.h"
-   #include "..\Common\Util\Parsing\StringParser.h"
    #include "..\Common\Util\FileUtilities.h"
    #include "..\Common\Util\HeapChecker.h"
 
