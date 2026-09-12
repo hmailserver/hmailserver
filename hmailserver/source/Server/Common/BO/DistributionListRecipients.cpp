@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
-#include "distributionlistrecipients.h"
+#include "DistributionListRecipients.h"
 
 #include "../Persistence/PersistentDistributionListRecipient.h"
 

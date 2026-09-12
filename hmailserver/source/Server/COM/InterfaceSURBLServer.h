@@ -8,8 +8,8 @@
 
 #include "COMCollection.h"
 
-#include "..\Common\BO\SURBLServer.h"
-#include "..\Common\BO\SURBLServers.h"
+#include "../Common/BO/SURBLServer.h"
+#include "../Common/BO/SURBLServers.h"
 
 class ATL_NO_VTABLE InterfaceSURBLServer :
    public COMCollectionItem<HM::SURBLServer, HM::SURBLServers>,

@@ -1,21 +1,21 @@
 // Copyright (c) 2006 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "MailImporter.h"
-#include "..\BO\Message.h"
-#include "..\BO\MessageData.h"
-#include "..\BO\MessageRecipients.h"
-#include "..\Cache/CacheContainer.h"
-#include "..\Util\Time.h"
-#include "..\Util\Utilities.h"
+#include "../BO/Message.h"
+#include "../BO/MessageData.h"
+#include "../BO/MessageRecipients.h"
+#include "../Cache/CacheContainer.h"
+#include "../Util/Time.h"
+#include "../Util/Utilities.h"
 
-#include "..\Persistence\PersistentMessage.h"
+#include "../Persistence/PersistentMessage.h"
 
-#include "Parsing\AddresslistParser.h"
-#include "..\..\SMTP\RecipientParser.h"
-#include "..\..\IMAP\IMAPConfiguration.h"
-#include "..\..\IMAP\IMAPFolderContainer.h"
+#include "Parsing/AddresslistParser.h"
+#include "../../SMTP/RecipientParser.h"
+#include "../../IMAP/IMAPConfiguration.h"
+#include "../../IMAP/IMAPFolderContainer.h"
 #include "../../IMAP/MessagesContainer.h"
 
 #include "MessageUtilities.h"

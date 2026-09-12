@@ -1,10 +1,10 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\Events.h"
+#include "stdafx.h"
+#include "./Events.h"
 
-#include "..\..\SMTP\SMTPConfiguration.h"
+#include "../../SMTP/SMTPConfiguration.h"
 
 #include "../BO/Account.h"
 #include "../BO/Message.h"

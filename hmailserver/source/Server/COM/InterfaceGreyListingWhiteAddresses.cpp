@@ -5,7 +5,7 @@
 #include "COMError.h"
 #include "InterfaceGreyListingWhiteAddresses.h"
 
-#include "..\Common\BO\GreyListingWhiteAddress.h"
+#include "../Common/BO/GreyListingWhiteAddress.h"
 #include "InterfaceGreyListingWhiteAddress.h"
 
 void 

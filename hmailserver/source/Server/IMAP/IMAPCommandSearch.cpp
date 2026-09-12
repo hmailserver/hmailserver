@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#include "IMAPCommandSEARCH.h"
+#include "IMAPCommandSearch.h"
 #include "IMAPConnection.h"
 #include "IMAPFolderView.h"
 #include "IMAPSort.h"

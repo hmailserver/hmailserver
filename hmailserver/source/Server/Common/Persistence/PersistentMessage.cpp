@@ -26,7 +26,7 @@
 #include "../Util/Time.h"
 #include "../Cache/CacheContainer.h"
 #include "../Cache/AccountSizeCache.h"
-#include "..\Util\FolderManipulationLock.h"
+#include "../Util/FolderManipulationLock.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

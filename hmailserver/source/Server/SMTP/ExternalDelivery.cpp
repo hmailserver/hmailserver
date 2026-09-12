@@ -1,27 +1,27 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "./ExternalDelivery.h"
 
 #include "RuleResult.h"
 
 #include "../Common/BO/Message.h"
-#include "../common/BO/MessageRecipient.h"
-#include "../common/BO/Routes.h"
+#include "../Common/BO/MessageRecipient.h"
+#include "../Common/BO/Routes.h"
 
-#include "../common/Scripting/Events.h"
+#include "../Common/Scripting/Events.h"
 
-#include "../common/Persistence/PersistentMessageRecipient.h"
-#include "../common/Persistence/PersistentMessage.h"
+#include "../Common/Persistence/PersistentMessageRecipient.h"
+#include "../Common/Persistence/PersistentMessage.h"
 
-#include "../common/TCPIP/DNSResolver.h"
-#include "../common/TCPIP/IOService.h"
-#include "../common/TCPIP/HostNameAndIpAddress.h"
+#include "../Common/TCPIP/DNSResolver.h"
+#include "../Common/TCPIP/IOService.h"
+#include "../Common/TCPIP/HostNameAndIpAddress.h"
 
-#include "../Common/Util/AWstats.h"
-#include "../common/Util/ServerInfo.h"
+#include "../Common/Util/AWStats.h"
+#include "../Common/Util/ServerInfo.h"
 
 #include "ServerTargetResolver.h"
 #include "SMTPConfiguration.h"

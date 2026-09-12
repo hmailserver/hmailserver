@@ -1,30 +1,30 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "./LocalDelivery.h"
 
-#include "../common/Application/ObjectCache.h"
+#include "../Common/Application/ObjectCache.h"
 
-#include "../common/BO/Account.h"
-#include "../common/BO/Message.h"
-#include "../common/BO/MessageRecipient.h"
-#include "../common/BO/MessageRecipients.h"
+#include "../Common/BO/Account.h"
+#include "../Common/BO/Message.h"
+#include "../Common/BO/MessageRecipient.h"
+#include "../Common/BO/MessageRecipients.h"
 
-#include "../common/Cache/CacheContainer.h"
-#include "../common/Cache/AccountSizeCache.h"
+#include "../Common/Cache/CacheContainer.h"
+#include "../Common/Cache/AccountSizeCache.h"
 
-#include "../common/Persistence/PersistentMessageRecipient.h"
-#include "../common/Persistence/PersistentMessage.h"
-#include "../common/Persistence/PersistentAccount.h"
+#include "../Common/Persistence/PersistentMessageRecipient.h"
+#include "../Common/Persistence/PersistentMessage.h"
+#include "../Common/Persistence/PersistentAccount.h"
 
-#include "../common/Tracking/ChangeNotification.h"
-#include "../common/Tracking/NotificationServer.h"
+#include "../Common/Tracking/ChangeNotification.h"
+#include "../Common/Tracking/NotificationServer.h"
 
-#include "../Common/Util/AWstats.h"
-#include "../common/Util/TraceHeaderWriter.h"
-#include "../common/Util/MessageUtilities.h"
+#include "../Common/Util/AWStats.h"
+#include "../Common/Util/TraceHeaderWriter.h"
+#include "../Common/Util/MessageUtilities.h"
 
 #include "../IMAP/MessagesContainer.h"
 

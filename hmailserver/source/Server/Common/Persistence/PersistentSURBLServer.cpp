@@ -1,11 +1,11 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
-#include ".\PersistentSURBLServer.h"
-#include "..\BO\SURBLServer.h"
-#include "..\SQL\SQLStatement.h"
+#include "./PersistentSURBLServer.h"
+#include "../BO/SURBLServer.h"
+#include "../SQL/SQLStatement.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

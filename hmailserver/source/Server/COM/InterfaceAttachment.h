@@ -5,7 +5,7 @@
 #include "../hMailServer/resource.h"       // main symbols
 
 #include "../hMailServer/hMailServer.h"
-#include "../common/bo/attachment.h"
+#include "../Common/BO/Attachment.h"
 
 class ATL_NO_VTABLE InterfaceAttachment : 
 	public CComObjectRootEx<CComSingleThreadModel>,

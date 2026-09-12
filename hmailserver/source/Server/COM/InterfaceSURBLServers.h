@@ -6,7 +6,7 @@
 #include "../hMailServer/resource.h"       // main symbols
 #include "../hMailServer/hMailServer.h"
 
-#include "../common/bo/SURBLServers.h"
+#include "../Common/BO/SURBLServers.h"
 
 // InterfaceSURBLServers
 

@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\imapsortparser.h"
+#include "stdafx.h"
+#include "./IMAPSortParser.h"
 
 
 #ifdef _DEBUG

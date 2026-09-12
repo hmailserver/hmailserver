@@ -10,7 +10,7 @@
 #include "PlusAddressing.h"
 
 #include "../Common/Application/ObjectCache.h"
-#include "../common/Cache/CacheContainer.h"
+#include "../Common/Cache/CacheContainer.h"
 
 #include "../Common/BO/Domain.h"
 #include "../Common/BO/Alias.h"
@@ -21,8 +21,8 @@
 #include "../Common/BO/DistributionListRecipient.h"
 #include "../Common/BO/MessageRecipient.h"
 #include "../Common/BO/MessageRecipients.h"
-#include "../common/BO/RouteAddresses.h"
-#include "../common/BO/Account.h"
+#include "../Common/BO/RouteAddresses.h"
+#include "../Common/BO/Account.h"
 #include "../Common/BO/DomainAliases.h"
 
 #include "../Common/Persistence/PersistentDistributionListRecipient.h"

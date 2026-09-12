@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "COMError.h"
-#include "..\COM\InterfaceResult.h"
+#include "../COM/InterfaceResult.h"
 
 
 // InterfaceResult

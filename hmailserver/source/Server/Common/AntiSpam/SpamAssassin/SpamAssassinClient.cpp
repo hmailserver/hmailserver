@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\SpamAssassinClient.h"
+#include "stdafx.h"
+#include "./SpamAssassinClient.h"
 
 #include "../../Util/ByteBuffer.h"
 #include "../../Util/File.h"

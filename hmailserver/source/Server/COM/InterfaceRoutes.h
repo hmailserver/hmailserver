@@ -6,7 +6,7 @@
 
 #include "../hMailServer/hMailServer.h"
 
-#include "../common/bo/Routes.h"
+#include "../Common/BO/Routes.h"
 
 namespace HM
 {

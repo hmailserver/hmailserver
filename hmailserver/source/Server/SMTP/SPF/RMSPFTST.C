@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "rmspf.h"
+#include "RMSPF.H"
 
 // from winsock.h
 #ifndef AF_INET

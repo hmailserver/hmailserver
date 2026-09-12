@@ -11,12 +11,12 @@
 
 #include "../IMAP/MessagesContainer.h"
 
-#include "../common/Tracking/ChangeNotification.h"
-#include "../common/Tracking/NotificationServer.h"
+#include "../Common/Tracking/ChangeNotification.h"
+#include "../Common/Tracking/NotificationServer.h"
 
-#include "../common/util/Utilities.h"
-#include "../common/util/Time.h"
-#include "../common/util/MessageUtilities.h"
+#include "../Common/Util/Utilities.h"
+#include "../Common/Util/Time.h"
+#include "../Common/Util/MessageUtilities.h"
 #include "../SMTP/RecipientParser.h"
 #include "../SMTP/SMTPDeliveryManager.h"
 
