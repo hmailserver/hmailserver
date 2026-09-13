@@ -63,10 +63,9 @@ namespace HM
          return terms;
       }
 
-      // The position of the slash that introduces a trailing run of digits, and
-      // the digits themselves. Returns -1 when the term does not end that way,
-      // which is what lets "a:foo:bar/baz.example.com" keep its slash: what
-      // follows it is not digits, so there is no length there to read.
+      // The position of the slash that introduces a trailing run of digits, and the
+      // digits themselves. -1 when the term does not end that way, which is what lets
+      // "a:foo:bar/baz.example.com" keep its slash: no digits follow, so no length.
       int FindTrailingLength(const AnsiString &term, AnsiString &digits)
       {
          int slash = term.ReverseFind('/');
@@ -88,14 +87,9 @@ namespace HM
          return slash;
       }
 
-      // Reads the dual-cidr-length that the a and mx mechanisms of sections 5.3
-      // and 5.4 may carry, and takes it off the end of the term:
-      //
-      //   dual-cidr-length = [ "/" ip4-cidr-length ] [ "//" ip6-cidr-length ]
-      //
-      // Returns false if what is written there is meant to be a length but is
-      // not a valid one - a length over the family's maximum, one written with a
-      // leading zero, or the two given in the wrong order.
+      // Reads the dual-cidr-length of sections 5.3 and 5.4 off the end of the term:
+      // [ "/" ip4-cidr-length ] [ "//" ip6-cidr-length ]. False if what is written there
+      // means to be a length but is not one: too large, a leading zero, or swapped.
       bool TryReadDualPrefixLengths(AnsiString &term, int &ip4Length, int &ip6Length)
       {
          AnsiString digits;
@@ -140,10 +134,9 @@ namespace HM
          return true;
       }
 
-      // Reads the one prefix length an ip4 or ip6 mechanism may carry, section
-      // 5.6, and takes it off the end of the term. The dual form belongs to a
-      // and mx alone, so "ip4:1.2.3.4//32" and "ip6:::1.1.1.1//33" are mistakes
-      // rather than lengths.
+      // Reads the one prefix length an ip4 or ip6 mechanism may carry, section 5.6, off
+      // the end of the term. The dual form belongs to a and mx alone, so
+      // "ip4:1.2.3.4//32" and "ip6:::1.1.1.1//33" are mistakes rather than lengths.
       bool TryReadSinglePrefixLength(AnsiString &term, int maximumLength, int &length)
       {
          AnsiString digits;
@@ -162,16 +155,6 @@ namespace HM
 
          return true;
       }
-   }
-
-   SPFMechanism::SPFMechanism() :
-      type_(Type::All),
-      qualifier_(Qualifier::Pass),
-      has_domain_spec_(false),
-      ip4_prefix_length_(32),
-      ip6_prefix_length_(128)
-   {
-
    }
 
    SPFMechanism::SPFMechanism(Type type, Qualifier qualifier) :

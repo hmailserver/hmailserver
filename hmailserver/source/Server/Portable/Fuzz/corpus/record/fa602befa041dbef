@@ -1,0 +1,1 @@
+v=spf1 exists:mail6.example.com -all

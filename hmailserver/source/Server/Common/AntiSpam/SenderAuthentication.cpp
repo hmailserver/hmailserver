@@ -18,7 +18,16 @@ namespace HM
 {
    SenderAuthentication::SenderAuthentication() :
       spf_checked_(false),
-      spf_result_(SPF::Neutral),
+
+      // There is no result for "not checked yet", and this is not one: a neutral
+      // is what a record that mentions nobody produces, which is a thing SPF can
+      // actually answer. spf_checked_ is what says whether a check was made, and
+      // every caller has to consult it - the Authentication-Results header does,
+      // and the spam tests only ever compare against Pass or Fail, so neither
+      // this value nor a None in its place is observable. Anything that starts
+      // reading the result without the flag needs a real sentinel first.
+      spf_result_(SPFResult::Neutral),
+      spf_checked_helo_(false),
       dkim_checked_(false),
       dkim_result_(DKIM::Neutral),
       dmarc_result_(DMARCResult::NotEvaluated)
@@ -26,7 +35,7 @@ namespace HM
 
    }
 
-   SPF::Result
+   SPFResult
    SenderAuthentication::EvaluateSPF(std::shared_ptr<SpamTestData> testData)
    {
       if (spf_checked_)
@@ -38,16 +47,15 @@ namespace HM
          return spf_result_;
 
       String explanation;
-      SPF::Result result = SPF::Instance()->Test(originatingAddress.ToString(), testData->GetEnvelopeFrom(), testData->GetHeloHost(), explanation);
+      SPFResult result = SPF::Instance()->Test(originatingAddress.ToString(), testData->GetEnvelopeFrom(), testData->GetHeloHost(), explanation);
 
-      // With a null sender, SPF authenticates the HELO identity instead.
-      String domain = StringParser::ExtractDomain(testData->GetEnvelopeFrom());
-      if (domain.IsEmpty())
-         domain = testData->GetHeloHost();
+      String domain = SPF::GetCheckedDomain(testData->GetEnvelopeFrom(), testData->GetHeloHost());
 
       spf_checked_ = true;
       spf_result_ = result;
       spf_domain_ = domain;
+      spf_checked_helo_ = StringParser::ExtractDomain(testData->GetEnvelopeFrom()).IsEmpty();
+      spf_client_address_ = originatingAddress.ToString();
       spf_explanation_ = explanation;
 
       return spf_result_;
@@ -59,7 +67,7 @@ namespace HM
       return spf_checked_;
    }
 
-   SPF::Result
+   SPFResult
    SenderAuthentication::GetSPFResult() const
    {
       return spf_result_;
@@ -69,6 +77,18 @@ namespace HM
    SenderAuthentication::GetSPFDomain() const
    {
       return spf_domain_;
+   }
+
+   bool
+   SenderAuthentication::GetSPFCheckedHelo() const
+   {
+      return spf_checked_helo_;
+   }
+
+   String
+   SenderAuthentication::GetSPFClientAddress() const
+   {
+      return spf_client_address_;
    }
 
    String

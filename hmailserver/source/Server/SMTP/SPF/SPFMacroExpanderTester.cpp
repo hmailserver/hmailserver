@@ -6,8 +6,8 @@
 #include "SPFMacroExpanderTester.h"
 
 #include "SPFAddress.h"
-#include "SPFDnsLookup.h"
 #include "SPFMacroExpander.h"
+#include "SPFTestLookup.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -18,129 +18,6 @@ namespace HM
 {
    namespace
    {
-      // A resolver over a table the case at hand writes, so that the expansions
-      // which cost DNS queries - the p macro, and nothing else in section 7 -
-      // can be asserted without the conformance suite's zones.
-      //
-      // Names are folded to lower case on the way in and on the way out, which
-      // is how DNS compares them.
-      class StubLookup : public SPFDnsLookup
-      {
-      public:
-
-         StubLookup() {}
-
-         void AddA(const AnsiString &host, const AnsiString &address)
-         {
-            a_[Fold(host)].push_back(address);
-         }
-
-         void AddAAAA(const AnsiString &host, const AnsiString &address)
-         {
-            aaaa_[Fold(host)].push_back(address);
-         }
-
-         void AddPTR(const AnsiString &reverseName, const AnsiString &hostName)
-         {
-            ptr_[Fold(reverseName)].push_back(hostName);
-         }
-
-         // A name whose lookups cannot be answered, for the paths a server
-         // failure or a timeout takes. Its records are still handed back, so that
-         // a caller which ignored the failure would be seen to.
-         void Fail(const AnsiString &name)
-         {
-            failing_.insert(Fold(name));
-         }
-
-         virtual bool GetTXTRecords(const AnsiString &, std::vector<AnsiString> &records)
-         {
-            // Nothing in section 7 reads a TXT record: the text an exp modifier
-            // fetches is handed to the expander already, by the evaluator.
-            records.clear();
-
-            return true;
-         }
-
-         virtual bool GetARecords(const AnsiString &host, std::vector<AnsiString> &addresses)
-         {
-            return Answer_(a_, host, addresses);
-         }
-
-         virtual bool GetAAAARecords(const AnsiString &host, std::vector<AnsiString> &addresses)
-         {
-            return Answer_(aaaa_, host, addresses);
-         }
-
-         virtual bool GetMXRecords(const AnsiString &, std::vector<AnsiString> &hostNames)
-         {
-            hostNames.clear();
-
-            return true;
-         }
-
-         virtual bool GetPTRRecords(const AnsiString &reverseName, std::vector<AnsiString> &hostNames)
-         {
-            return Answer_(ptr_, reverseName, hostNames);
-         }
-
-         // How many lookups have been made, so that a case can say the p macro
-         // asked once rather than once per mention.
-         int GetQueryCount() const { return query_count_; }
-
-      private:
-
-         static AnsiString Fold(const AnsiString &name)
-         {
-            AnsiString folded;
-
-            for (int i = 0; i < name.GetLength(); i++)
-            {
-               char character = name[i];
-
-               if (character >= 'A' && character <= 'Z')
-                  character = (char) (character - 'A' + 'a');
-
-               folded += character;
-            }
-
-            return folded;
-         }
-
-         bool Answer_(const std::map<AnsiString, std::vector<AnsiString> > &table,
-                      const AnsiString &name, std::vector<AnsiString> &values)
-         {
-            query_count_++;
-            values.clear();
-
-            AnsiString folded = Fold(name);
-            auto found = table.find(folded);
-
-            if (found != table.end())
-               values = found->second;
-            else
-            {
-               // A name which is not in the table exists as far as the resolver
-               // is concerned and holds no record of this type, which is an
-               // answer rather than a failure.
-            }
-
-            // A lookup which failed hands back whatever it had collected first.
-            // SPFDnsLookup promises nothing about the vector when it returns
-            // false, and a caller which read it anyway would look right against a
-            // stub that emptied it.
-            return failing_.find(folded) == failing_.end();
-         }
-
-         std::map<AnsiString, std::vector<AnsiString> > a_;
-         std::map<AnsiString, std::vector<AnsiString> > aaaa_;
-         std::map<AnsiString, std::vector<AnsiString> > ptr_;
-
-         std::set<AnsiString> failing_;
-
-         int query_count_ = 0;
-      };
-
       SPFAddress AddressOf(const AnsiString &text)
       {
          SPFAddress address;
@@ -396,7 +273,7 @@ namespace HM
    void
    SPFMacroExpanderTester::TestSpecExamples_()
    {
-      auto lookup = std::make_shared<StubLookup>();
+      auto lookup = std::make_shared<SPFTestLookup>();
 
       SPFMacroExpander expander(lookup, AddressOf("192.0.2.3"),
                                 "strong-bad@email.example.com", "mx.example.org");
@@ -461,7 +338,7 @@ namespace HM
    void
    SPFMacroExpanderTester::TestTransformers_()
    {
-      auto lookup = std::make_shared<StubLookup>();
+      auto lookup = std::make_shared<SPFTestLookup>();
 
       // The senders of the suite's macro-reverse-split-on-dash and
       // macro-multiple-delimiters cases, whose records reach the zones
@@ -543,7 +420,7 @@ namespace HM
    void
    SPFMacroExpanderTester::TestLiterals_()
    {
-      auto lookup = std::make_shared<StubLookup>();
+      auto lookup = std::make_shared<SPFTestLookup>();
 
       SPFMacroExpander expander(lookup, AddressOf("1.2.3.4"),
                                 "test@e1a.example.com", "mail.example.com");
@@ -586,10 +463,9 @@ namespace HM
                              expanded + "\", expected \"" + cases[i].expected + "\"");
       }
 
-      // A stray percent sign is not a macro. The parser rejects a record which
-      // holds one - the suite's invalid-macro-char and its two neighbours - and
-      // the expander has to agree, because the text an exp modifier fetches never
-      // went through the parser.
+      // A stray percent sign is not a macro. The parser rejects a record which holds one,
+      // and the expander has to agree, because the text an exp modifier fetches never went
+      // through the parser.
       const char *notMacros[] = { "%", "%(ir)", "foo%(ir).sbl.example.com", "foo%.example.com",
                                   "%{", "%{d", "%{d.", "%z", "100%" };
 
@@ -609,7 +485,7 @@ namespace HM
    void
    SPFMacroExpanderTester::TestUrlEscaping_()
    {
-      auto lookup = std::make_shared<StubLookup>();
+      auto lookup = std::make_shared<SPFTestLookup>();
 
       // The sender of the suite's upper-macro case, whose explanation is
       // asserted as text.
@@ -687,7 +563,7 @@ namespace HM
    void
    SPFMacroExpanderTester::TestPostmasterDefaults_()
    {
-      auto lookup = std::make_shared<StubLookup>();
+      auto lookup = std::make_shared<SPFTestLookup>();
 
       struct Case
       {
@@ -745,7 +621,7 @@ namespace HM
    void
    SPFMacroExpanderTester::TestExplanationText_()
    {
-      auto lookup = std::make_shared<StubLookup>();
+      auto lookup = std::make_shared<SPFTestLookup>();
 
       SPFMacroExpander expander(lookup, AddressOf("192.168.218.40"),
                                 "test@e4.example.com", "msgbas2x.cos.example.com");
@@ -849,7 +725,7 @@ namespace HM
       const AnsiString reverseOf42 = "42.218.168.192.in-addr.arpa";
 
       // The suite's own zone for the four p-macro cases.
-      auto suite = std::make_shared<StubLookup>();
+      auto suite = std::make_shared<SPFTestLookup>();
 
       suite->AddPTR(reverseOf40, "mx.example.com");
       suite->AddPTR(reverseOf41, "mx.example.com");
@@ -935,7 +811,7 @@ namespace HM
       // Section 7.3: a DNS error while looking for a validated name is "unknown"
       // as well. This is what keeps the p macro from producing the temperror a
       // mechanism would.
-      auto failing = std::make_shared<StubLookup>();
+      auto failing = std::make_shared<SPFTestLookup>();
 
       failing->Fail(reverseOf41);
       failing->AddPTR(reverseOf41, "mx.example.com");
@@ -955,7 +831,7 @@ namespace HM
 
       // A name whose own lookup fails does not validate, and does not stop the
       // names after it from being tried.
-      auto partlyFailing = std::make_shared<StubLookup>();
+      auto partlyFailing = std::make_shared<SPFTestLookup>();
 
       partlyFailing->AddPTR(reverseOf41, "broken.example.com");
       partlyFailing->AddPTR(reverseOf41, "mx.example.com");
@@ -979,7 +855,7 @@ namespace HM
       // Section 7.3 caps how many of the names a reverse mapping gives are
       // looked up, because they are whatever the client's own zone says. Only
       // the eleventh validates here, so it is never reached.
-      auto many = std::make_shared<StubLookup>();
+      auto many = std::make_shared<SPFTestLookup>();
 
       // Written out rather than built, so that the order is plain: ten names
       // which do not validate, then one which does.
@@ -1014,7 +890,7 @@ namespace HM
       // The lookups behind the p macro are made once per check, however many
       // times the macro is written. Without that, a record which mentions it
       // twice would cost twice the queries.
-      auto counted = std::make_shared<StubLookup>();
+      auto counted = std::make_shared<SPFTestLookup>();
 
       counted->AddPTR(reverseOf41, "mx.example.com");
       counted->AddA("mx.example.com", "192.168.218.41");
@@ -1043,7 +919,7 @@ namespace HM
    void
    SPFMacroExpanderTester::TestTruncation_()
    {
-      auto lookup = std::make_shared<StubLookup>();
+      auto lookup = std::make_shared<SPFTestLookup>();
 
       // The suite's domain-name-truncation case, whose explanation is asserted as
       // text and can only be found if the name is shortened.

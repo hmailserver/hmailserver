@@ -12,9 +12,8 @@ namespace HM
    namespace SPFConformance
    {
       // Answers the DNS queries of an SPF evaluation out of one section of the
-      // conformance suite, so that the cases in that section can be run without
-      // reaching DNS. Each section has a zone of its own: the same host name
-      // means different things in different sections.
+      // conformance suite. Each section has a zone of its own: the same host name means
+      // different things in different sections.
       class ConformanceLookup : public SPFDnsLookup
       {
       public:

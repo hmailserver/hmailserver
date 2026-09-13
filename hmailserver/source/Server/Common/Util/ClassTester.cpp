@@ -21,8 +21,8 @@
 #include "../../IMAP/IMAPSimpleCommandParser.h"
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"
-#include "../../SMTP/SPF/SPF.h"
 #include "../../SMTP/SPF/Conformance/SPFConformanceTester.h"
+#include "../../SMTP/SPF/SPFEvaluatorTester.h"
 #include "../../SMTP/SPF/SPFMacroExpanderTester.h"
 #include "../../SMTP/SPF/SPFRecordTester.h"
 #include "../AntiSpam/DMARC/DMARCTester.h"
@@ -135,11 +135,6 @@ namespace HM
       BLCheckTester blchecktester;
       blchecktester.Test();
 
-      OutputDebugString(_T("hMailServer: Testing SPF\n"));
-      SPFTester *pSPF = new SPFTester();
-      pSPF->Test();
-      delete pSPF;
-
       // The SPF record grammar, then the macro expansion of RFC 7208 section 7,
       // and then the RFC 7208 conformance suite. Every failure is reported before
       // the run is failed, because a suite which stops at the first of 203 cases
@@ -151,6 +146,10 @@ namespace HM
       OutputDebugString(_T("hMailServer: Testing SPF macro expansion\n"));
       SPFMacroExpanderTester spfMacroExpanderTester;
       ReportSPFFailures_("SPF macro expansion", spfMacroExpanderTester.Run());
+
+      OutputDebugString(_T("hMailServer: Testing SPF evaluation\n"));
+      SPFEvaluatorTester spfEvaluatorTester;
+      ReportSPFFailures_("SPF evaluation", spfEvaluatorTester.Run());
 
       OutputDebugString(_T("hMailServer: Testing SPF conformance\n"));
       SPFConformance::SPFConformanceTester spfConformanceTester;

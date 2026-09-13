@@ -5,15 +5,18 @@ This script will relaunch itself elevated if not already running as Administrato
 It grants 'Everyone' Modify permissions recursively to:
   C:\Program Files (x86)\hMailServer
   C:\Program Files\hMailServer
+  C:\ProgramData\hMailServer
 
-Use this before running the test suite if your tests need write access to the
-installation directory. Run with care — granting 'Everyone' write access is
-insecure on multi-user machines. Prefer running tests in a dedicated test VM.
+Use this before running the test suite. The tests delete and read the server log
+and the message files, which live under ProgramData. Run with care - granting
+'Everyone' write access is insecure on multi-user machines. Prefer running tests
+in a dedicated test VM.
 #>
 
 $targets = @(
     'C:\Program Files (x86)\hMailServer',
-    'C:\Program Files\hMailServer'
+    'C:\Program Files\hMailServer',
+    (Join-Path $env:ProgramData 'hMailServer')
 )
 
 function Test-IsElevated {
@@ -23,7 +26,7 @@ function Test-IsElevated {
 }
 
 if (-not (Test-IsElevated)) {
-    Write-Host "Not running elevated — relaunching as Administrator..."
+    Write-Host "Not running elevated - relaunching as Administrator..."
     try {
         Start-Process -FilePath 'powershell.exe' -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File',$PSCommandPath -Verb RunAs -WindowStyle Normal
     } catch {

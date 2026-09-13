@@ -1,0 +1,1 @@
+v=spf1 exp=e13msg.example.com -all exp=e11msg.example.com

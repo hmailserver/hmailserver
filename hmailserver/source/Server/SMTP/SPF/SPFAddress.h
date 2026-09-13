@@ -5,33 +5,15 @@
 
 namespace HM
 {
-   // An IP address in the forms an SPF evaluation needs it in: the client
-   // address the check is made for, and the literal an ip4 or ip6 mechanism
-   // carries.
-   //
-   // Not a replacement for HM::IPAddress and not a second one. IPAddress stays
-   // the server's address type; this exists because SPF asks three things of an
-   // address which IPAddress does not answer:
-   //
-   //   - The i macro of RFC 7208 section 7.2 wants an IPv6 address written as 32
-   //     dotted nibbles, and the c macro wants the shortened form of RFC 5952.
-   //     IPAddress::ToLongString produces neither.
-   //   - The address literals of section 12 are spelled more strictly than a
-   //     resolver would insist on. SPFSyntax already holds that grammar, and
-   //     what this parses is what SPFSyntax accepts, so a record and the
-   //     evaluation of it agree about which literals exist.
-   //   - The record parser, this, and the macro expander are built by the
-   //     portable build as well as by the server, so that they can be run under
-   //     the address and undefined-behaviour sanitizers and fuzzed. IPAddress
-   //     cannot be: it is built on Boost.Asio.
+   // An IP address in the forms an SPF evaluation needs it in. Not a replacement
+   // for IPAddress, which answers none of them - see README.md.
    class SPFAddress
    {
    public:
 
       enum class Family
       {
-         // A default-constructed address, and what TryParse leaves behind when
-         // it fails. Matches nothing.
+         // Default-constructed, or what TryParse leaves on failure. Matches nothing.
          None,
          IP4,
          IP6
@@ -39,65 +21,44 @@ namespace HM
 
       SPFAddress();
 
-      // Reads one of the address literals of RFC 7208 section 12. Returns false
-      // if the text is not one.
-      //
-      // An IPv4-mapped IPv6 address - ::ffff:192.0.2.1 - becomes the IPv4
-      // address it carries. The mechanisms of sections 5.6 and 5.7 select by
-      // family, so a client which reached the server over IPv4 has to be treated
-      // as IPv4 however the address was written.
+      // One of the address literals of RFC 7208 section 12. An IPv4-mapped IPv6
+      // address becomes the IPv4 it carries: sections 5.6 and 5.7 select by the
+      // family the client connected over.
       static bool TryParse(const AnsiString &text, SPFAddress &address);
 
       Family GetFamily() const { return family_; }
 
-      // The i macro of section 7.2. An IPv4 address in dotted-quad form; an IPv6
-      // address as its 32 nibbles, most significant first, separated by dots,
-      // which is what makes %{ir} the reverse-mapping name.
-      //
-      // The hex digits are upper case. Neither RFC 7208 nor DNS cares - section
-      // 4.3 compares names without regard to case - but the conformance suite's
-      // v-macro-ip6 puts a reverse-mapping name in an explanation and compares
-      // the text of it, and the suite writes it in upper case.
+      // The i macro of section 7.2: dotted-quad, or 32 dotted nibbles for IPv6.
+      // Upper case hex, which shows only in an explanation - the suite's
+      // v-macro-ip6 compares the text.
       AnsiString GetDottedForm() const;
 
-      // The c macro of section 7.2: the address in the form a person would read.
-      // Dotted-quad for IPv4; for IPv6 the shortened form of RFC 5952, in lower
-      // case, with the longest run of zero groups replaced by "::".
+      // The c macro of section 7.2: dotted-quad, or the shortened form of RFC 5952.
       AnsiString GetReadableForm() const;
 
       // The v macro of section 7.2: "in-addr" for IPv4 and "ip6" for IPv6, the
       // label under .arpa which the family's reverse mapping lives under.
       AnsiString GetArpaLabel() const;
 
-      // The reverse-mapping name, which is what %{ir}.%{v}.arpa expands to:
-      // 40.218.168.192.in-addr.arpa, or the nibbles followed by ip6.arpa.
-      //
-      // Built here rather than where it is needed, because it is needed twice -
-      // the ptr mechanism of section 5.5 and the p macro of section 7.3 both
-      // look it up - and an implementation which built it in two places could
-      // build it two ways.
+      // What %{ir}.%{v}.arpa expands to. Here rather than at its two callers - the
+      // ptr mechanism and the p macro - so that it is spelled one way.
       AnsiString GetReverseName() const;
 
-      // Whether the two addresses agree over the first prefixLength bits, which
-      // is how sections 5.3, 5.4, 5.6 and 5.7 decide a match. False between
-      // families: an ip4 mechanism never matches an IPv6 client, whatever the
-      // addresses look like.
+      // Whether the two agree over the first prefixLength bits, which is how
+      // sections 5.3 to 5.7 decide a match. Never true between families.
       bool MatchesPrefix(const SPFAddress &other, int prefixLength) const;
 
-      // Whether the two are the same address. This is what validates a name the
-      // ptr mechanism found, section 5.5.
+      // The same address. Validates a name the ptr mechanism found, section 5.5.
       bool Equals(const SPFAddress &other) const;
 
-      // How many bits an address of this family has, and so the prefix length a
-      // mechanism which names none gets.
+      // The family's bit count, and so the default prefix length.
       int GetBitCount() const;
 
    private:
 
       Family family_;
 
-      // Network order, most significant byte first. Four bytes are used for
-      // IPv4 and all sixteen for IPv6; the rest are zero.
+      // Network order. Four bytes for IPv4, sixteen for IPv6; the rest zero.
       unsigned char bytes_[16];
    };
 }
