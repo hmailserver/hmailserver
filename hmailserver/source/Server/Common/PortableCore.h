@@ -25,15 +25,26 @@
    #include <cstdarg>
    #include <cstdio>
    #include <cwchar>
+   #include <wchar.h>
 
-   // StringParser declares overloads on __int64.
-   typedef long long __int64;
+   // A macro rather than a typedef, because MSVC's __int64 is a keyword and
+   // the code writes "unsigned __int64", which a typedef cannot express.
+   #define __int64 long long
+
+   // The server is built with UNICODE defined, so _T() produces wide literals
+   // and String is CStdStr<wchar_t>. tchar.h supplies this under MSVC.
+   #define _T(x) L##x
 
    // CStdStr::AllocSysString hands a string to COM. Nothing outside the COM
    // layer calls it, so a declaration is enough to compile the header; a
    // definition is deliberately not provided, and a caller would fail to link.
    typedef wchar_t *BSTR;
    BSTR SysAllocString(const wchar_t *string);
+
+   inline int _wcsicmp(const wchar_t *left, const wchar_t *right)
+   {
+      return wcscasecmp(left, right);
+   }
 
    inline int vsprintf_s(char *buffer, size_t size, const char *format, va_list arguments)
    {

@@ -51,3 +51,10 @@ hmailserver/source/Server/hMailServer.Minidump/x64/*
 !/.claude/settings.json
 /hmailserver/.claude/settings.*
 /**/TestResult.xml
+
+###############################################################################
+# Output of the portable CMake build (see CMakeLists.txt in the repository
+# root). The scripts in build/ are tracked, so it writes to out/ instead.
+###############################################################################
+/out/
+*.gch

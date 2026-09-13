@@ -1,0 +1,80 @@
+# Builds the Windows-free part of the server with GCC and Clang, under the address and
+# undefined-behaviour sanitizers, and runs its tests.
+#
+# This does not build hMailServer. build.yml does that, with MSVC, and it stays the build that
+# decides whether a change ships. What this adds is a second and third compiler over the
+# sources that are pure logic, and a run of those sources with the sanitizers switched on.
+# Between them they catch a class of problem the MSVC build does not report: code that only
+# MSVC's permissive mode accepts, and reads or writes that land outside an object at runtime.
+#
+# It is cheap on purpose - no third-party libraries, and no toolchain to install beyond what
+# the runner already carries - so it finishes in well under a minute and can run on every push
+# without slowing anything down.
+#
+# The set of sources it covers is short and listed in CMakeLists.txt at the root of the
+# repository. It grows a file at a time, as each becomes buildable without the Windows headers.
+name: Portable core
+
+on:
+  push:
+    branches:
+      - master
+      - 'claude/**'
+      - 'feature/**'
+      - 'techdebt/**'
+      - 'bugfix/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portable-core-${{ github.ref }}
+  # master is exempt for the same reason it is in build.yml: its runs are the record for the
+  # commits that get published.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
+jobs:
+  build:
+    name: ${{ matrix.compiler }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      # Both compilers report independently. One of them failing should not hide what the
+      # other has to say about the same change.
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: gcc
+            cc: gcc
+            cxx: g++
+          - compiler: clang
+            cc: clang
+            cxx: clang++
+
+    env:
+      # Read by CMake, and by the version step below. Set here rather than interpolated into
+      # the run: blocks, so that no workflow expression is ever pasted into a shell.
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Nothing here pushes; leaving the token in .git/config would only widen what a
+          # later step could reach.
+          persist-credentials: false
+
+      - name: Report the compiler version
+        run: |
+          "$CXX" --version
+
+      - name: Configure
+        run: cmake -S . -B out/portable -G Ninja -DCMAKE_BUILD_TYPE=Debug -DHM_SANITIZE=ON
+
+      - name: Build
+        run: cmake --build out/portable
+
+      - name: Test
+        run: ctest --test-dir out/portable --output-on-failure
