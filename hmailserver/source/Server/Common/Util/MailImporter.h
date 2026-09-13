@@ -29,7 +29,8 @@ namespace HM
       static String GetInternalDate_DatePlusTimeZone(DateTime dtTime);
       static bool MoveToNamedSubdirectory_(const String &sourceFile, String &resultFile, String &newFullPath);
       static bool GetRootLevelDirectory_(const String &fullPath, String &rootLevel);
-      static bool ConnectToPublicIMAPFolder_(std::shared_ptr<Message> message, const String &sIMAPFolder);
+      static bool GetPublicIMAPFolderPath_(const String &sIMAPFolder, String &publicIMAPFolder);
+      static bool ConnectToPublicIMAPFolder_(std::shared_ptr<Message> message, const String &publicIMAPFolder);
    };
 
 #ifdef _DEBUG

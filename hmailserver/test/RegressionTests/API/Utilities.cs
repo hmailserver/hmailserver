@@ -258,6 +258,7 @@ namespace RegressionTests.API
 
          // The file should have been left alone.
          Assert.IsTrue(File.Exists(fileName));
+         Assert.AreEqual(0, _settings.PublicFolders.Count);
 
          File.Delete(fileName);
       }
@@ -270,7 +271,9 @@ namespace RegressionTests.API
 
          Assert.IsFalse(_application.Utilities.ImportMessageFromFileToPublicIMAPFolder(fileName, "Share1..Sub1"));
 
+         // The file should have been left where it is, and no folder should have been created.
          Assert.IsTrue(File.Exists(fileName));
+         Assert.AreEqual(0, _settings.PublicFolders.Count);
 
          File.Delete(fileName);
       }

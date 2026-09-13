@@ -90,6 +90,12 @@ namespace HM
       if (isPublicFolderMessage && (iAccountID != 0 || sIMAPFolder.IsEmpty()))
          return false;
 
+      // Make sure the name of the public IMAP folder is valid before the file is moved below.
+      // If it isn't, the file should be left where it is.
+      String publicIMAPFolder;
+      if (isPublicFolderMessage && !GetPublicIMAPFolderPath_(sIMAPFolder, publicIMAPFolder))
+         return false;
+
       String newFullPath = originalFullPath;
 
       // Construct a partial file name.
@@ -163,7 +169,7 @@ namespace HM
          // connected to the message here.
          pMessage->SetState(Message::Delivered);
 
-         if (!ConnectToPublicIMAPFolder_(pMessage, sIMAPFolder))
+         if (!ConnectToPublicIMAPFolder_(pMessage, publicIMAPFolder))
             return false;
       }
       else if (iAccountID == 0)
@@ -264,12 +270,12 @@ namespace HM
    }
 
    bool
-   MailImporter::ConnectToPublicIMAPFolder_(std::shared_ptr<Message> message, const String &sIMAPFolder)
+   MailImporter::GetPublicIMAPFolderPath_(const String &sIMAPFolder, String &publicIMAPFolder)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Connects the message to a public IMAP folder, creating the folder if it doesn't exist.
-   // The folder name may either be relative to the public folder, such as Share1.Sub1, or
-   // contain the name of the public folder, such as #Public.Share1.Sub1.
+   // Validates the name of a public IMAP folder and returns its full path, including the name
+   // of the public folder. The given name may either be relative to the public folder, such as
+   // Share1.Sub1, or contain the name of the public folder, such as #Public.Share1.Sub1.
    //---------------------------------------------------------------------------()
    {
       String hierarchyDelimiter = Configuration::Instance()->GetIMAPConfiguration()->GetHierarchyDelimiter();
@@ -287,24 +293,36 @@ namespace HM
       if (!IMAPFolderUtilities::IsPublicFolder(folderPath))
          folderPath.insert(folderPath.begin(), publicFolderName);
 
-      // Don't accept a folder name such as Share1..Sub1, since that would result in a folder
-      // without a name being created.
+      // A message can't be placed in the public folder itself - only in a folder below it.
       if (folderPath.size() < 2)
          return false;
 
-      for (const String &folderName : folderPath)
+      // Don't accept a folder name such as Share1..Sub1, since that would result in a folder
+      // without a name being created.
+      for (const String &folderLevel : folderPath)
       {
-         if (folderName.IsEmpty())
+         if (folderLevel.IsEmpty())
             return false;
       }
 
+      publicIMAPFolder = StringParser::JoinVector(folderPath, hierarchyDelimiter);
+      return true;
+   }
+
+   bool
+   MailImporter::ConnectToPublicIMAPFolder_(std::shared_ptr<Message> message, const String &publicIMAPFolder)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Connects the message to a public IMAP folder, creating the folder if it doesn't exist.
+   //---------------------------------------------------------------------------()
+   {
       __int64 resultAccount = 0;
       __int64 resultFolder = 0;
 
       // Public folders aren't owned by an account, which is why no account is given here. As a
       // result of this, no ACL permissions are checked - only server administrators are able to
       // import messages.
-      if (!MessageUtilities::MoveToIMAPFolder(message, 0, StringParser::JoinVector(folderPath, hierarchyDelimiter), true, true, resultAccount, resultFolder))
+      if (!MessageUtilities::MoveToIMAPFolder(message, 0, publicIMAPFolder, true, true, resultAccount, resultFolder))
          return false;
 
       return resultFolder != 0;
