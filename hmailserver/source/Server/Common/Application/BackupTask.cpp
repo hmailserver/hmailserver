@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\backuptask.h"
+#include "stdafx.h"
+#include "./BackupTask.h"
 #include "BackupExecuter.h"
 #include "BackupManager.h"
 

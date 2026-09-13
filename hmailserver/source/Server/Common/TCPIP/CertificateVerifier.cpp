@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "CertificateVerifier.h"
 #include "SocketConstants.h"

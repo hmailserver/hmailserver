@@ -5,7 +5,7 @@
 
 
 #include "IMAPNotificationClient.h"
-#include "../common/TCPIP/TCPConnection.h"
+#include "../Common/TCPIP/TCPConnection.h"
 
 
 using namespace std;

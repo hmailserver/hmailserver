@@ -4,10 +4,10 @@
 #include "stdafx.h"
 #include "COMError.h"
 
-#include "..\COM\InterfaceBlockedAttachment.h"
+#include "../COM/InterfaceBlockedAttachment.h"
 
-#include "..\Common\Persistence\PersistentBlockedAttachment.h"
-#include "..\Common\BO\BlockedAttachment.h"
+#include "../Common/Persistence/PersistentBlockedAttachment.h"
+#include "../Common/BO/BlockedAttachment.h"
 
 // InterfaceBlockedAttachment
 

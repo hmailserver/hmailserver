@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
-#include "distributionlistrecipient.h"
+#include "DistributionListRecipient.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

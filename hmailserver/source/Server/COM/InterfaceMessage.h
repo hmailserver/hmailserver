@@ -6,8 +6,8 @@
 
 #include "../hMailServer/hMailServer.h"
 
-#include "../common/persistence/PersistentMessage.h"
-#include "../common/BO/messageData.h"
+#include "../Common/Persistence/PersistentMessage.h"
+#include "../Common/BO/MessageData.h"
 
 namespace HM 
 { 

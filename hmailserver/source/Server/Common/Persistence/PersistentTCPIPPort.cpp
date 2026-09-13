@@ -1,11 +1,11 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
-#include ".\PersistentTCPIPPort.h"
-#include "..\BO\TCPIPPort.h"
-#include "..\SQL\SQLStatement.h"
+#include "./PersistentTCPIPPort.h"
+#include "../BO/TCPIPPort.h"
+#include "../SQL/SQLStatement.h"
 #include "../SQL/IPAddressSQLHelper.h"
 
 #include "../Persistence/PersistenceMode.h"

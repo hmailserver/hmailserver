@@ -9,7 +9,7 @@
 #include "IMAPFolderView.h"
 
 #include "../Common/Tracking/ChangeNotification.h"
-#include "../common/Tracking/NotificationServer.h"
+#include "../Common/Tracking/NotificationServer.h"
 
 #include "../Common/BO/Messages.h"
 #include "../Common/BO/IMAPFolder.h"

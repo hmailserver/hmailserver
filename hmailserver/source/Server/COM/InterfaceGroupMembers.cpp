@@ -5,8 +5,8 @@
 #include "COMError.h"
 #include "InterfaceGroupMembers.h"
 
-#include "..\Common\BO\GroupMember.h"
-#include "..\Common\BO\GroupMembers.h"
+#include "../Common/BO/GroupMember.h"
+#include "../Common/BO/GroupMembers.h"
 
 #include "InterfaceGroupMember.h"
 

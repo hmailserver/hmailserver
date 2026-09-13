@@ -1,7 +1,7 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "SpamTestSpamAssassin.h"
 
@@ -18,7 +18,7 @@
 
 #include "../BO/MessageData.h"
 #include "../BO/Message.h"
-#include "../Util/event.h"
+#include "../Util/Event.h"
 #include "../Util/TraceHeaderWriter.h"
 #include "../Persistence/PersistentMessage.h"
 

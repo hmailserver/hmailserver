@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "..\Util\Singleton.h"
+#include "../Util/Singleton.h"
 
 namespace HM
 {

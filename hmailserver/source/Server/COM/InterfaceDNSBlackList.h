@@ -8,7 +8,7 @@
 
 #include "COMCollection.h"
 
-#include "..\Common\BO\DNSBlackList.h"
+#include "../Common/BO/DNSBlackList.h"
 
 namespace HM 
 { 

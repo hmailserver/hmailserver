@@ -6,11 +6,11 @@
 #include "IMAPConnection.h"
 #include "IMAPSimpleCommandParser.h"
 
-#include "../common/Util/AccountLogon.h"
-#include "../common/BO/Account.h"
-#include "../common/BO/SecurityRange.h"
+#include "../Common/Util/AccountLogon.h"
+#include "../Common/BO/Account.h"
+#include "../Common/BO/SecurityRange.h"
 
-#include "../common/Scripting/ClientInfo.h"
+#include "../Common/Scripting/ClientInfo.h"
 #include "../Common/Scripting/ScriptServer.h"
 #include "../Common/Scripting/ScriptObjectContainer.h"
 

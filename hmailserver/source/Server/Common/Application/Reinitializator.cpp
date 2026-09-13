@@ -4,8 +4,8 @@
 // reintialize the entire server. Sometimes, for example when
 // doing a restore, this needs to be done asynchronously.
 
-#include "StdAfx.h"
-#include ".\reinitializator.h"
+#include "stdafx.h"
+#include "./Reinitializator.h"
 
 #include <boost/thread/thread.hpp>
 

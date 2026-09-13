@@ -17,7 +17,7 @@
 #include "../TCPIP/DNSResolverWinApi.h"
 #include "Time.h"
 #include "Utilities.h"
-#include "Parsing\AddresslistParser.h"
+#include "Parsing/AddresslistParser.h"
 #include "../../IMAP/IMAPSimpleCommandParser.h"
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"

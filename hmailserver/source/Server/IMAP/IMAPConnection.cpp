@@ -36,7 +36,7 @@
 
 #include "../Common/Application/SessionManager.h"
 
-#include "../common/Tracking/NotificationServer.h"
+#include "../Common/Tracking/NotificationServer.h"
 
 #include "../Common/Application/IniFileSettings.h"
 

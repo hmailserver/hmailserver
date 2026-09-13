@@ -5,8 +5,8 @@
 // Converted to C++ class 5/96, Jim Conger
 
 #include "stdafx.h"
-#include "blowfish.h"
-#include "blowfish.h2"	// holds the random digit tables
+#include "BlowFish.h"
+#include "BlowFish.h2"	// holds the random digit tables
 
 #include "PasswordGenerator.h"
 

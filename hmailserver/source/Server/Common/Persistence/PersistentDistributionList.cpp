@@ -3,15 +3,15 @@
 
 #include "stdafx.h"
 
-#include "persistentdistributionlist.h"
+#include "PersistentDistributionList.h"
 
 #include "../Cache/Cache.h"
 
-#include "persistentdistributionlistRecipient.h"
+#include "PersistentDistributionListRecipient.h"
 #include "PreSaveLimitationsCheck.h"
 
-#include "../bo/DistributionListRecipients.h"
-#include "../bo/DistributionList.h"
+#include "../BO/DistributionListRecipients.h"
+#include "../BO/DistributionList.h"
 
 
 

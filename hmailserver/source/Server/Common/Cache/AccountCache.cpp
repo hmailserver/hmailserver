@@ -1,7 +1,7 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "AccountCache.h"
-#include "..\BO\Account.h"
+#include "../BO/Account.h"
 
 namespace HM
 {

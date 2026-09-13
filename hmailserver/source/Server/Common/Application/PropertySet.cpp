@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
-#include "propertyset.h"
+#include "PropertySet.h"
 #include "Property.h"
 #include "../Util/Crypt.h"
 

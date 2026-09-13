@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\fetchaccountuids.h"
+#include "stdafx.h"
+#include "./FetchAccountUIDs.h"
 #include "../Persistence/PersistentFetchAccount.h"
 #include "../Util/Time.h"
 

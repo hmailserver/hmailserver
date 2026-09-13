@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "COMError.h"
-#include "..\COM\InterfaceClient.h"
+#include "../COM/InterfaceClient.h"
 
 #include "../Common/Scripting/ClientInfo.h"
 

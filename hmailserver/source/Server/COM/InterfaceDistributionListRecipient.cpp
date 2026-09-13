@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "InterfaceDistributionListRecipient.h"
 
-#include "../common/persistence/PersistentDistributionListRecipient.h"
+#include "../Common/Persistence/PersistentDistributionListRecipient.h"
 
 #include "../Common/BO/DistributionListRecipients.h"
 

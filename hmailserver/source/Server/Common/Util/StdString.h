@@ -2263,7 +2263,7 @@ public:
 		// seems to be a bit faster when anything other then the "C" locale is
 		// used...
 
-		if ( !empty() )
+		if ( !this->empty() )
 		{
 			sslwr(this->GetBuf(), this->size(), loc);
 			this->RelBuf();
@@ -2320,7 +2320,7 @@ public:
       }
       else
       {
-         return _wcsicmp(c_str(), pT) == 0;
+         return _wcsicmp(this->c_str(), pT) == 0;
       }
 	} 
 
@@ -3412,7 +3412,7 @@ public:
 	// ReverseFind overload that's not in CString but might be useful
 	int ReverseFind(PCMYSTR szFind, MYSIZE pos=MYBASE::npos) const
 	{
-		MYSIZE nIdx	= this->rfind(0 == szFind ? MYTYPE() : szFind, pos);
+		MYSIZE nIdx	= this->rfind(0 == szFind ? MYTYPE() : MYTYPE(szFind), pos);
 		return static_cast<int>(MYBASE::npos == nIdx ? -1 : nIdx);
 	}
 
