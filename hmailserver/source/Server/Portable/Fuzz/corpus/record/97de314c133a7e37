@@ -1,0 +1,1 @@
+v=spf1 a mx a mx a mx a mx a ptr ip4:1.2.3.4 -all

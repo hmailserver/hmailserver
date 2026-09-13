@@ -76,3 +76,59 @@ target_link_libraries(hmailserver-core-tests PRIVATE hmailserver-core)
 
 enable_testing()
 add_test(NAME hmailserver-core-tests COMMAND hmailserver-core-tests)
+
+# The fuzzers, which are off by default and are not tests.
+#
+# A fuzzer has no pass, only a not-yet-failed, so running one for a fixed number
+# of inputs would say nothing that the suites above do not already say better.
+# What it is for is the input nobody thought of, and that means running it for as
+# long as there is patience, against a corpus that is kept.
+#
+#   cmake -S . -B out/fuzz -G Ninja -DCMAKE_BUILD_TYPE=Debug -DHM_FUZZ=ON #      -DCMAKE_CXX_COMPILER=clang++
+#   cmake --build out/fuzz
+#   out/fuzz/fuzz-spf-record hmailserver/source/Server/Portable/Fuzz/corpus/record
+#
+# Needs clang and its fuzzer runtime: on Ubuntu, libclang-rt-<version>-dev.
+option(HM_FUZZ "Build the libFuzzer targets. Requires clang." OFF)
+
+if(HM_FUZZ)
+   if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      message(FATAL_ERROR "HM_FUZZ needs clang: libFuzzer is part of its runtime. "
+                          "Configure with -DCMAKE_CXX_COMPILER=clang++.")
+   endif()
+
+   # A library of its own rather than hmailserver-core, because the sanitizer
+   # coverage instrumentation libFuzzer needs has to be compiled into the code
+   # under test, not only into the entry point.
+   add_library(hmailserver-core-fuzz STATIC
+      "${HM_SERVER}/SMTP/SPF/SPFSyntax.cpp"
+      "${HM_SERVER}/SMTP/SPF/SPFAddress.cpp"
+      "${HM_SERVER}/SMTP/SPF/SPFRecord.cpp"
+      "${HM_SERVER}/SMTP/SPF/SPFMacroExpander.cpp"
+      "${HM_SERVER}/SMTP/SPF/SPFTestLookup.cpp"
+   )
+
+   target_include_directories(hmailserver-core-fuzz PUBLIC
+      "${HM_SERVER}/Portable"
+      "${HM_SERVER}"
+   )
+
+   target_precompile_headers(hmailserver-core-fuzz PUBLIC "${HM_SERVER}/Portable/stdafx.h")
+
+   target_compile_options(hmailserver-core-fuzz PUBLIC
+      -Wall -Wextra -g -fno-omit-frame-pointer
+      -fsanitize=fuzzer-no-link,address,undefined)
+   target_link_options(hmailserver-core-fuzz PUBLIC -fsanitize=address,undefined)
+
+   foreach(target record macro-expander)
+      if(target STREQUAL "record")
+         set(source "FuzzSPFRecord.cpp")
+      else()
+         set(source "FuzzSPFMacroExpander.cpp")
+      endif()
+
+      add_executable("fuzz-spf-${target}" "${HM_SERVER}/Portable/Fuzz/${source}")
+      target_link_libraries("fuzz-spf-${target}" PRIVATE hmailserver-core-fuzz)
+      target_link_options("fuzz-spf-${target}" PRIVATE -fsanitize=fuzzer)
+   endforeach()
+endif()
