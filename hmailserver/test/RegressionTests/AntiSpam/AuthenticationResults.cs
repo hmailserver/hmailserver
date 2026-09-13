@@ -96,6 +96,28 @@ namespace RegressionTests.AntiSpam
          _antiSpam.UseSPFScore = 1;
       }
 
+      // This server's own Authentication-Results header, unfolded onto one line.
+      //
+      // One line on purpose: the CI summary shows only the first line of a
+      // failure message, so a failure has to be able to say what the header
+      // actually held without any of it being cut off. Asserting against the
+      // header rather than the whole message also tells a missing field apart
+      // from a field with the wrong value, which matters here because the two
+      // have different causes - one means no check was made.
+      private string GetOwnAuthenticationResults(string messageText)
+      {
+         var unfolded = Regex.Replace(messageText, "\r\n[ \t]+", " ");
+         var prefix = "Authentication-Results: " + HostName + ";";
+
+         foreach (var line in unfolded.Split(new[] { "\r\n" }, StringSplitOptions.None))
+         {
+            if (line.StartsWith(prefix))
+               return line;
+         }
+
+         return "(no Authentication-Results header from " + HostName + ")";
+      }
+
       [Test]
       [Description("A domain whose record authorizes no client at all should be reported as an SPF failure.")]
       public void TestSpfFailureIsReported()
@@ -110,9 +132,10 @@ namespace RegressionTests.AntiSpam
             "\r\n" +
             "Test body\r\n");
 
-         var text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+         var header = GetOwnAuthenticationResults(
+            Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test"));
 
-         Assert.IsTrue(text.Contains("spf=fail smtp.mailfrom=example.com"), text);
+         Assert.IsTrue(header.Contains("spf=fail smtp.mailfrom=example.com"), header);
       }
 
       [Test]
@@ -133,9 +156,10 @@ namespace RegressionTests.AntiSpam
             "\r\n" +
             "Test body\r\n");
 
-         var text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+         var header = GetOwnAuthenticationResults(
+            Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test"));
 
-         Assert.IsTrue(text.Contains("spf=fail smtp.mailfrom=hmailserver.com"), text);
+         Assert.IsTrue(header.Contains("spf=fail smtp.mailfrom=hmailserver.com"), header);
       }
 
       [Test]
@@ -155,9 +179,10 @@ namespace RegressionTests.AntiSpam
             "\r\n" +
             "Test body\r\n");
 
-         var text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+         var header = GetOwnAuthenticationResults(
+            Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test"));
 
-         Assert.IsTrue(text.Contains("spf=none smtp.mailfrom=nonexistent.hmailserver.com"), text);
+         Assert.IsTrue(header.Contains("spf=none smtp.mailfrom=nonexistent.hmailserver.com"), header);
       }
 
       [Test]
