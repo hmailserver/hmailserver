@@ -8,6 +8,8 @@
 #include "SPFConformanceLookup.h"
 #include "SPFConformanceSuite.h"
 
+#include "../SPFRecordLocator.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -501,15 +503,138 @@ namespace HM
          Check_(resolver.GetQueryCount() == 2, "a name outside the zone is still a query");
       }
 
-      // Where the cases will be run once there is something to run them against.
-      // Each is an evaluation of Case::mailFrom from Case::clientIp, announced as
-      // Case::heloHost, against a ConformanceLookup over the case's own section;
-      // it passes if the result is one of Case::acceptedResults and, where
-      // Case::explanation is set, the explanation matches it.
+      namespace
+      {
+         // The domain an evaluation is done against, which the caller picks
+         // rather than the evaluation: the sender's domain, or the HELO argument
+         // when there is no sender. This is what SPF::Test and
+         // SenderAuthentication do in the server, and what the suite means by a
+         // case with an empty mailfrom.
+         AnsiString DomainOf(const Case &testCase)
+         {
+            AnsiString sender = testCase.mailFrom;
+
+            int at = sender.ReverseFind('@');
+
+            if (at >= 0)
+               return sender.Mid(at + 1);
+
+            if (!sender.IsEmpty())
+            {
+               // A sender with no "@" at all is not an address; there is no
+               // domain in it to check.
+               return "";
+            }
+
+            return testCase.heloHost;
+         }
+
+         bool Accepts(const Case &testCase, Result result)
+         {
+            for (int i = 0; i < testCase.acceptedResultCount; i++)
+            {
+               if (testCase.acceptedResults[i] == result)
+                  return true;
+            }
+
+            return false;
+         }
+
+         AnsiString AcceptedResultsOf(const Case &testCase)
+         {
+            AnsiString text;
+
+            for (int i = 0; i < testCase.acceptedResultCount; i++)
+            {
+               if (i > 0)
+                  text += " or ";
+
+               text += ResultName(testCase.acceptedResults[i]);
+            }
+
+            return text;
+         }
+      }
+
+      // Runs every case as far as the code written so far can take it.
+      //
+      // Finding and parsing a domain's record settles a case outright whenever
+      // the answer does not depend on a mechanism: a domain with no record, a
+      // lookup that times out, two records where there may be one, or a record
+      // that does not parse. Everything else needs mechanisms evaluated against
+      // the client address, and waits for the evaluator.
+      //
+      // A case left undecided is not a pass. What this does assert is that no
+      // case is decided *wrongly* - a record rejected where the suite expects
+      // the evaluation to succeed is a parser bug, and it is reported as one.
       int
       SPFConformanceTester::RunCases_()
       {
-         return 0;
+         int decided = 0;
+
+         for (int s = 0; s < SectionCount; s++)
+         {
+            const Section &section = Sections[s];
+
+            for (int c = 0; c < section.caseCount; c++)
+            {
+               const Case &testCase = section.cases[c];
+
+               auto lookup = std::make_shared<ConformanceLookup>(section);
+               SPFRecordLocator locator(lookup);
+
+               SPFRecord record;
+               AnsiString error;
+
+               SPFRecordLocator::Result located = locator.Locate(DomainOf(testCase), record, error);
+
+               Result result = Result::None;
+
+               switch (located)
+               {
+               case SPFRecordLocator::Result::Found:
+                  // The record is in hand and says nothing on its own; the
+                  // mechanisms decide, and there is nothing yet to decide them.
+                  continue;
+
+               case SPFRecordLocator::Result::NoRecord:
+                  result = Result::None;
+                  break;
+
+               case SPFRecordLocator::Result::TemporaryError:
+                  result = Result::TempError;
+                  break;
+
+               case SPFRecordLocator::Result::Ambiguous:
+               case SPFRecordLocator::Result::SyntaxError:
+                  result = Result::PermError;
+                  break;
+               }
+
+               decided++;
+
+               if (Accepts(testCase, result))
+                  continue;
+
+               AnsiString message = AnsiString(testCase.name) + " (" + testCase.spec + "): expected " +
+                                    AcceptedResultsOf(testCase) + ", got " + ResultName(result);
+
+               if (!error.IsEmpty())
+                  message += " - " + error;
+
+               failures_.push_back(message);
+            }
+         }
+
+         // A parser that accepts too much does not fail a case here, it just
+         // stops deciding it - the case becomes one more waiting for the
+         // evaluator, which looks like no change at all. So the count is a
+         // ratchet: it may rise as more of the evaluation is written, and a fall
+         // means something that used to be recognised no longer is.
+         Check_(decided >= 77, "the record stage decides at least as many cases as it used to (" +
+                               Count(decided) + " now)");
+
+         return decided;
       }
 
       std::vector<AnsiString>

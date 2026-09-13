@@ -648,6 +648,10 @@ EXIT 0
     <ClCompile Include="..\Smtp\Spf\Conformance\SPFConformanceTester.cpp" />
     <ClCompile Include="..\Smtp\Spf\RMSPF.cpp" />
     <ClCompile Include="..\Smtp\Spf\SPF.cpp" />
+    <ClCompile Include="..\Smtp\Spf\SPFRecord.cpp" />
+    <ClCompile Include="..\Smtp\Spf\SPFRecordLocator.cpp" />
+    <ClCompile Include="..\Smtp\Spf\SPFRecordTester.cpp" />
+    <ClCompile Include="..\Smtp\Spf\SPFSyntax.cpp" />
     <ClCompile Include="hMailServer.cpp" />
     <ClCompile Include="hMailServer_i.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -1168,6 +1172,10 @@ EXIT 0
     <ClInclude Include="..\Smtp\Spf\Rmspf.h" />
     <ClInclude Include="..\Smtp\Spf\SPF.h" />
     <ClInclude Include="..\Smtp\Spf\SPFDnsLookup.h" />
+    <ClInclude Include="..\Smtp\Spf\SPFRecord.h" />
+    <ClInclude Include="..\Smtp\Spf\SPFRecordLocator.h" />
+    <ClInclude Include="..\Smtp\Spf\SPFRecordTester.h" />
+    <ClInclude Include="..\Smtp\Spf\SPFSyntax.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
