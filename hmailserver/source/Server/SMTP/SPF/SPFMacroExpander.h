@@ -76,6 +76,17 @@ namespace HM
       // domain that published it has ever looked at.
       bool ExpandExplanation(const AnsiString &text, const AnsiString &domain, AnsiString &expanded);
 
+      // The names the client's reverse mapping gives which resolve back to the
+      // client address, in the order the mapping gave them. The p macro of
+      // section 7.3 is one consumer; the ptr mechanism of section 5.5 is the
+      // other, and it wants the whole list rather than the one name the macro
+      // settles on.
+      //
+      // Here rather than in the evaluator because the work is the same for both
+      // and is done once per check: the lookups depend on the client address
+      // alone, and section 4.6.4 counts them.
+      const std::vector<AnsiString> &GetValidatedNames();
+
       // How many of the names a reverse lookup returns the p macro will check.
       // Section 7.3 caps it, because the names are whatever the client's own
       // reverse zone says and validating each costs a query.

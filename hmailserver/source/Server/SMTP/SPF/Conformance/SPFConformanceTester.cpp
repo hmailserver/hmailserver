@@ -8,7 +8,8 @@
 #include "SPFConformanceLookup.h"
 #include "SPFConformanceSuite.h"
 
-#include "../SPFRecordLocator.h"
+#include "../SPFAddress.h"
+#include "../SPFEvaluator.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -556,17 +557,48 @@ namespace HM
          }
       }
 
-      // Runs every case as far as the code written so far can take it.
+      namespace
+      {
+         // The suite's name for one of hMailServer's results, so that a failure
+         // message can be read against rfc7208-tests.yml.
+         Result ToSuiteResult(SPFResult result)
+         {
+            switch (result)
+            {
+            case SPFResult::None:
+               return Result::None;
+
+            case SPFResult::Neutral:
+               return Result::Neutral;
+
+            case SPFResult::Pass:
+               return Result::Pass;
+
+            case SPFResult::Fail:
+               return Result::Fail;
+
+            case SPFResult::SoftFail:
+               return Result::SoftFail;
+
+            case SPFResult::TempError:
+               return Result::TempError;
+
+            case SPFResult::PermError:
+               break;
+            }
+
+            return Result::PermError;
+         }
+      }
+
+      // Runs every case of the suite through the evaluator and compares what
+      // comes back with what rfc7208-tests.yml expects.
       //
-      // Finding and parsing a domain's record settles a case outright whenever
-      // the answer does not depend on a mechanism: a domain with no record, a
-      // lookup that times out, two records where there may be one, or a record
-      // that does not parse. Everything else needs mechanisms evaluated against
-      // the client address, and waits for the evaluator.
-      //
-      // A case left undecided is not a pass. What this does assert is that no
-      // case is decided *wrongly* - a record rejected where the suite expects
-      // the evaluation to succeed is a parser bug, and it is reported as one.
+      // A case names the client address, the sender and the HELO argument; the
+      // domain to check is the caller's to pick, and DomainOf picks it the way
+      // the server does. Some cases accept more than one result, because RFC 7208
+      // leaves the answer to the implementation; the suite's first choice is its
+      // preference and any of them passes.
       int
       SPFConformanceTester::RunCases_()
       {
@@ -581,58 +613,65 @@ namespace HM
                const Case &testCase = section.cases[c];
 
                auto lookup = std::make_shared<ConformanceLookup>(section);
-               SPFRecordLocator locator(lookup);
 
-               SPFRecord record;
-               AnsiString error;
+               SPFEvaluator evaluator(lookup);
 
-               SPFRecordLocator::Result located = locator.Locate(DomainOf(testCase), record, error);
+               // The suite asserts the text of an explanation, and two of them
+               // name the receiving host and none the time, so both are fixed
+               // here rather than left to the clock.
+               evaluator.SetReceivingHost("receiver.example.com");
+               evaluator.SetTimestamp(0);
 
-               Result result = Result::None;
+               SPFAddress clientAddress;
+               AnsiString explanation;
 
-               switch (located)
+               Result result;
+
+               if (!SPFAddress::TryParse(testCase.clientIp, clientAddress))
                {
-               case SPFRecordLocator::Result::Found:
-                  // The record is in hand and says nothing on its own; the
-                  // mechanisms decide, and there is nothing yet to decide them.
+                  failures_.push_back(AnsiString(testCase.name) + " (" + testCase.spec +
+                                      "): the client address \"" + testCase.clientIp +
+                                      "\" could not be read");
                   continue;
-
-               case SPFRecordLocator::Result::NoRecord:
-                  result = Result::None;
-                  break;
-
-               case SPFRecordLocator::Result::TemporaryError:
-                  result = Result::TempError;
-                  break;
-
-               case SPFRecordLocator::Result::Ambiguous:
-               case SPFRecordLocator::Result::SyntaxError:
-                  result = Result::PermError;
-                  break;
                }
+
+               result = ToSuiteResult(evaluator.Check(clientAddress, DomainOf(testCase),
+                                                      testCase.mailFrom, testCase.heloHost,
+                                                      explanation));
 
                decided++;
 
-               if (Accepts(testCase, result))
+               if (!Accepts(testCase, result))
+               {
+                  failures_.push_back(AnsiString(testCase.name) + " (" + testCase.spec + "): expected " +
+                                      AcceptedResultsOf(testCase) + ", got " + ResultName(result));
+                  continue;
+               }
+
+               if (testCase.explanation == 0)
+               {
+                  // The case asserts nothing about the explanation.
+                  continue;
+               }
+
+               // An empty string in the table is the suite's "use your own
+               // default", which hMailServer reports by producing no explanation
+               // at all.
+               if (explanation == AnsiString(testCase.explanation))
                   continue;
 
-               AnsiString message = AnsiString(testCase.name) + " (" + testCase.spec + "): expected " +
-                                    AcceptedResultsOf(testCase) + ", got " + ResultName(result);
-
-               if (!error.IsEmpty())
-                  message += " - " + error;
-
-               failures_.push_back(message);
+               failures_.push_back(AnsiString(testCase.name) + " (" + testCase.spec +
+                                   "): expected the explanation \"" + testCase.explanation +
+                                   "\", got \"" + explanation + "\"");
             }
          }
 
-         // A parser that accepts too much does not fail a case here, it just
-         // stops deciding it - the case becomes one more waiting for the
-         // evaluator, which looks like no change at all. So the count is a
-         // ratchet: it may rise as more of the evaluation is written, and a fall
-         // means something that used to be recognised no longer is.
-         Check_(decided >= 77, "the record stage decides at least as many cases as it used to (" +
-                               Count(decided) + " now)");
+         // Every case is decided now, so the floor is the whole suite. It stays a
+         // floor rather than an equality because the count is what a case is
+         // dropped from silently: an evaluation which stopped answering would
+         // otherwise look like nothing had changed.
+         Check_(decided >= GetCaseCount(), "every case of the suite is decided (" +
+                                           Count(decided) + " of " + Count(GetCaseCount()) + ")");
 
          return decided;
       }

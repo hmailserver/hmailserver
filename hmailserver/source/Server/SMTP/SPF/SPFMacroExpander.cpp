@@ -403,14 +403,22 @@ namespace HM
       return "";
    }
 
-   AnsiString
-   SPFMacroExpander::GetValidatedName_(const AnsiString &domain)
+   const std::vector<AnsiString> &
+   SPFMacroExpander::GetValidatedNames()
    {
       if (!validated_names_known_)
       {
          validated_names_known_ = true;
          FindValidatedNames_();
       }
+
+      return validated_names_;
+   }
+
+   AnsiString
+   SPFMacroExpander::GetValidatedName_(const AnsiString &domain)
+   {
+      GetValidatedNames();
 
       if (validated_names_.empty())
       {

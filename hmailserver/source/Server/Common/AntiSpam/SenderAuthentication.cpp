@@ -18,7 +18,7 @@ namespace HM
 {
    SenderAuthentication::SenderAuthentication() :
       spf_checked_(false),
-      spf_result_(SPF::Neutral),
+      spf_result_(SPFResult::Neutral),
       dkim_checked_(false),
       dkim_result_(DKIM::Neutral),
       dmarc_result_(DMARCResult::NotEvaluated)
@@ -26,7 +26,7 @@ namespace HM
 
    }
 
-   SPF::Result
+   SPFResult
    SenderAuthentication::EvaluateSPF(std::shared_ptr<SpamTestData> testData)
    {
       if (spf_checked_)
@@ -38,7 +38,7 @@ namespace HM
          return spf_result_;
 
       String explanation;
-      SPF::Result result = SPF::Instance()->Test(originatingAddress.ToString(), testData->GetEnvelopeFrom(), testData->GetHeloHost(), explanation);
+      SPFResult result = SPF::Instance()->Test(originatingAddress.ToString(), testData->GetEnvelopeFrom(), testData->GetHeloHost(), explanation);
 
       // With a null sender, SPF authenticates the HELO identity instead.
       String domain = StringParser::ExtractDomain(testData->GetEnvelopeFrom());
@@ -59,7 +59,7 @@ namespace HM
       return spf_checked_;
    }
 
-   SPF::Result
+   SPFResult
    SenderAuthentication::GetSPFResult() const
    {
       return spf_result_;

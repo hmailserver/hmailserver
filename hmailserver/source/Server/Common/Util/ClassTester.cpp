@@ -23,6 +23,7 @@
 #include "../Persistence/PersistentMessage.h"
 #include "../../SMTP/SPF/SPF.h"
 #include "../../SMTP/SPF/Conformance/SPFConformanceTester.h"
+#include "../../SMTP/SPF/SPFEvaluatorTester.h"
 #include "../../SMTP/SPF/SPFMacroExpanderTester.h"
 #include "../../SMTP/SPF/SPFRecordTester.h"
 #include "../AntiSpam/DMARC/DMARCTester.h"
@@ -151,6 +152,10 @@ namespace HM
       OutputDebugString(_T("hMailServer: Testing SPF macro expansion\n"));
       SPFMacroExpanderTester spfMacroExpanderTester;
       ReportSPFFailures_("SPF macro expansion", spfMacroExpanderTester.Run());
+
+      OutputDebugString(_T("hMailServer: Testing SPF evaluation\n"));
+      SPFEvaluatorTester spfEvaluatorTester;
+      ReportSPFFailures_("SPF evaluation", spfEvaluatorTester.Run());
 
       OutputDebugString(_T("hMailServer: Testing SPF conformance\n"));
       SPFConformance::SPFConformanceTester spfConformanceTester;

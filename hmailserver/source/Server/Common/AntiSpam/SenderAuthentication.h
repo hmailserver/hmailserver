@@ -26,10 +26,10 @@ namespace HM
       SenderAuthentication();
 
       // Verifies SPF, unless it has already been verified for this message.
-      SPF::Result EvaluateSPF(std::shared_ptr<SpamTestData> testData);
+      SPFResult EvaluateSPF(std::shared_ptr<SpamTestData> testData);
 
       bool GetSPFChecked() const;
-      SPF::Result GetSPFResult() const;
+      SPFResult GetSPFResult() const;
       // The identity SPF authenticated - the MAIL FROM domain, or the HELO host
       // when the message has a null sender.
       String GetSPFDomain() const;
@@ -50,7 +50,7 @@ namespace HM
    private:
 
       bool spf_checked_;
-      SPF::Result spf_result_;
+      SPFResult spf_result_;
       String spf_domain_;
       String spf_explanation_;
 

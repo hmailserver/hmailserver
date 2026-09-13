@@ -34,6 +34,7 @@ add_library(hmailserver-core STATIC
    "${HM_SERVER}/SMTP/SPF/SPFRecord.cpp"
    "${HM_SERVER}/SMTP/SPF/SPFRecordLocator.cpp"
    "${HM_SERVER}/SMTP/SPF/SPFMacroExpander.cpp"
+   "${HM_SERVER}/SMTP/SPF/SPFEvaluator.cpp"
 )
 
 # Portable/ holds this build's stand-in for the precompiled header. The server
@@ -66,8 +67,10 @@ add_executable(hmailserver-core-tests
    "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceSuite.cpp"
    "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceLookup.cpp"
    "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceTester.cpp"
+   "${HM_SERVER}/SMTP/SPF/SPFTestLookup.cpp"
    "${HM_SERVER}/SMTP/SPF/SPFRecordTester.cpp"
    "${HM_SERVER}/SMTP/SPF/SPFMacroExpanderTester.cpp"
+   "${HM_SERVER}/SMTP/SPF/SPFEvaluatorTester.cpp"
 )
 target_link_libraries(hmailserver-core-tests PRIVATE hmailserver-core)
 

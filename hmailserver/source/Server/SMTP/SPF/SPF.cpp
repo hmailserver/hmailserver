@@ -19,29 +19,29 @@ namespace HM
       // library ORs a reason onto the result it returns and leaves it to the
       // caller to mask it off again, so anything but SPF_ResultMask must be
       // removed before the result is looked at.
-      SPF::Result TranslateResult(int libraryResult)
+      SPFResult TranslateResult(int libraryResult)
       {
          switch (libraryResult & SPF_ResultMask)
          {
          case SPF_Pass:
-            return SPF::Pass;
+            return SPFResult::Pass;
          case SPF_SoftFail:
-            return SPF::SoftFail;
+            return SPFResult::SoftFail;
          case SPF_Fail:
-            return SPF::Fail;
+            return SPFResult::Fail;
          case SPF_Neutral:
-            return SPF::Neutral;
+            return SPFResult::Neutral;
          case SPF_None:
-            return SPF::None;
+            return SPFResult::None;
          case SPF_TempError:
-            return SPF::TempError;
+            return SPFResult::TempError;
          case SPF_PermError:
-            return SPF::PermError;
+            return SPFResult::PermError;
          }
 
          // The library documents no other result. Report that nothing was
          // learned rather than blaming the sender for a value we do not know.
-         return SPF::None;
+         return SPFResult::None;
       }
    }
 
@@ -56,7 +56,7 @@ namespace HM
 
    }
 
-   SPF::Result
+   SPFResult
    SPF::Test(const String &sSenderIP, const String &sSenderEmail, const String &sHeloHost, String &sExplanation)
    {
       USES_CONVERSION;
@@ -74,7 +74,7 @@ namespace HM
 
       char BinaryIP[100];
       if (SPFStringToAddr(T2A(sSenderIP),family,BinaryIP)==NULL)
-         return Neutral;
+         return SPFResult::Neutral;
 
       const char* explain;
       int libraryResult=SPFQuery(family,BinaryIP,T2A(sSenderEmail),NULL,T2A(sHeloHost),NULL,&explain);
@@ -85,29 +85,29 @@ namespace HM
          SPFFree(explain);
       }
 
-      Result result = TranslateResult(libraryResult);
+      SPFResult result = TranslateResult(libraryResult);
 
       // Only the results this function has always reported are passed on. The
       // remaining ones are reported once the evaluator behind them is the one
       // which determines them, so that callers see a single change rather than
       // one now and another later.
-      if (result == Pass || result == Fail)
+      if (result == SPFResult::Pass || result == SPFResult::Fail)
          return result;
 
-      return Neutral;
+      return SPFResult::Neutral;
    }
 
    void SPFTester::Test()
    {
       String sExplanation;
       
-      if (SPF::Instance()->Test("185.216.75.37", "example@hmailserver.com", "mail.hmailserver.com", sExplanation) != SPF::Pass)
+      if (SPF::Instance()->Test("185.216.75.37", "example@hmailserver.com", "mail.hmailserver.com", sExplanation) != SPFResult::Pass)
       {
          // Should be allowed. 
          throw;
       }
 
-      if (SPF::Instance()->Test("1.2.3.4", "example@hmailserver.com", "mail.hmailserver.com", sExplanation) != SPF::Fail)
+      if (SPF::Instance()->Test("1.2.3.4", "example@hmailserver.com", "mail.hmailserver.com", sExplanation) != SPFResult::Fail)
       {
          // Should not be allowed.
          throw;

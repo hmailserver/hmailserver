@@ -22,23 +22,23 @@ namespace HM
       const AnsiString FieldName = "Authentication-Results";
 
       // The result names registered for the spf method, RFC 8601 section 2.7.2.
-      String GetSPFResultText(SPF::Result result)
+      String GetSPFResultText(SPFResult result)
       {
          switch (result)
          {
-         case SPF::Pass:
+         case SPFResult::Pass:
             return "pass";
-         case SPF::Fail:
+         case SPFResult::Fail:
             return "fail";
-         case SPF::SoftFail:
+         case SPFResult::SoftFail:
             return "softfail";
-         case SPF::Neutral:
+         case SPFResult::Neutral:
             return "neutral";
-         case SPF::None:
+         case SPFResult::None:
             return "none";
-         case SPF::TempError:
+         case SPFResult::TempError:
             return "temperror";
-         case SPF::PermError:
+         case SPFResult::PermError:
             return "permerror";
          }
 

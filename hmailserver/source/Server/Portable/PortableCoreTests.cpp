@@ -17,6 +17,7 @@
 
 #include "../Common/Mime/MimeChar.h"
 #include "../SMTP/SPF/Conformance/SPFConformanceTester.h"
+#include "../SMTP/SPF/SPFEvaluatorTester.h"
 #include "../SMTP/SPF/SPFMacroExpanderTester.h"
 #include "../SMTP/SPF/SPFRecordTester.h"
 
@@ -117,6 +118,9 @@ namespace
 
       HM::SPFMacroExpanderTester macroExpanderTester;
       ReportFailures(macroExpanderTester.Run());
+
+      HM::SPFEvaluatorTester evaluatorTester;
+      ReportFailures(evaluatorTester.Run());
 
       HM::SPFConformance::SPFConformanceTester conformanceTester;
       ReportFailures(conformanceTester.Run());
