@@ -22,6 +22,7 @@
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"
 #include "../../SMTP/SPF/SPF.h"
+#include "../../SMTP/SPF/Conformance/SPFConformanceTester.h"
 #include "../AntiSpam/DMARC/DMARCTester.h"
 #include "PublicSuffixListTester.h"
 #include "../../SMTP/BLCheck.h"
@@ -109,6 +110,34 @@ namespace HM
       SPFTester *pSPF = new SPFTester();
       pSPF->Test();
       delete pSPF;
+
+      // The RFC 7208 conformance suite. Every failure is reported before the
+      // run is failed, because a conformance suite which stops at the first of
+      // 203 cases says much less than one which lists them all.
+      OutputDebugString(_T("hMailServer: Testing SPF conformance\n"));
+      SPFConformance::SPFConformanceTester spfConformanceTester;
+      std::vector<AnsiString> spfConformanceFailures = spfConformanceTester.Run();
+
+      for (AnsiString failure : spfConformanceFailures)
+      {
+         String message = _T("hMailServer: SPF conformance FAILED: ");
+         message += String(failure);
+         message += _T("\n");
+
+         OutputDebugString(message);
+      }
+
+      if (!spfConformanceFailures.empty())
+      {
+         // A logic_error rather than an Assert, which throws nothing and so
+         // terminates. The regression suite runs these tests through the COM
+         // API, which catches an exception and reports it; terminating there
+         // takes the server down and fails everything after it instead of
+         // saying which cases went wrong.
+         throw std::logic_error(Formatter::FormatAsAnsi("{0} of the {1} SPF conformance checks failed. See the debug output for which.",
+                                                        (int) spfConformanceFailures.size(),
+                                                        SPFConformance::SPFConformanceTester::GetCaseCount()));
+      }
 
       OutputDebugString(_T("hMailServer: Testing public suffix list\n"));
       PublicSuffixListTester publicSuffixListTester;

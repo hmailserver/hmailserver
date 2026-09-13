@@ -52,7 +52,16 @@ if(HM_SANITIZE)
    target_link_options(hmailserver-core PUBLIC -fsanitize=address,undefined)
 endif()
 
-add_executable(hmailserver-core-tests "${HM_SERVER}/Portable/PortableCoreTests.cpp")
+# The test code, which the server project builds too: the same testers run from
+# ClassTester under Visual Studio, where a case can be stepped through, and from
+# here under the sanitizers. Test code sits on the executable rather than in the
+# library above, which holds only sources the server itself is built from.
+add_executable(hmailserver-core-tests
+   "${HM_SERVER}/Portable/PortableCoreTests.cpp"
+   "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceSuite.cpp"
+   "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceLookup.cpp"
+   "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceTester.cpp"
+)
 target_link_libraries(hmailserver-core-tests PRIVATE hmailserver-core)
 
 enable_testing()
