@@ -13,18 +13,9 @@ namespace HM
    class SPFMechanism;
    class SPFRecord;
 
-   // check_host() of RFC 7208 section 4: whether a domain authorizes a client to
-   // send mail on its behalf.
-   //
-   // One of these per check. It finds the domain's record through
-   // SPFRecordLocator, expands the terms through SPFMacroExpander, evaluates the
-   // directives in the order they were written, and keeps the count that section
-   // 4.6.4 caps.
-   //
-   // Every DNS query the check makes goes through one counter, the macro
-   // expander's queries included, because the limits of section 4.6.4 are per
-   // check rather than per record: an include whose target spends the budget
-   // leaves none for the record which included it.
+   // check_host() of RFC 7208 section 4: whether a domain authorizes a client.
+   // One per check, and one counter sees every query it makes including the macro
+   // expander's, because section 4.6.4's limits are per check - see README.md.
    class SPFEvaluator
    {
    public:
@@ -32,47 +23,37 @@ namespace HM
       explicit SPFEvaluator(std::shared_ptr<SPFDnsLookup> lookup);
       ~SPFEvaluator();
 
-      // The name of the host doing the checking, for the r macro of RFC 7208
-      // section 7.2, and the time of the check, for the t macro. Only the text an
-      // exp modifier points at may use either.
+      // The r and t macros of section 7.2, which only the text an exp modifier points
+      // at may use.
       void SetReceivingHost(const AnsiString &name);
       void SetTimestamp(__int64 secondsSinceEpoch);
 
-      // Evaluates domain for the client address, the sender and the HELO
-      // argument, which are the four arguments of section 4.1.
-      //
-      // The explanation is the text of the record's exp modifier, expanded, and
-      // is set only for a Fail which a record explained. Empty otherwise -
-      // including where the record named an explanation that could not be read,
-      // which section 6.2 leaves the receiver to answer with its own words.
+      // Evaluates domain for the four arguments of section 4.1. The explanation is set
+      // only for a Fail which the record explained; empty otherwise, including where
+      // what it named could not be read, which section 6.2 leaves to the receiver.
       SPFResult Check(const SPFAddress &clientAddress,
                       const AnsiString &domain,
                       const AnsiString &sender,
                       const AnsiString &heloHost,
                       AnsiString &explanation);
 
-      // The limits of section 4.6.4. Public because a test should be able to say
-      // what it is testing rather than repeat the number.
-      //
-      // The first counts terms that query DNS - include, a, mx, ptr and exists,
-      // and the redirect modifier - and not the queries themselves: one mx
-      // mechanism is one term however many hosts it resolves.
+      // Section 4.6.4's limits. Public so a test can name what it tests. This one
+      // counts terms that query DNS, not the queries: one mx is one term however
+      // many hosts it resolves.
       static const int MaximumTerms = 10;
 
-      // Terms whose queries answered nothing at all. Section 4.6.4 limits the
-      // number of such terms, not the number of such queries: one mx over five
-      // exchangers with no address of the client's family is one of these, not
-      // five.
+      // Terms whose queries answered nothing. Section 4.6.4 limits those terms, not
+      // those queries: one mx over five exchangers with no address of the client's
+      // family is one of these, not five.
       static const int MaximumVoidTerms = 2;
 
-      // Section 4.6.4 caps the names one mx mechanism may resolve. Past it the
-      // check is a permerror rather than a matter of resolving the first ten -
-      // which is what tells it apart from ptr, where section 5.5 has the
-      // eleventh name simply not looked at.
+      // Section 4.6.4 caps the names one mx may resolve. Past it the check is a
+      // permerror, which is what tells it apart from ptr - section 5.5 has the
+      // eleventh name there simply not looked at.
       static const int MaximumMxNames = 10;
 
-      // How many of the ten terms the last check used, so that a test can say a
-      // record cost what it should.
+      // How many terms the last check used, so a test can say a record cost what it
+      // should.
       int GetTermCount() const { return terms_; }
 
    private:
@@ -86,20 +67,20 @@ namespace HM
          // It did not. Section 4.6.2 moves on to the next directive.
          No,
 
-         // The check is over before the record ran out: a lookup failed, or a
-         // limit was passed. error_result_ says which.
+         // The check is over: a lookup failed or a limit was passed. error_result_
+         // says which.
          Error
       };
 
-      // explanation is null where the caller will not use one - which an include
-      // will not, section 6.2, so fetching it would be a query spent on an answer
-      // thrown away.
+      // explanation is null where the caller will not use one, which an include will
+      // not - section 6.2 - so fetching it would spend a query on an answer thrown
+      // away.
       SPFResult CheckDomain_(const AnsiString &domain, int depth, AnsiString *explanation);
 
       Match EvaluateMechanism_(const SPFMechanism &mechanism, const AnsiString &domain, int depth);
 
-      // The mechanisms that query DNS, each handed a target name already expanded
-      // and already counted against the limits by EvaluateMechanism_.
+      // The mechanisms that query DNS, each handed a target name already expanded and
+      // counted by EvaluateMechanism_.
       Match MatchA_(const SPFMechanism &mechanism, const AnsiString &targetName);
       Match MatchMX_(const SPFMechanism &mechanism, const AnsiString &targetName);
       Match MatchPTR_(const AnsiString &targetName);
@@ -113,50 +94,41 @@ namespace HM
       {
          Resolved,
 
-         // The expansion produced something no query can be built from. Section
-         // 7.1 does not re-parse an expansion, so this is a name that does not
-         // exist rather than an error: the mechanism does not match.
+         // Nothing a query can be built from. Section 7.1 does not re-parse an
+         // expansion, so this is a name that does not exist: no match, not an error.
          Unusable,
 
-         // The domain-spec itself does not expand, which section 4.6 makes a
-         // permerror. The parser has seen every domain-spec a record carries, so
-         // nothing reaches this.
+         // The domain-spec does not expand, which section 4.6 makes a permerror. The
+         // parser has seen every one a record carries, so nothing reaches this.
          SyntaxError
       };
 
       TargetName ResolveTargetName_(const SPFMechanism &mechanism, const AnsiString &domain, AnsiString &targetName);
 
-      // The addresses of a host in the client's own family, sections 5.3 and
-      // 5.4, and whether any of them is the client within the mechanism's prefix
-      // length. False from the first where the lookup could not be answered.
+      // The addresses of a host in the client's own family, sections 5.3 and 5.4, and
+      // whether any is the client within the prefix length.
       bool TryLookupAddresses_(const AnsiString &host, std::vector<AnsiString> &addresses);
       bool MatchesAnyAddress_(const std::vector<AnsiString> &addresses, int prefixLength) const;
 
-      // The prefix length a mechanism carries for the family the client
-      // connected over. A mechanism which wrote neither gets the whole address.
+      // The prefix length for the family the client connected over.
       int PrefixLengthFor_(const SPFMechanism &mechanism) const;
 
-      // Section 6.2: the text the record's exp modifier points at, expanded.
-      // Empty where the record named none, or where what it named could not be
-      // read - neither of which is an error.
+      // Section 6.2: the exp modifier's text, expanded. Empty where the record named
+      // none or what it named could not be read - neither is an error.
       AnsiString ExplanationFor_(const SPFRecord &record, const AnsiString &domain);
 
-      // Counts one term against the limit of section 4.6.4. False once the
-      // budget is spent, which makes the check a permerror.
+      // Counts one term, section 4.6.4. False once the budget is spent.
       bool CountTerm_();
 
-      // Counts one void term if the queries made since voidQueriesBefore
-      // answered nothing. Called once per term, which is what keeps a mechanism
-      // that resolves many names from spending the budget several times over.
+      // Counts one void term if anything queried since voidQueriesBefore answered
+      // nothing. Once per term, so a mechanism resolving many names spends one.
       void CountVoidTerm_(int voidQueriesBefore);
 
       bool GetHasTooManyVoidTerms_() const;
 
       Match Fail_(SPFResult result);
 
-      // Counts the queries an evaluation makes. Defined in the implementation:
-      // nothing outside it needs to know that the counting is done by wrapping
-      // the resolver the caller supplied.
+      // Counts the queries an evaluation makes. Defined in the implementation.
       class CountingLookup;
 
       std::shared_ptr<SPFDnsLookup> lookup_;
@@ -171,8 +143,7 @@ namespace HM
       int terms_;
       int void_terms_;
 
-      // Set whenever a mechanism returns Match::Error, and read by the loop that
-      // gave up because of it.
+      // Set when a mechanism returns Match::Error, read by the loop that gave up.
       SPFResult error_result_;
    };
 }

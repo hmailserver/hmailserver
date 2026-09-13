@@ -119,12 +119,9 @@ namespace HM
       if (found != table.end())
          values = found->second;
 
-      // A name which is not in the table exists as far as this resolver is
-      // concerned and holds no record of the type asked for, which is an answer
-      // rather than a failure. A failing name hands back whatever was added for
-      // it: SPFDnsLookup promises nothing about the vector when it returns false,
-      // and a caller which read it anyway would look right against a resolver
-      // that emptied it.
+      // A name not in the table exists as far as this resolver is concerned and holds no
+      // record of the type asked for, which is an answer rather than a failure. A failing
+      // name hands back whatever was added for it, so a caller that read it anyway is seen to.
       return failing_.find(folded) == failing_.end();
    }
 }

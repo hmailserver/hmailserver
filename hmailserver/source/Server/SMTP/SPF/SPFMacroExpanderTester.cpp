@@ -463,10 +463,9 @@ namespace HM
                              expanded + "\", expected \"" + cases[i].expected + "\"");
       }
 
-      // A stray percent sign is not a macro. The parser rejects a record which
-      // holds one - the suite's invalid-macro-char and its two neighbours - and
-      // the expander has to agree, because the text an exp modifier fetches never
-      // went through the parser.
+      // A stray percent sign is not a macro. The parser rejects a record which holds one,
+      // and the expander has to agree, because the text an exp modifier fetches never went
+      // through the parser.
       const char *notMacros[] = { "%", "%(ir)", "foo%(ir).sbl.example.com", "foo%.example.com",
                                   "%{", "%{d", "%{d.", "%z", "100%" };
 

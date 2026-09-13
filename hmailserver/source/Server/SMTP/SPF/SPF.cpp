@@ -48,12 +48,9 @@ namespace HM
 
       if (!SPFAddress::TryParse(AnsiString(sSenderIP), clientAddress))
       {
-         // Section 4.1 makes the client address an input of the check, so without
-         // one there is no check to make. This is a "none" rather than an error of
-         // either kind: the domain has not been asked anything, so it has said
-         // nothing, and neither the sender nor the domain is at fault for an
-         // address this server could not read off its own socket. A scoped
-         // link-local address is the way to get here.
+         // Section 4.1 makes the client address an input, so without one there is no check
+         // to make. A "none" rather than an error of either kind: the domain has not been
+         // asked anything. A scoped link-local address is the way to get here.
          return SPFResult::None;
       }
 

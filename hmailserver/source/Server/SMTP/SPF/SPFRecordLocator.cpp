@@ -37,11 +37,9 @@ namespace HM
       if (!lookup_->GetTXTRecords(domain, textRecords))
          return Result::TemporaryError;
 
-      // Section 4.5: of everything the domain publishes as TXT, the records
-      // beginning with the SPF version are the candidates. The rest belong to
-      // somebody else and are none of an SPF check's business, which is why a
-      // domain can publish a TXT record that is not even ASCII without that
-      // making its SPF record unusable.
+      // Section 4.5: of everything the domain publishes as TXT, the records beginning
+      // with the SPF version are the candidates. The rest are none of an SPF check's
+      // business, so a TXT record that is not even ASCII leaves the SPF one usable.
       std::vector<AnsiString> candidates;
 
       for (size_t i = 0; i < textRecords.size(); i++)

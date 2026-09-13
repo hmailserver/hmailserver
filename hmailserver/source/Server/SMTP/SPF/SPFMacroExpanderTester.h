@@ -5,22 +5,9 @@
 
 namespace HM
 {
-   // The macro expansion of RFC 7208 section 7, and the address forms it is
-   // built on, checked a rule at a time.
-   //
-   // Most of what section 7 says is not visible in the conformance suite's
-   // results: a macro which expands wrongly usually produces a name which does
-   // not exist, and the case then fails for a reason that says nothing about
-   // which macro was wrong. The cases that do pin the text - the ones which
-   // assert an explanation - cover nine macros between them and none of the
-   // transformers on their own. So the expansions are asserted directly here,
-   // against the examples of section 7.4 and against the suite's own zone data,
-   // and the suite is left to say that the whole works end to end.
-   //
-   // Failures are returned rather than reported, for the same reasons as
-   // SPFRecordTester: where they belong differs between the server build and the
-   // portable one, and a run should report all of them rather than stop at the
-   // first.
+   // Macro expansion, RFC 7208 section 7, and the address forms it is built on, a
+   // rule at a time: a wrong expansion usually produces a name that does not exist,
+   // so the suite cannot see which macro was wrong. Asserted against section 7.4.
    class SPFMacroExpanderTester
    {
    public:

@@ -1,16 +1,9 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
-// The openspf.org test suite for RFC 7208, as a C++ table.
-//
-// The suite is vendored in this directory as rfc7208-tests.yml, and
-// Generate-SPFConformanceSuite.py transcribes it into SPFConformanceSuite.cpp.
-// The generated file is committed, so that building hMailServer needs neither
-// Python nor a YAML parser. README.md says where the suite comes from.
-//
-// The table is data only. Nothing here knows what hMailServer's SPF evaluator
-// looks like, on purpose: a transcription of someone else's file should say
-// what that file says. The runner is where the two meet.
+// The openspf.org test suite for RFC 7208, as a C++ table, transcribed from
+// rfc7208-tests.yml by Generate-SPFConformanceSuite.py. Data only: nothing here
+// knows what hMailServer's evaluator looks like. README.md says where it is from.
 
 #pragma once
 
@@ -35,11 +28,9 @@ namespace HM
       // The suite's name for a result, for failure messages.
       const char *ResultName(Result result);
 
-      // The record types a zone in the suite can hold. Type SPF, the
-      // deprecated RR type 99 that most of the suite's policies are written
-      // as, is absent: RFC 7208 section 3.1 removed it, and the generator has
-      // already turned those records into the TXT records an evaluator
-      // following RFC 7208 would find. See the generator for the rule.
+      // The record types a zone in the suite can hold. Type SPF, the deprecated RR type
+      // 99 most of the suite's policies are written as, is absent: section 3.1 removed
+      // it, and the generator has already turned those into TXT records.
       enum class RecordType
       {
          A,
@@ -50,12 +41,9 @@ namespace HM
          TXT
       };
 
-      // One character-string of a record. Bytes and a length rather than a C
-      // string: two of the suite's policies end in a NUL octet, which RFC 7208
-      // section 7.1 does not allow in a domain name and which an evaluator has
-      // to be handed in order to reject. Several others hold bytes above 0x7f,
-      // for the same reason - section 3.1 restricts a policy to 7-bit ASCII.
-      // This is a record as it came off the wire, not text.
+      // One character-string of a record as it came off the wire, not text. Two of the
+      // suite's policies end in a NUL and several hold bytes above 0x7f, which an
+      // evaluator has to be handed in order to reject - sections 3.1 and 7.1.
       struct CharacterString
       {
          const char *bytes;
@@ -110,10 +98,9 @@ namespace HM
          const Result *acceptedResults;
          int acceptedResultCount;
 
-         // The explanation the evaluation must produce, or 0 where the case
-         // asserts nothing about it. An empty string means the record supplied
-         // no explanation and the receiver is left to use its own, which
-         // hMailServer reports by producing no explanation at all.
+         // The explanation the evaluation must produce, or 0 where the case asserts nothing
+         // about it. Empty means the record supplied none and the receiver uses its own,
+         // which hMailServer reports by producing no explanation at all.
          const char *explanation;
       };
 

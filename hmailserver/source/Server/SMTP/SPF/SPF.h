@@ -21,12 +21,9 @@ namespace HM
       // which the record explained.
       Result Test(const String &sSenderIP, const String &sSenderEmail, const String &sHeloHost, String &sExplanation);
 
-      // The domain a check is made against, RFC 7208 section 4.3: the domain of
-      // the sender, or the argument of HELO where the sender has none - a null
-      // sender authenticates the HELO identity instead, section 2.4.
-      //
-      // Public because the Authentication-Results header names the domain that
-      // was checked, and the two must not be able to disagree about which it was.
+      // The domain a check is made against, RFC 7208 section 4.3: the sender's domain,
+      // or the HELO argument where the sender has none, section 2.4. Public because
+      // Authentication-Results names it and the two must not be able to disagree.
       static String GetCheckedDomain(const String &senderEmail, const String &heloHost);
 
    private:

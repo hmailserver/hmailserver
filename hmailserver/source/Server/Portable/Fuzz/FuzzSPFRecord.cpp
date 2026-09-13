@@ -1,15 +1,9 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
-// libFuzzer entry point for the SPF record parser.
-//
-// The parser reads a TXT record published by whichever domain a message claims
-// to be from, so its input is chosen by a stranger. The grammar tests and the
-// conformance suite say what it decides; this says only that it decides
-// something, on any bytes at all, without reading past the end of them.
-//
-// Built by the portable build when HM_FUZZ is on, which needs clang. Not part of
-// ctest: a fuzzer has no pass, only a not-yet-failed.
+// libFuzzer entry point for the SPF record parser, whose input is a TXT record
+// published by whichever domain a message claims to be from. README.md says what
+// this adds to the suites beside it, and how to run it.
 
 #include "stdafx.h"
 

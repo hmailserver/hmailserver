@@ -42,17 +42,9 @@ namespace HM
          return SPFSyntax::ToLowerAscii(character);
       }
 
-      // macro-literal: a visible character other than "%". RFC 7208 section 12
-      // writes it as %x21-24 / %x26-7E, which is every printable character
-      // except the space and the percent sign.
-      //
-      // The space is what section 12 separates a record's terms by, so a term
-      // cannot hold one. The text an exp modifier fetches is not a term and is
-      // spelled by a rule of its own which puts the space back:
-      //
-      //   explain-string = *( macro-string / SP )
-      //
-      // Without that, an explanation could not be a sentence.
+      // macro-literal: %x21-24 / %x26-7E of section 12, every printable character but
+      // the space and "%". A record's terms are space separated; the text an exp
+      // modifier fetches is not a term, and explain-string puts the space back.
       bool IsMacroLiteral(char character, SPFSyntax::MacroSet macros)
       {
          unsigned char byte = (unsigned char) character;
@@ -72,10 +64,9 @@ namespace HM
                 character == '=';
       }
 
-      // macro-letter. The names are spelled in lower case in section 7.1, and
-      // ABNF makes a literal case insensitive, so the upper case forms name the
-      // same macros - section 7.1 gives them the added meaning that the
-      // expansion is URL escaped.
+      // macro-letter. Section 7.1 spells the names in lower case and ABNF makes a
+      // literal case insensitive, so the upper case forms name the same macros, with the
+      // added meaning that the expansion is URL escaped.
       bool IsMacroLetter(char character, SPFSyntax::MacroSet macros)
       {
          switch (ToLower(character))
@@ -100,11 +91,9 @@ namespace HM
          return false;
       }
 
-      // toplabel, RFC 7208 section 12: a label which cannot be read as a
-      // number, so that a domain-spec can never be mistaken for an address.
-      //
-      // toplabel = ( *alphanum ALPHA *alphanum ) /
-      //            ( 1*alphanum "-" *( alphanum / "-" ) alphanum )
+      // toplabel, RFC 7208 section 12: ( *alphanum ALPHA *alphanum ) or
+      // ( 1*alphanum "-" *( alphanum / "-" ) alphanum ). A label that cannot be read as
+      // a number, so that a domain-spec can never be mistaken for an address.
       bool IsTopLabel(const AnsiString &label)
       {
          int length = label.GetLength();
@@ -213,10 +202,9 @@ namespace HM
       {
          unsigned char byte = (unsigned char) text[i];
 
-         // The space is here because a whole record is being checked, and the
-         // terms of a record are separated by spaces. Anything below it is a
-         // control character and anything above 0x7e is not ASCII, and section
-         // 3.1 allows neither.
+         // The space is here because a whole record is being checked, and the terms of a
+         // record are separated by spaces. Anything below it is a control character and
+         // anything above 0x7e is not ASCII; section 3.1 allows neither.
          if (byte < 0x20 || byte > 0x7E)
             return false;
       }
@@ -269,10 +257,9 @@ namespace HM
       macro.letter = text[at];
       at++;
 
-      // The digits say how many of the right-hand parts to keep. The count is
-      // capped rather than accumulated without limit: a count past the number of
-      // parts means every part either way, and no expansion has more parts than
-      // it has characters, so clamping changes no answer and cannot overflow.
+      // The digits say how many of the right-hand parts to keep. Capped rather than
+      // accumulated without limit: a count past the number of parts means every part
+      // either way, so clamping changes no answer and cannot overflow.
       const int maximumDigits = 256;
 
       while (at < length && IsDigit(text[at]))
