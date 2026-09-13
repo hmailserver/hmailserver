@@ -95,10 +95,9 @@ namespace HM
          const char *what;
       };
 
-      // Every case names a host other than the domain being checked. A failing
-      // name fails for every record type, so failing the domain itself would stop
-      // its own TXT lookup and the check would be a temperror before it ever
-      // reached the mechanism - which looks like a pass and tests nothing.
+      // Every case names a host other than the domain being checked. A failing name fails
+      // for every record type, so failing the domain itself would stop its own TXT lookup
+      // and the check would temperror before reaching the mechanism, testing nothing.
       const Case cases[] =
       {
          // The TXT query for the record itself, which is the one case that is
@@ -254,21 +253,15 @@ namespace HM
       }
    }
 
-   // Section 4.6.4's limit of ten terms, over a record whose lookups all answer,
-   // so that the void-lookup limit cannot decide it first. The suite's own
-   // mech-over-limit spends its budget on names which do not exist, which trips
-   // the void limit three terms earlier.
+   // Section 4.6.4's limit of ten terms, over a record whose lookups all answer, so
+   // that the void-lookup limit cannot decide it first. The suite's own mech-over-limit
+   // spends its budget on names which do not exist, tripping the void limit earlier.
    void
    SPFEvaluatorTester::TestTermLimit_()
    {
-      // Each include costs one term and answers, so a chain of them counts up
-      // without a single empty answer. The last record in the chain passes, so a
-      // chain within the limit is a pass and only the limit can change that.
-      //
-      // A chain of n links costs n + 1 terms: the record being checked includes
-      // the first link, and each link includes the next. The count is asserted
-      // alongside the result rather than left to be worked out, because getting
-      // that arithmetic wrong looks exactly like the limit being off by one.
+      // A chain of n includes costs n + 1 terms: the record being checked includes the
+      // first link, and each link includes the next. The count is asserted alongside the
+      // result, because getting that arithmetic wrong looks like the limit being off by one.
       struct Case
       {
          int length;
@@ -493,11 +486,9 @@ namespace HM
    }
 
 
-   // Section 4.6.4 limits the number of *terms* whose queries come back empty,
-   // not the number of empty queries. One mx resolving several hosts is one term
-   // however many of those hosts turn out to have no address of the client's
-   // family - which is the common case for an IPv6 client and IPv4-only
-   // exchangers.
+   // Section 4.6.4 limits the number of *terms* whose queries come back empty, not the
+   // number of empty queries. One mx resolving several hosts is one term however many
+   // have no address of the client's family - the common case for an IPv6 client.
    void
    SPFEvaluatorTester::TestVoidLookupsAreCountedPerTerm_()
    {
@@ -575,12 +566,9 @@ namespace HM
       }
    }
 
-   // Section 6.2: the explanation of a record reached through an include is not
-   // used, so it should not be fetched either.
-   //
-   // Asserted as a query count rather than as a result. Fetching it changes no
-   // answer - the void it may add falls outside every void-term window - so the
-   // only thing to see is the round-trip itself, once per failing include.
+   // Section 6.2: the explanation of a record reached through an include is not used, so
+   // it should not be fetched either. Asserted as a query count, because fetching it
+   // changes no answer and the only thing to see is the round-trip itself.
    void
    SPFEvaluatorTester::TestIncludeDoesNotFetchAnExplanation_()
    {
@@ -636,10 +624,9 @@ namespace HM
       }
    }
 
-   // Section 7.1 does not re-parse what a macro produced, and a name that comes
-   // out unusable is a name that does not exist: the mechanism does not match.
-   // It is not an error of either kind, and in particular not a temperror -
-   // which is what asking a resolver about an empty name produces.
+   // Section 7.1 does not re-parse what a macro produced, and a name that comes out
+   // unusable is a name that does not exist: the mechanism does not match. Not an error
+   // of either kind, and in particular not the temperror an empty name would produce.
    void
    SPFEvaluatorTester::TestUnusableTargetNames_()
    {

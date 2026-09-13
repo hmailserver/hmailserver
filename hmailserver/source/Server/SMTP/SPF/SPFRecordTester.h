@@ -5,16 +5,9 @@
 
 namespace HM
 {
-   // The grammar of RFC 7208 checked directly, a rule at a time.
-   //
-   // The conformance suite next to this exercises the same code end to end, and
-   // is the better witness that the parser is right; what this adds is the
-   // corners the suite happens not to visit, and a failure that names the rule
-   // rather than a case whose result changed.
-   //
-   // Failures are returned rather than reported, for the same reasons as
-   // SPFConformanceTester: where they belong differs between the server build
-   // and the portable one, and a run should report all of them.
+   // The grammar of RFC 7208 a rule at a time: the corners the conformance suite
+   // beside this does not visit, and a failure that names the rule rather than a
+   // case whose result changed.
    class SPFRecordTester
    {
    public:

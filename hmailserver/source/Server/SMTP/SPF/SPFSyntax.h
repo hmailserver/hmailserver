@@ -5,37 +5,25 @@
 
 namespace HM
 {
-   // The grammar of an SPF record, from the ABNF of RFC 7208 section 12 and the
-   // macro rules of section 7.1.
-   //
-   // Its own file because the parser and the macro expander both need it, and
-   // because the rules are fussier than they look: a domain-spec has to end in
-   // something a DNS name can end in, an address literal is stricter here than
-   // the one a resolver would accept, and a prefix length may not be written
-   // with a leading zero.
+   // The grammar of an SPF record: the ABNF of RFC 7208 section 12 and the macro
+   // rules of section 7.1. Its own file because the parser and the macro expander
+   // both need it.
    class SPFSyntax
    {
    public:
 
-      // Which macros a string is allowed to use. RFC 7208 section 7.2 gives c, r
-      // and t only to the explanation that an exp modifier points at; a record's
-      // own terms may not use them. That is what makes "exp=%{r}.example.com" a
-      // permerror while the very same macro is fine in the text exp fetches.
+      // Which macros a string may use. Section 7.2 gives c, r and t only to the text an
+      // exp modifier points at, which is what makes "exp=%{r}.example.com" a permerror
+      // while the very same macro is fine in the text exp fetches.
       enum class MacroSet
       {
          RecordTerm,
          ExplanationText
       };
 
-      // One macro expansion, taken apart:
-      //
-      //   macro-expand = ( "%{" macro-letter transformers *delimiter "}" )
-      //                  / "%%" / "%_" / "%-"
-      //   transformers = *DIGIT [ "r" ]
-      //
-      // The parser only needs to know whether a macro-string is well formed and
-      // the expander needs the pieces, but the two have to agree about where a
-      // macro ends, so there is one reader and this is what it returns.
+      // One macro expansion, taken apart: "%{" macro-letter *DIGIT [ "r" ] *delimiter
+      // "}", or "%%" / "%_" / "%-". One reader returns this, so the parser and the
+      // expander cannot disagree about where a macro ends.
       struct Macro
       {
          // "%%", "%_" and "%-" carry no letter. The character which follows the
@@ -49,11 +37,9 @@ namespace HM
          // meaning that the expansion is URL escaped, so the case is kept.
          char letter;
 
-         // How many of the right-hand parts to keep. Zero means all of them -
-         // either no digits were written, or a zero was. RFC 7208 does not
-         // allow a value of zero and does not say what to do with one; keeping
-         // every part is the only reading that leaves the record usable, and
-         // evaluating a record beats failing it.
+         // How many of the right-hand parts to keep. Zero means all of them: either no
+         // digits were written, or a zero was, which RFC 7208 neither allows nor says what
+         // to do with - see README.md.
          int digits;
 
          // The "r" of the transformers, in either case.
@@ -77,15 +63,9 @@ namespace HM
       // there is no requirement that it look like a domain name.
       static bool IsValidMacroString(const AnsiString &text, MacroSet macros);
 
-      // domain-spec: a macro-string which ends in either a top label or a macro
-      // expansion. Every mechanism and modifier that names a domain takes one of
-      // these, which is why "a:foo-bar" is a permerror while "a:foo.bar" is not:
-      // a name with no dot in it cannot end in a top label.
-      //
-      // Only ever a record term, so the exp-only macros are not allowed. What
-      // the macros expand to is not checked here and is not checked anywhere:
-      // section 7.1 does not re-parse an expansion, and a name that comes out of
-      // one unusable is treated as a name that does not exist.
+      // domain-spec: a macro-string ending in either a top label or a macro expansion,
+      // which is why "a:foo-bar" is a permerror while "a:foo.bar" is not. What the
+      // macros expand to is not checked here, or anywhere - see README.md.
       static bool IsValidDomainSpec(const AnsiString &text);
 
       // ip4-network: four decimal octets, and no more. Stricter than what a
@@ -107,12 +87,9 @@ namespace HM
       // rules out the control characters and the space within a term.
       static bool IsAsciiPrintable(const AnsiString &text);
 
-      // Whether a DNS query can be built from a name at all: RFC 7208 section
-      // 4.3 wants labels that are neither empty nor over 63 characters, and a
-      // name with more than one label. What that means differs by where the name
-      // came from - for the domain being checked it is a "none", for the target
-      // of a mechanism it is a name that does not exist - so this only answers
-      // the question and leaves the consequence to the caller.
+      // Whether a DNS query can be built from a name at all: RFC 7208 section 4.3 wants
+      // more than one label, none of them empty or over 63 characters. What that means
+      // differs by where the name came from, so the consequence is left to the caller.
       static bool IsValidDomainName(const AnsiString &text);
 
       // ASCII lower case, and only ASCII. RFC 4343 compares DNS names without
@@ -125,10 +102,9 @@ namespace HM
       static bool EqualsDnsName(const AnsiString &left, const AnsiString &right);
       static bool EndsWithDnsName(const AnsiString &name, const AnsiString &suffix);
 
-      // name, as an unknown modifier's name must be spelled: a letter, then
-      // letters, digits, "-", "_" and ".". This is why "1up=foo" and "=all" are
-      // permerrors while "moo.cow-far_out=man:dog/cat" is a modifier nobody
-      // knows and everybody ignores.
+      // name, as an unknown modifier's name must be spelled: a letter, then letters,
+      // digits, "-", "_" and ".". So "1up=foo" and "=all" are permerrors, while
+      // "moo.cow-far_out=man:dog/cat" is a modifier nobody knows and everybody ignores.
       static bool IsValidModifierName(const AnsiString &text);
    };
 }

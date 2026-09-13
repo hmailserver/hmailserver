@@ -58,10 +58,9 @@ namespace HM
          if (expected == actual)
             return;
 
-         // With the lengths, because some of the suite's records differ from what
-         // they look like by an invisible byte - a NUL, a control character - and
-         // a message showing only the text would read as though the two were the
-         // same.
+         // With the lengths, because some of the suite's records differ from what they look
+         // like by an invisible byte - a NUL, a control character - and a message showing only
+         // the text would read as though the two were the same.
          failures_.push_back(what + ": expected \"" + expected + "\" (" +
                              Count(expected.GetLength()) + " bytes), got \"" +
                              actual + "\" (" + Count(actual.GetLength()) + " bytes)");
@@ -81,10 +80,9 @@ namespace HM
          return Sections[0];
       }
 
-      // Walks every byte of the table. Nothing here can fail on well-formed data;
-      // the point is that a table which points somewhere it should not, or counts
-      // something it does not hold, is found by the sanitizers rather than by a
-      // case failing later for an unrelated-looking reason.
+      // Walks every byte of the table. Nothing here can fail on well-formed data; the point
+      // is that a table pointing somewhere it should not is found by the sanitizers, rather
+      // than by a case failing later for an unrelated-looking reason.
       void
       SPFConformanceTester::TestTableIsWhole_()
       {
@@ -176,13 +174,9 @@ namespace HM
          CheckEqual_("permerror", ResultName(Result::PermError), "permerror");
       }
 
-      // The suite publishes most of its policies as records of the deprecated type
-      // SPF rather than as TXT records, and expects a driver to present them as
-      // the TXT records an RFC 7208 evaluator would find - except where a host
-      // publishes a TXT record of its own, in which case the type-SPF records are
-      // what the evaluator is supposed to ignore. The generator applies that rule;
-      // these are the cases from the "Record lookup" and "Selecting records"
-      // sections which exist to catch getting it wrong.
+      // The suite publishes most of its policies as records of the deprecated type SPF and
+      // expects a driver to present them as TXT records, except where a host publishes a TXT
+      // record of its own. These are the cases that catch getting the generator's rule wrong.
       void
       SPFConformanceTester::TestTypeSpfBecomesTxt_()
       {
@@ -279,12 +273,9 @@ namespace HM
          }
       }
 
-      // RFC 7208 section 7.1 does not allow a NUL octet in a domain name, and the
-      // suite has two policies which end in one, expecting a permerror. The octet
-      // only reaches an evaluator because a character-string carries its length: a
-      // record read as a C string would stop at the NUL, the policy would look
-      // perfectly well formed, and the two cases would be decided on a record the
-      // suite did not publish.
+      // RFC 7208 section 7.1 does not allow a NUL octet in a domain name, and the suite has
+      // two policies ending in one, expecting a permerror. The octet only reaches an
+      // evaluator because a character-string carries its length - a C string would stop there.
       void
       SPFConformanceTester::TestNulOctetsSurvive_()
       {
@@ -363,10 +354,9 @@ namespace HM
          }
       }
 
-      // DNS ignores the case of ASCII letters in a name, and a trailing dot says
-      // only that the name is already absolute. The suite leans on both: it writes
-      // some zone names in mixed case, and some records point at a name which
-      // differs from the zone it names in nothing but case and a dot.
+      // DNS ignores the case of ASCII letters in a name, and a trailing dot says only that
+      // the name is already absolute. The suite leans on both: some zone names are mixed
+      // case, and some records point at a name differing from its zone only in case and dot.
       void
       SPFConformanceTester::TestNamesAreMatchedAsDnsMatchesThem_()
       {
@@ -420,10 +410,9 @@ namespace HM
          Check_(hostNames.size() == 3, "1.2.3.4 maps back to three hosts");
       }
 
-      // RFC 7208 section 5.4 walks a domain's MX records; DNSResolver hands its
-      // callers the host names in preference order, and the table is built that
-      // way, which matters where the number of names is over the section 4.6.4
-      // limit and only the first ten are looked at.
+      // RFC 7208 section 5.4 walks a domain's MX records; DNSResolver hands its callers the
+      // host names in preference order and the table is built that way, which matters where
+      // the number of names is over section 4.6.4's limit and only the first ten are used.
       void
       SPFConformanceTester::TestMxPreferenceOrder_()
       {
@@ -451,10 +440,9 @@ namespace HM
          const Section &bugs = FindSection_("Test cases from implementation bugs");
 
          {
-            // b.example.org is an alias for a.example.org, which publishes four
-            // TXT records, one of them a policy. The case exists because an
-            // implementation which followed the alias twice found the policy twice
-            // and called it a permerror.
+            // b.example.org is an alias for a.example.org, which publishes four TXT records, one
+            // of them a policy. The case exists because an implementation which followed the alias
+            // twice found the policy twice and called it a permerror.
             ConformanceLookup resolver(bugs);
             std::vector<AnsiString> records;
             Check_(resolver.GetTXTRecords("b.example.org", records), "b.example.org answers");
@@ -506,11 +494,9 @@ namespace HM
 
       namespace
       {
-         // The domain an evaluation is done against, which the caller picks
-         // rather than the evaluation: the sender's domain, or the HELO argument
-         // when there is no sender. This is what SPF::Test and
-         // SenderAuthentication do in the server, and what the suite means by a
-         // case with an empty mailfrom.
+         // The domain an evaluation is done against, which the caller picks: the sender's
+         // domain, or the HELO argument when there is no sender. This is what SPF::Test and
+         // SenderAuthentication do, and what the suite means by a case with an empty mailfrom.
          AnsiString DomainOf(const Case &testCase)
          {
             AnsiString sender = testCase.mailFrom;
@@ -591,14 +577,9 @@ namespace HM
          }
       }
 
-      // Runs every case of the suite through the evaluator and compares what
-      // comes back with what rfc7208-tests.yml expects.
-      //
-      // A case names the client address, the sender and the HELO argument; the
-      // domain to check is the caller's to pick, and DomainOf picks it the way
-      // the server does. Some cases accept more than one result, because RFC 7208
-      // leaves the answer to the implementation; the suite's first choice is its
-      // preference and any of them passes.
+      // Runs every case of the suite through the evaluator and compares what comes back with
+      // what rfc7208-tests.yml expects. Some cases accept more than one result, because RFC
+      // 7208 leaves the answer to the implementation; the suite's first choice is preferred.
       int
       SPFConformanceTester::RunCases_()
       {
@@ -666,10 +647,9 @@ namespace HM
             }
          }
 
-         // Every case is decided now, so the floor is the whole suite. It stays a
-         // floor rather than an equality because the count is what a case is
-         // dropped from silently: an evaluation which stopped answering would
-         // otherwise look like nothing had changed.
+         // Every case is decided now, so the floor is the whole suite. It stays a floor rather
+         // than an equality because the count is what a case is dropped from silently: an
+         // evaluation which stopped answering would otherwise look like nothing had changed.
          Check_(decided >= GetCaseCount(), "every case of the suite is decided (" +
                                            Count(decided) + " of " + Count(GetCaseCount()) + ")");
 

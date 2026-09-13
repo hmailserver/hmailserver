@@ -20,10 +20,9 @@ namespace HM
 {
    namespace
    {
-      // An include or a redirect moves the evaluation to another record, and
-      // that record may do the same. The term limit of section 4.6.4 already
-      // bounds how deep this can go, since every step costs one; this is only
-      // here so that a change to the counting cannot turn into a stack overflow.
+      // An include or a redirect moves the evaluation to another record, which may do the
+      // same. The term limit of section 4.6.4 already bounds the depth, since every step
+      // costs one; this is only so a change to the counting cannot overflow the stack.
       const int MAXIMUM_DEPTH = SPFEvaluator::MaximumTerms + 2;
 
       // Section 5.5: a validated name matches if it is the target name or sits
@@ -59,12 +58,9 @@ namespace HM
       }
    }
 
-   // Wraps the resolver an evaluation was given and counts what it is asked.
-   //
-   // Here rather than in the evaluator's own methods because the macro expander
-   // queries DNS too - the p macro of section 7.3 does - and section 4.6.4
-   // counts an evaluation's queries rather than a record's. Handing the expander
-   // the same wrapper is what makes one counter enough.
+   // Wraps the resolver an evaluation was given and counts what it is asked. Here
+   // rather than in the evaluator's own methods because the macro expander queries DNS
+   // too, and section 4.6.4 counts an evaluation's queries - see README.md.
    class SPFEvaluator::CountingLookup : public SPFDnsLookup
    {
    public:
@@ -433,13 +429,9 @@ namespace HM
    SPFEvaluator::Match
    SPFEvaluator::MatchPTR_(const AnsiString &targetName)
    {
-      // Section 5.5: the names the client's reverse mapping gives, kept only
-      // where they resolve back to the client. The expander does the work,
-      // because the p macro of section 7.3 needs the same list and section 4.6.4
-      // would count the queries twice.
-      //
-      // A lookup which fails leaves the list empty rather than ending the check:
-      // section 5.5 has the mechanism simply not match.
+      // Section 5.5: the names the client's reverse mapping gives, kept only where they
+      // resolve back to the client. The expander does the work, since the p macro of
+      // section 7.3 needs the same list. A failed lookup leaves it empty, not an error.
       const std::vector<AnsiString> &names = expander_->GetValidatedNames();
 
       for (size_t i = 0; i < names.size(); i++)
@@ -513,12 +505,9 @@ namespace HM
          return TargetName::SyntaxError;
       }
 
-      // Section 7.1 does not re-parse an expansion, so what came out is not
-      // checked against the grammar - only against whether a query can be built
-      // from it at all. One that cannot is a name that does not exist. Without
-      // this an empty expansion reaches the resolver, which has no query to make
-      // and reports a failure, turning a mechanism that should not match into a
-      // temperror.
+      // Section 7.1 does not re-parse an expansion, so what came out is checked only for
+      // whether a query can be built from it at all; one that cannot is a name that does
+      // not exist. Without this an empty expansion reaches the resolver as a failure.
       if (!SPFSyntax::IsValidDomainName(targetName))
          return TargetName::Unusable;
 
@@ -582,11 +571,9 @@ namespace HM
 
       std::vector<AnsiString> records;
 
-      // Section 4.6.4 leaves the exp modifier out of the term limit, and this
-      // query is outside every void-term window too: the result of the check is
-      // already decided by the time an explanation is wanted, so letting it spend
-      // the void budget could only change an answer that had nothing to do with
-      // it.
+      // Section 4.6.4 leaves the exp modifier out of the term limit, and this query is
+      // outside every void-term window too: the result of the check is already decided by
+      // the time an explanation is wanted.
       if (!counting_lookup_->GetTXTRecords(targetName, records))
          return "";
 

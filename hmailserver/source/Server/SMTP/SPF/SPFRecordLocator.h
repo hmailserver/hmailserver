@@ -9,13 +9,9 @@ namespace HM
 {
    class SPFDnsLookup;
 
-   // Finds the SPF record a domain publishes and parses it. RFC 7208 sections
-   // 4.3, 4.4 and 4.5 - everything an evaluation does before it looks at the
-   // first mechanism.
-   //
-   // A separate step from evaluating because the same work is done more than
-   // once: for the domain being checked, and again for the target of every
-   // include and of a redirect.
+   // Finds the SPF record a domain publishes and parses it: RFC 7208 sections 4.3 to
+   // 4.5, everything an evaluation does before the first mechanism. Its own step
+   // because an include and a redirect each do the same work again.
    class SPFRecordLocator
    {
    public:

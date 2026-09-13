@@ -1,23 +1,9 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
-// libFuzzer entry point for the macro expansion of RFC 7208 section 7.
-//
-// Two of the expander's three inputs are chosen by a stranger. A term's target
-// comes from the domain's own record, and the text an exp modifier points at is
-// a TXT record that nothing has parsed before the expander reads it - section
-// 6.2 has a syntax error there produce the receiver's own explanation rather
-// than an error, so the expander is the only thing standing between that record
-// and the code below it.
-//
-// The expansion is also driven by the sender and the HELO argument, which come
-// off the wire, so the input is split: the first bytes stand in for those and
-// the rest is the macro-string. That way a case can be found where the two
-// interact - a transformer counting parts of a local part that has none, say -
-// and not only where the macro-string alone is odd.
-//
-// Built by the portable build when HM_FUZZ is on, which needs clang. Not part of
-// ctest: a fuzzer has no pass, only a not-yet-failed.
+// libFuzzer entry point for the macro expansion of RFC 7208 section 7. The input is
+// split, because the expansion depends on the sender and the HELO argument as much
+// as on the macro-string - README.md says how, and how to run this.
 
 #include "stdafx.h"
 
@@ -30,10 +16,9 @@
 
 namespace
 {
-   // Reads a length-prefixed run of bytes off the front of the input. Returns an
-   // empty string once there is nothing left, which is a case worth reaching:
-   // an empty sender and an empty HELO argument are both things a client can
-   // send.
+   // Reads a length-prefixed run of bytes off the front of the input. Returns an empty
+   // string once there is nothing left, which is a case worth reaching: an empty sender
+   // and an empty HELO argument are both things a client can send.
    HM::AnsiString TakeField(const uint8_t *&data, size_t &size)
    {
       if (size == 0)
@@ -75,10 +60,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       HM::SPFAddress::TryParse((size % 2) ? "192.0.2.1" : "cafe:babe::1", clientAddress);
    }
 
-   // A resolver holding one reverse mapping, so the p macro of section 7.3 does
-   // the work it would do in the server: a PTR lookup, then an address lookup to
-   // validate what came back. Without it the macro would always take the path
-   // that expands to "unknown".
+   // A resolver holding one reverse mapping, so the p macro of section 7.3 does the work
+   // it would do in the server: a PTR lookup, then an address lookup to validate what
+   // came back. Without it the macro would always expand to "unknown".
    auto lookup = std::make_shared<HM::SPFTestLookup>();
 
    lookup->AddPTR(clientAddress.GetReverseName(), "mail.example.com");

@@ -46,15 +46,9 @@ namespace HM
          return parts;
       }
 
-      // The transformers of RFC 7208 section 7.3, in the order that section
-      // applies them: split the value at the delimiters, reverse the parts if
-      // "r" was written, keep as many right-hand parts as the digits asked for,
-      // and join what is left with dots.
-      //
-      // The parts are always rejoined with dots, whatever they were split at -
-      // that is the point of naming a delimiter. Section 7.3's own example has
-      // %{l-} turn "strong-bad" into "strong.bad", and a transformer which
-      // handed back the hyphen would leave the record no better off than %{l}.
+      // The transformers of section 7.3, in the order it applies them: split at the
+      // delimiters, reverse if "r" was written, keep the digits' worth of right-hand
+      // parts, and rejoin with dots whatever they were split at - see README.md.
       AnsiString Transform(const AnsiString &value, const SPFSyntax::Macro &macro)
       {
          AnsiString delimiters = macro.delimiters;
@@ -97,10 +91,9 @@ namespace HM
          return text;
       }
 
-      // Section 7.1: an upper case macro letter means the expansion is URL
-      // escaped. RFC 3986 section 2.3 leaves the unreserved characters alone -
-      // the letters, the digits, and "-", ".", "_" and "~" - and everything else
-      // becomes a percent sign and two hex digits.
+      // Section 7.1: an upper case macro letter means the expansion is URL escaped. RFC
+      // 3986 section 2.3 leaves the unreserved characters alone - letters, digits, "-",
+      // ".", "_" and "~" - and everything else becomes a percent sign and two hex digits.
       AnsiString UrlEscape(const AnsiString &text)
       {
          const char *hexDigits = "0123456789ABCDEF";
@@ -181,10 +174,9 @@ namespace HM
 
       if (at < 0)
       {
-         // Not an address, so there is no local part to take. Nothing reaches
-         // here in the server - a sender the evaluation could not find a domain
-         // in never gets as far as a record - but the macros still have to have
-         // values.
+         // Not an address, so there is no local part to take. Nothing reaches here in the
+         // server - a sender the evaluation found no domain in never gets as far as a record
+         // - but the macros still have to have values.
          local_part_ = POSTMASTER;
          sender_domain_ = sender;
          sender_ = AnsiString(POSTMASTER) + "@" + sender;
@@ -238,10 +230,9 @@ namespace HM
       SPFSyntax::MacroSet macros = asDomainName ? SPFSyntax::MacroSet::RecordTerm
                                                 : SPFSyntax::MacroSet::ExplanationText;
 
-      // Checked before anything is expanded rather than as the walk goes, so
-      // that a string which goes wrong halfway through expands to nothing at
-      // all. The caller is told and decides what that means, and a half-built
-      // name is not something either caller could use.
+      // Checked before anything is expanded rather than as the walk goes, so that a string
+      // which goes wrong halfway through expands to nothing at all: a half-built name is
+      // not something either caller could use.
       if (!SPFSyntax::IsValidMacroString(text, macros))
          return false;
 
@@ -428,10 +419,9 @@ namespace HM
       {
          std::vector<AnsiString> addresses;
 
-         // Section 5.5 validates a name against the family the client connected
-         // over, so an IPv6 client is checked against the name's AAAA records and
-         // an IPv4 client against its A records. A name which answers only for
-         // the other family does not validate.
+         // Section 5.5 validates a name against the family the client connected over, so an
+         // IPv6 client is checked against the name's AAAA records and an IPv4 client against
+         // its A records. A name which answers only for the other family does not validate.
          bool answered = (client_address_.GetFamily() == SPFAddress::Family::IP6)
                             ? lookup_->GetAAAARecords(names[i], addresses)
                             : lookup_->GetARecords(names[i], addresses);

@@ -1,18 +1,9 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
-// GENERATED FILE - do not edit.
-//
-// Produced by Generate-SPFConformanceSuite.py from rfc7208-tests.yml, the
-// openspf.org test suite for RFC 7208. See README.md in this directory for
-// where the suite comes from and how to regenerate this file, and the
-// generator for the two places where the transcription is a decision rather
-// than a copy: how records of the deprecated type SPF become TXT records, and
-// how a timed-out zone is expressed.
-//
-// A failing case is identified by its name, which is the key it is written
-// under in rfc7208-tests.yml; the description and commentary are there rather
-// than duplicated here.
+// GENERATED FILE - do not edit. Produced by Generate-SPFConformanceSuite.py from
+// rfc7208-tests.yml, the openspf.org test suite for RFC 7208. README.md says where
+// the suite comes from and how to regenerate this file.
 
 #include "stdafx.h"
 

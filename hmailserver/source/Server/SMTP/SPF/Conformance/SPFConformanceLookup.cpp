@@ -18,12 +18,9 @@ namespace HM
    {
       namespace
       {
-         // DNS compares names without regard to the case of ASCII letters, and
-         // only of ASCII letters - RFC 4343. The suite relies on it: it writes
-         // some of its zone names in mixed case, and some of the names its
-         // records point at differ from the zone they name in nothing but case.
-         // A trailing dot says only that the name is already absolute, which
-         // every name here is.
+         // DNS compares names without regard to the case of ASCII letters, and only of ASCII
+         // letters - RFC 4343. The suite relies on it: some of its zone names are mixed case,
+         // and some names its records point at differ from the zone they name only in case.
          AnsiString Normalize(const AnsiString &name)
          {
             int length = name.GetLength();
@@ -39,13 +36,9 @@ namespace HM
             return result;
          }
 
-         // The bytes of a record. A TXT record is a sequence of
-         // character-strings which RFC 7208 section 3.3 joins with nothing
-         // between them; every other type carries a single value.
-         //
-         // Copied a byte at a time because two of the suite's policies hold a
-         // NUL octet, and appending them as C strings would drop it along with
-         // the reason those two cases exist.
+         // The bytes of a record. A TXT record is a sequence of character-strings which RFC
+         // 7208 section 3.3 joins with nothing between them. Copied a byte at a time because
+         // two of the suite's policies hold a NUL, which appending as C strings would drop.
          AnsiString Join(const Record &record)
          {
             AnsiString result;
@@ -117,12 +110,9 @@ namespace HM
 
          bool found = Collect_(*zone, type, values);
 
-         // A CNAME is followed one step and no further: what the alias points at
-         // is read for records of the type asked for, and its own aliases are
-         // not followed in turn. That is what the suite's own driver does, and
-         // it is why cname.example.com, which is an alias for itself, and
-         // loop4.example.com, which is an alias for that, do not run away.
-         // Nothing in the suite needs a longer chain.
+         // A CNAME is followed one step and no further, which is what the suite's own driver
+         // does. It is why cname.example.com, an alias for itself, and loop4.example.com, an
+         // alias for that, do not run away. Nothing in the suite needs a longer chain.
          for (int i = 0; i < zone->recordCount; i++)
          {
             if (zone->records[i].type != RecordType::CNAME)
@@ -136,10 +126,9 @@ namespace HM
                Collect_(*target, type, values);
          }
 
-         // Every timing-out zone in the suite carries the marker as its last
-         // record, so what decides whether the query is answered is only
-         // whether the zone holds a record of the type asked for. The
-         // generator asserts that, and says more about why.
+         // Every timing-out zone in the suite carries the marker as its last record, so what
+         // decides whether the query is answered is only whether the zone holds a record of
+         // the type asked for. The generator asserts that, and says more about why.
          if (!found && zone->timesOut)
             return false;
 

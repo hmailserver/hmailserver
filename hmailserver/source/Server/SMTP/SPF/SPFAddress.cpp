@@ -364,10 +364,9 @@ namespace HM
          bestLength = 0;
       }
 
-      // The groups before the run and the groups after it, with "::" standing
-      // for the run between them. Written this way round because the "::" is one
-      // token rather than a separator either side owns: "::1" and "cafe::" have
-      // groups on only one side of it, and "::" has none on either.
+      // The groups before the run and after it, with "::" standing for the run between
+      // them. This way round because "::" is one token rather than a separator either
+      // side owns: "::1" and "cafe::" have groups on one side of it, "::" on neither.
       AnsiString text;
 
       int runEnd = (bestStart < 0) ? 8 : bestStart;

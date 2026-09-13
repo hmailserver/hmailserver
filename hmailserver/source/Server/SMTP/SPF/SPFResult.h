@@ -5,19 +5,12 @@
 
 namespace HM
 {
-   // The results an SPF evaluation can produce, RFC 7208 section 2.6.
-   //
-   // Internal only: never persisted, and never passed over COM. What the COM API
-   // exposes is whether SPF is used and what it scores, not what a check came to.
-   //
-   // Its own file, rather than a member of SPF, because SPF is the service's
-   // entry point and drags in the singleton and the wide string type with it.
-   // The evaluator, the record locator and the conformance suite are built by the
-   // portable build as well, and they all have to be able to name a result.
+   // The results an SPF evaluation can produce, RFC 7208 section 2.6. Internal
+   // only: never persisted, never passed over COM. Its own header so the portable
+   // build can name one - see README.md.
    enum class SPFResult
    {
-      // The domain publishes no SPF record, or no record could be looked up
-      // because the domain is malformed or does not exist.
+      // No record, or no record could be looked up.
       None,
 
       // A record was found but it makes no assertion about the client.
@@ -29,16 +22,13 @@ namespace HM
       // The client is not authorized to send mail on behalf of the domain.
       Fail,
 
-      // The client is not authorized, but the domain asks that the message is
-      // accepted rather than rejected.
+      // Not authorized, but the domain asks that the message is accepted.
       SoftFail,
 
-      // The evaluation could not be completed, typically because a DNS lookup
-      // failed. Evaluating the same message later may give another result.
+      // Could not be completed, typically a failed lookup. Trying again may differ.
       TempError,
 
-      // The record was found but could not be evaluated, because it is
-      // syntactically invalid or exceeds a processing limit.
+      // Found but not evaluable: invalid, or past a processing limit.
       PermError
    };
 }

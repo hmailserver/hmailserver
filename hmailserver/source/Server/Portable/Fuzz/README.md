@@ -36,7 +36,7 @@ anything written by hand, because the suite already put them on the corners of
 the grammar; they are still a test fixture rather than the real world.
 
 A corpus of real records is what would settle the two questions the grammar is
-knowingly lenient about, both noted in `SPFSyntax.h`: a zero digit transformer
+knowingly lenient about, both noted in `SMTP/SPF/README.md`: a zero digit transformer
 (`%{d0}`), which this accepts, and an unterminated `%{`, which it rejects. The
 suite tests neither, so neither is settled by anything here.
 
