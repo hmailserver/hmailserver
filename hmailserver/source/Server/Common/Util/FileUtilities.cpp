@@ -402,7 +402,19 @@ namespace HM
          }
          else
          {
-            boost::filesystem::copy_file(current, sTo / current.filename());
+            boost::system::error_code error_code;
+            boost::filesystem::copy_file(current, sTo / current.filename(), boost::filesystem::copy_options::overwrite_existing, error_code);
+
+            // A file deleted after the directory was listed is expected, such as a delivered message.
+            if (error_code == boost::system::errc::no_such_file_or_directory)
+               continue;
+
+            if (error_code)
+            {
+               errorMessage = Formatter::Format("Could not copy the file {0} to {1}. Error: {2}",
+                  String(current.c_str()), String((sTo / current.filename()).c_str()), String(error_code.message()));
+               return false;
+            }
          }
       }
 

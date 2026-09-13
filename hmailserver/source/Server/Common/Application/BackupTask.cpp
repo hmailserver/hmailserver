@@ -23,20 +23,47 @@ namespace HM
    {
    }
 
+   namespace
+   {
+      // Tells the backup manager that the task is done, whichever way it ends.
+      struct BackupThreadStoppedNotifier
+      {
+         ~BackupThreadStoppedNotifier()
+         {
+            Application::Instance()->GetBackupManager()->OnThreadStopped();
+         }
+      };
+   }
+
    void
    BackupTask::DoWork()
    {
-      BackupExecuter oBE;
-      if (do_backup_)
-      {
-         oBE.StartBackup();
-      }
-      else
-      {
-         oBE.StartRestore(backup_);
-      }
+      BackupThreadStoppedNotifier notifier;
 
-      Application::Instance()->GetBackupManager()->OnThreadStopped();
+      try
+      {
+         BackupExecuter oBE;
+         if (do_backup_)
+         {
+            oBE.StartBackup();
+         }
+         else
+         {
+            oBE.StartRestore(backup_);
+         }
+      }
+      catch (boost::thread_interrupted&)
+      {
+         throw;
+      }
+      catch (std::exception& error)
+      {
+         Application::Instance()->GetBackupManager()->OnBackupFailed(error.what());
+      }
+      catch (...)
+      {
+         Application::Instance()->GetBackupManager()->OnBackupFailed("Unknown error.");
+      }
    }
 
 
