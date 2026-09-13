@@ -158,47 +158,11 @@ namespace HM
    bool 
    DNSResolver::GetTXTRecords(const String &sDomain, std::vector<String> &foundResult)
    {
-      return GetTXTRecordsRecursive_(sDomain, foundResult, 0);
-   }
+      std::vector<DNSRecord> records;
 
-   bool
-   DNSResolver::GetTXTRecordsRecursive_(const String &sDomain, std::vector<String> &foundResult, int recursionLevel)
-   {
-      if (sDomain.IsEmpty())
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetTXTRecordsRecursive_", "Attempted DNS lookup for empty host name.");
-         return false;
-      }
+      bool result = GetRecordsOfTypeRecursive_(sDomain, DNS_TYPE_TEXT, records, 0);
 
-      if (recursionLevel > 10)
-      {
-         String sMessage = Formatter::Format("Too many recursions during TXT record lookup. Query: {0}", sDomain);
-         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4402, "DNSResolver::GetTXTRecordsRecursive_", sMessage);
-
-         return false;
-      }
-      
-      DNSResolverWinApi resolver;
-
-      std::vector<DNSRecord> foundRecords;
-
-      bool result = resolver.Query(sDomain, DNS_TYPE_TEXT, foundRecords);
-
-      if (foundRecords.size() == 0)
-      {
-         // The queries for TXT didn't return any records. Attempt to look up via CNAME
-         std::vector<DNSRecord> foundCNames;
-         bool cnameQueryResult = resolver.Query(sDomain, DNS_TYPE_CNAME, foundCNames);
-
-         // A CNAME should only point at a single host name.
-         if (cnameQueryResult && foundCNames.size() == 1)
-         {
-            auto cnameHostName = foundCNames[0].GetValue();
-            return GetTXTRecordsRecursive_(cnameHostName, foundResult, recursionLevel + 1);
-         }
-      }
-
-      foundResult = GetDnsRecordsValues_(foundRecords);
+      foundResult = GetDnsRecordsValues_(records);
 
       return result;
    }
@@ -369,46 +333,11 @@ namespace HM
    bool
    DNSResolver::GetMXRecords(const String &sDomain, std::vector<String> &vecFoundNames)
    {
-      return GetMXRecordsRecursive_(sDomain, vecFoundNames, 0);
-   }
+      std::vector<DNSRecord> records;
 
-   bool
-   DNSResolver::GetMXRecordsRecursive_(const String &sDomain, std::vector<String> &vecFoundNames, int recursionLevel)
-   {
-      if (sDomain.IsEmpty())
-      {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5516, "DNSResolver::GetMXRecordsRecursive_", "Attempted DNS lookup for empty host name.");
-         return false;
-      }
+      bool result = GetRecordsOfTypeRecursive_(sDomain, DNS_TYPE_MX, records, 0);
 
-      if (recursionLevel > 10)
-      {
-         String sMessage = Formatter::Format("Too many recursions during MX record lookup. Query: {0}", sDomain);
-         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4403, "DNSResolver::GetMXRecordsRecursive_", sMessage);
-
-         return false;
-      }
-      
-      DNSResolverWinApi resolver;
-      std::vector<DNSRecord> foundMxRecords;
-
-      bool result = resolver.Query(sDomain, DNS_TYPE_MX, foundMxRecords);
-
-      if (foundMxRecords.size() == 0)
-      {
-         // The queries for MX didn't return any records. Attempt to look up via CNAME
-         std::vector<DNSRecord> foundCNames;
-         bool cnameQueryResult = resolver.Query(sDomain, DNS_TYPE_CNAME, foundCNames);
-
-         // A CNAME should only point at a single host name.
-         if (cnameQueryResult && foundCNames.size() == 1)
-         {
-            auto cnameHostName = foundCNames[0].GetValue();
-            return GetMXRecordsRecursive_(cnameHostName, vecFoundNames, recursionLevel + 1);
-         }
-      }
-
-      for (DNSRecord dnsRecord : foundMxRecords)
+      for (DNSRecord dnsRecord : records)
       {
          // Null MX, see: rfc7505 
          // https://tools.ietf.org/html/rfc7505
@@ -418,7 +347,7 @@ namespace HM
          }
       }
 
-      vecFoundNames = GetDnsRecordsValues_(foundMxRecords);
+      vecFoundNames = GetDnsRecordsValues_(records);
 
       return result;
    }
@@ -426,11 +355,17 @@ namespace HM
    bool
    DNSResolver::GetRecordsOfType(const String &query, int resourceType, std::vector<String> &values)
    {
-      return GetRecordsOfTypeRecursive_(query, resourceType, values, 0);
+      std::vector<DNSRecord> records;
+
+      bool result = GetRecordsOfTypeRecursive_(query, resourceType, records, 0);
+
+      values = GetDnsRecordsValues_(records);
+
+      return result;
    }
 
    bool
-   DNSResolver::GetRecordsOfTypeRecursive_(const String &query, int resourceType, std::vector<String> &values, int recursionLevel)
+   DNSResolver::GetRecordsOfTypeRecursive_(const String &query, int resourceType, std::vector<DNSRecord> &records, int recursionLevel)
    {
       if (query.IsEmpty())
       {
@@ -440,22 +375,19 @@ namespace HM
 
       if (recursionLevel > 10)
       {
-         String sMessage = Formatter::Format("Too many recursions during record lookup. Query: {0}", query);
-         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4404, "DNSResolver::GetRecordsOfTypeRecursive_", sMessage);
+         String sMessage = Formatter::Format("Too many recursions during record lookup. Query: {0}, Type: {1}", query, resourceType);
+         ErrorManager::Instance()->ReportError(ErrorManager::Low, 4402, "DNSResolver::GetRecordsOfTypeRecursive_", sMessage);
 
          return false;
       }
 
       DNSResolverWinApi resolver;
 
-      std::vector<DNSRecord> foundRecords;
+      bool result = resolver.Query(query, resourceType, records);
 
-      bool result = resolver.Query(query, resourceType, foundRecords);
-
-      if (foundRecords.size() == 0)
+      if (records.size() == 0)
       {
-         // Nothing of the type asked for. The name may be an alias, which is what
-         // the other lookups here do too.
+         // Nothing of the type asked for. The name may be an alias.
          std::vector<DNSRecord> foundCNames;
          bool cnameQueryResult = resolver.Query(query, DNS_TYPE_CNAME, foundCNames);
 
@@ -463,11 +395,9 @@ namespace HM
          if (cnameQueryResult && foundCNames.size() == 1)
          {
             auto cnameHostName = foundCNames[0].GetValue();
-            return GetRecordsOfTypeRecursive_(cnameHostName, resourceType, values, recursionLevel + 1);
+            return GetRecordsOfTypeRecursive_(cnameHostName, resourceType, records, recursionLevel + 1);
          }
       }
-
-      values = GetDnsRecordsValues_(foundRecords);
 
       return result;
    }

@@ -164,16 +164,6 @@ namespace HM
       }
    }
 
-   SPFMechanism::SPFMechanism() :
-      type_(Type::All),
-      qualifier_(Qualifier::Pass),
-      has_domain_spec_(false),
-      ip4_prefix_length_(32),
-      ip6_prefix_length_(128)
-   {
-
-   }
-
    SPFMechanism::SPFMechanism(Type type, Qualifier qualifier) :
       type_(type),
       qualifier_(qualifier),

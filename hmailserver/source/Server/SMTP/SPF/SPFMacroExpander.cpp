@@ -21,40 +21,6 @@ namespace HM
       // stands in for one.
       const char *POSTMASTER = "postmaster";
 
-      char ToLower(char character)
-      {
-         if (character >= 'A' && character <= 'Z')
-            return (char) (character - 'A' + 'a');
-
-         return character;
-      }
-
-      // DNS names are compared without regard to case, and only for the ASCII
-      // letters - RFC 4343. Hand rolled rather than through CompareNoCase,
-      // which folds through the current locale and would fold bytes above 0x7f
-      // as well.
-      bool EqualsNoCase(const AnsiString &left, const AnsiString &right)
-      {
-         if (left.GetLength() != right.GetLength())
-            return false;
-
-         for (int i = 0; i < left.GetLength(); i++)
-         {
-            if (ToLower(left[i]) != ToLower(right[i]))
-               return false;
-         }
-
-         return true;
-      }
-
-      bool EndsWithNoCase(const AnsiString &text, const AnsiString &suffix)
-      {
-         if (text.GetLength() < suffix.GetLength())
-            return false;
-
-         return EqualsNoCase(text.Right(suffix.GetLength()), suffix);
-      }
-
       // Splits a macro's value at every one of the delimiter characters. Empty
       // parts are kept: what is between two delimiters is a part, and dropping
       // it would move the parts a digit transformer counts from.
@@ -326,9 +292,9 @@ namespace HM
             continue;
          }
 
-         AnsiString value = Transform(GetMacroValue_(ToLower(macro.letter), domain), macro);
+         AnsiString value = Transform(GetMacroValue_(SPFSyntax::ToLowerAscii(macro.letter), domain), macro);
 
-         if (macro.letter != ToLower(macro.letter))
+         if (macro.letter != SPFSyntax::ToLowerAscii(macro.letter))
             value = UrlEscape(value);
 
          result += value;
@@ -432,7 +398,7 @@ namespace HM
       // of it, and is content with any of the names otherwise.
       for (int i = 0; i < (int) validated_names_.size(); i++)
       {
-         if (EqualsNoCase(validated_names_[i], domain))
+         if (SPFSyntax::EqualsDnsName(validated_names_[i], domain))
             return validated_names_[i];
       }
 
@@ -440,7 +406,7 @@ namespace HM
 
       for (int i = 0; i < (int) validated_names_.size(); i++)
       {
-         if (EndsWithNoCase(validated_names_[i], suffix))
+         if (SPFSyntax::EndsWithDnsName(validated_names_[i], suffix))
             return validated_names_[i];
       }
 

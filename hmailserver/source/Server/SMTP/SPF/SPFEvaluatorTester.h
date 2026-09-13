@@ -39,6 +39,9 @@ namespace HM
       void TestTermLimit_();
       void TestResolverAnswers_();
       void TestExplanationOnlyForFail_();
+      void TestVoidLookupsAreCountedPerTerm_();
+      void TestIncludeDoesNotFetchAnExplanation_();
+      void TestUnusableTargetNames_();
 
       std::vector<AnsiString> failures_;
    };

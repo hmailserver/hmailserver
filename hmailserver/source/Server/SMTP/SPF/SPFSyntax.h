@@ -115,6 +115,16 @@ namespace HM
       // the question and leaves the consequence to the caller.
       static bool IsValidDomainName(const AnsiString &text);
 
+      // ASCII lower case, and only ASCII. RFC 4343 compares DNS names without
+      // regard to case for the letters A-Z and for nothing else, so folding
+      // through std::ctype would fold bytes a name may legitimately carry.
+      static char ToLowerAscii(char character);
+
+      // Whether two DNS names are the same name, and whether one ends in the
+      // other, both compared as RFC 4343 compares them.
+      static bool EqualsDnsName(const AnsiString &left, const AnsiString &right);
+      static bool EndsWithDnsName(const AnsiString &name, const AnsiString &suffix);
+
       // name, as an unknown modifier's name must be spelled: a letter, then
       // letters, digits, "-", "_" and ".". This is why "1up=foo" and "=all" are
       // permerrors while "moo.cow-far_out=man:dog/cat" is a modifier nobody

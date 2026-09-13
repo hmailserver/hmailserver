@@ -45,9 +45,10 @@ namespace HM
 
       bool GetEmailServersRecursive_(const String &sDomainName, std::vector<HostNameAndIpAddress> &saFoundNames, int recursionLevel);
       bool GetIpAddressesRecursive_(const String &hostName, std::vector<String> &addresses, int recursionLevel, bool followCnameRecords, bool bypassCache);
-      bool GetTXTRecordsRecursive_(const String &sDomain, std::vector<String> &foundResult, int recursionLevel);
-      bool GetMXRecordsRecursive_(const String &sDomain, std::vector<String> &vecFoundNames, int recursionLevel);
-      bool GetRecordsOfTypeRecursive_(const String &query, int resourceType, std::vector<String> &values, int recursionLevel);
+      // The records of one type, following a CNAME where the name holds none of
+      // that type. GetTXTRecords, GetMXRecords and GetRecordsOfType differ only
+      // in what they do with what comes back, so this is where all three look.
+      bool GetRecordsOfTypeRecursive_(const String &query, int resourceType, std::vector<DNSRecord> &records, int recursionLevel);
 
       std::vector<String> GetDnsRecordsValues_(std::vector<DNSRecord> records);
    };
