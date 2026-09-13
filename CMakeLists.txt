@@ -77,6 +77,11 @@ target_link_libraries(hmailserver-core-tests PRIVATE hmailserver-core)
 enable_testing()
 add_test(NAME hmailserver-core-tests COMMAND hmailserver-core-tests)
 
+# Parses the records written by Portable/Fuzz/Get-SpfRecords.ps1. Not a test: the
+# records come from live DNS and change over time.
+add_executable(spf-parse-records "${HM_SERVER}/Portable/Fuzz/ParseRealRecords.cpp")
+target_link_libraries(spf-parse-records PRIVATE hmailserver-core)
+
 # The fuzzers, which are off by default and are not tests.
 #
 # A fuzzer has no pass, only a not-yet-failed, so running one for a fixed number

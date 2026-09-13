@@ -40,6 +40,18 @@ knowingly lenient about, both noted in `SMTP/SPF/README.md`: a zero digit transf
 (`%{d0}`), which this accepts, and an unterminated `%{`, which it rejects. The
 suite tests neither, so neither is settled by anything here.
 
+## Real records
+
+`Get-SpfRecords.ps1` looks up the SPF records of a list of domains. `spf-parse-records`,
+built by the default portable build, parses them and lists the rejected ones by reason.
+Given a directory, it also writes each distinct record there as a file, which
+`-merge=1` shrinks to the ones that add coverage:
+
+```
+out/portable/spf-parse-records spf-100k.tsv <records dir>
+out/fuzz/fuzz-spf-record -merge=1 <merged dir> hmailserver/source/Server/Portable/Fuzz/corpus/record <records dir>
+```
+
 ## The macro expander's input
 
 The expansion depends on the sender and the HELO argument as much as on the
