@@ -1081,6 +1081,7 @@ interface IInterfaceUtilities : IDispatch{
    [id(17), helpstring("Returns the ID of the message file")] HRESULT RetrieveMessageID([in] BSTR sFilename, [out, retval] hyper *messageID);
    [id(18), helpstring("Returns true if the given IP-address is parseable")] HRESULT IsValidIPAddress([in] BSTR IPAddress, [out, retval] VARIANT_BOOL *bIsValid);
    [id(19), helpstring("Performs maintenance operations in the database.")] HRESULT PerformMaintenance([in] eMaintenanceOperation operation);
+   [id(20), helpstring("Imports a message stored in the public folder on disk into a public IMAP folder. The folder name is given relative to the public folder, such as Share1.Sub1.")] HRESULT ImportMessageFromFileToPublicIMAPFolder([in] BSTR sFilename, [in] BSTR sIMAPFolder, [out, retval] VARIANT_BOOL *bIsSuccessful);
 };
 
 [

@@ -340,6 +340,23 @@ STDMETHODIMP InterfaceUtilities::ImportMessageFromFileToIMAPFolder(BSTR sFilenam
    }
 }
 
+STDMETHODIMP InterfaceUtilities::ImportMessageFromFileToPublicIMAPFolder(BSTR sFilename, BSTR sIMAPFolder, VARIANT_BOOL *bIsSuccessful)
+{
+   try
+   {
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
+   
+      *bIsSuccessful = HM::MailImporter::ImportToPublicFolder(sFilename, sIMAPFolder) ? VARIANT_TRUE : VARIANT_FALSE;
+   
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP
 InterfaceUtilities::EmailAllAccounts(BSTR sRecipientWildcard, BSTR sFromAddress, BSTR sFromName, BSTR sSubject, BSTR sBody, VARIANT_BOOL *bIsSuccessful)
 {
