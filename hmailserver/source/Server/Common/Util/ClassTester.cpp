@@ -32,7 +32,6 @@
 #include "../Util/Hashing/HashCreator.h"
 #include "../Util/Hashing/PasswordHasher.h"
 #include "../Util/EventTester.h"
-#include "../Util/Assert.h"
 #include <boost/pool/object_pool.hpp>
 
 #ifdef _DEBUG
@@ -128,7 +127,17 @@ namespace HM
          OutputDebugString(message);
       }
 
-      Assert::IsTrue(spfConformanceFailures.empty());
+      if (!spfConformanceFailures.empty())
+      {
+         // A logic_error rather than an Assert, which throws nothing and so
+         // terminates. The regression suite runs these tests through the COM
+         // API, which catches an exception and reports it; terminating there
+         // takes the server down and fails everything after it instead of
+         // saying which cases went wrong.
+         throw std::logic_error(Formatter::FormatAsAnsi("{0} of the {1} SPF conformance checks failed. See the debug output for which.",
+                                                        (int) spfConformanceFailures.size(),
+                                                        SPFConformance::SPFConformanceTester::GetCaseCount()));
+      }
 
       OutputDebugString(_T("hMailServer: Testing public suffix list\n"));
       PublicSuffixListTester publicSuffixListTester;
