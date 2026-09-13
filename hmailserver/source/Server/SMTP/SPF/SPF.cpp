@@ -13,6 +13,38 @@
 
 namespace HM
 {
+   namespace
+   {
+      // Translate a result from the SPF library into our own result. The
+      // library ORs a reason onto the result it returns and leaves it to the
+      // caller to mask it off again, so anything but SPF_ResultMask must be
+      // removed before the result is looked at.
+      SPF::Result TranslateResult(int libraryResult)
+      {
+         switch (libraryResult & SPF_ResultMask)
+         {
+         case SPF_Pass:
+            return SPF::Pass;
+         case SPF_SoftFail:
+            return SPF::SoftFail;
+         case SPF_Fail:
+            return SPF::Fail;
+         case SPF_Neutral:
+            return SPF::Neutral;
+         case SPF_None:
+            return SPF::None;
+         case SPF_TempError:
+            return SPF::TempError;
+         case SPF_PermError:
+            return SPF::PermError;
+         }
+
+         // The library documents no other result. Report that nothing was
+         // learned rather than blaming the sender for a value we do not know.
+         return SPF::None;
+      }
+   }
+
    SPF::SPF(void)
    {
       // Initialize. This is only done once.
@@ -45,7 +77,7 @@ namespace HM
          return Neutral;
 
       const char* explain;
-      int result=SPFQuery(family,BinaryIP,T2A(sSenderEmail),NULL,T2A(sHeloHost),NULL,&explain);
+      int libraryResult=SPFQuery(family,BinaryIP,T2A(sSenderEmail),NULL,T2A(sHeloHost),NULL,&explain);
 
       if (explain != NULL)
       {
@@ -53,15 +85,14 @@ namespace HM
          SPFFree(explain);
       }
 
-      if (result == SPF_Fail)
-      {
-         // FAIL
-         return Fail;
-      }
-      else if (result == SPF_Pass)
-      {
-         return Pass;
-      }
+      Result result = TranslateResult(libraryResult);
+
+      // Only the results this function has always reported are passed on. The
+      // remaining ones are reported once the evaluator behind them is the one
+      // which determines them, so that callers see a single change rather than
+      // one now and another later.
+      if (result == Pass || result == Fail)
+         return result;
 
       return Neutral;
    }
