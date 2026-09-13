@@ -15,7 +15,7 @@ namespace VolumeTests
       [SetUp]
       public new void SetUp()
       {
-         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "largemessages@example.test", "test");
       }
 
       [Test]
@@ -41,8 +41,8 @@ namespace VolumeTests
 
             using (var mail = new MailMessage())
             {
-               mail.From = new MailAddress("test@example.test");
-               mail.To.Add("test@example.test");
+               mail.From = new MailAddress("largemessages@example.test");
+               mail.To.Add("largemessages@example.test");
                mail.Subject = "Automatic server test";
                mail.Body = "Automatic server test";
                mail.BodyEncoding = Encoding.GetEncoding(1252);
@@ -55,6 +55,8 @@ namespace VolumeTests
                }
             }
 
+            Pop3ClientSimulator.AssertMessageCount("largemessages@example.test", "test", 1,
+                                                   TimeSpan.FromMinutes(30));
          }
          finally
          {

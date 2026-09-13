@@ -13,7 +13,7 @@ namespace VolumeTests
       [SetUp]
       public new void SetUp()
       {
-         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "imap@example.test", "test");
       }
 
 
@@ -43,7 +43,7 @@ namespace VolumeTests
       private static ImapClientSimulator ConnectAndLogon()
       {
          ImapClientSimulator sim = new ImapClientSimulator();
-         sim.ConnectAndLogon("test@example.test", "test");
+         sim.ConnectAndLogon("imap@example.test", "test");
          return sim;
       }
 

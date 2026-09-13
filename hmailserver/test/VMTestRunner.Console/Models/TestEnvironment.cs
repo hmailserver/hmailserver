@@ -1,23 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace VMTestRunner.Console
 {
    public class TestEnvironment
    {
-      public TestEnvironment(string name, string operatingSystem, string description, string vmName, string snapshotName,
-         bool includeStressTests, GuestTransport guestTransport, string guestAddress)
-      {
-         BaseName = name;
-         VMName = vmName;
-         SnapshotName = snapshotName;
-         OperatingSystem = operatingSystem;
-         Description = description;
-         IncludeStressTests = includeStressTests;
-         GuestTransport = guestTransport;
-         GuestAddress = guestAddress;
-      }
-
-      public string OperatingSystem { get; }
+      public string OperatingSystem { get; set; }
 
       /// <summary>
       /// Identifies the test in the status board and in the JSON result file.
@@ -28,31 +15,54 @@ namespace VMTestRunner.Console
       /// The name of the test as configured, without the run number. This is the name
       /// the --test command line parameter selects on.
       /// </summary>
-      public string BaseName { get; }
+      public string BaseName { get; set; }
 
       /// <summary>
       /// One-based position when the same test is run several times, otherwise zero.
       /// </summary>
       public int RunNumber { get; private set; }
 
-      public string Description { get; }
+      public string Description { get; set; }
 
-      public string SnapshotName { get; }
+      public string SnapshotName { get; set; }
 
-      public string VMName { get; }
+      public string VMName { get; set; }
+
+      /// <summary>
+      /// False for tests that are too slow to belong in a normal run. They only run
+      /// when selected by name with --test.
+      /// </summary>
+      public bool Enabled { get; set; } = true;
 
       /// <summary>
       /// How the runner reaches the inside of the guest.
       /// </summary>
-      public GuestTransport GuestTransport { get; }
+      public GuestTransport GuestTransport { get; set; }
 
       /// <summary>
       /// Host name or IP address of the guest. Only used by the network transport,
       /// which looks the address up when this isn't set.
       /// </summary>
-      public string GuestAddress { get; }
+      public string GuestAddress { get; set; }
 
-      public bool IncludeStressTests;
+      /// <summary>
+      /// Which test assembly to run in the guest.
+      /// </summary>
+      public TestSuite TestSuite { get; set; } = TestSuite.RegressionTests;
+
+      /// <summary>
+      /// Turns on page heap for hMailServer.exe before the tests run, to catch heap
+      /// corruption. Makes the run considerably slower.
+      /// </summary>
+      public bool EnablePageHeap { get; set; }
+
+      /// <summary>
+      /// Host path of the gflags.exe used to turn page heap on. Only set when
+      /// <see cref="EnablePageHeap"/> is true.
+      /// </summary>
+      public string GFlagsPath { get; set; }
+
+      public bool IncludeStressTests { get; set; }
 
       public List<InstallCommand> PostInstallCommands { get; } = new List<InstallCommand>();
 
@@ -67,8 +77,22 @@ namespace VMTestRunner.Console
       /// </summary>
       public TestEnvironment CopyForRun(int runNumber)
       {
-         var copy = new TestEnvironment(BaseName, OperatingSystem, Description, VMName, SnapshotName,
-            IncludeStressTests, GuestTransport, GuestAddress) { RunNumber = runNumber };
+         var copy = new TestEnvironment
+         {
+            BaseName = BaseName,
+            OperatingSystem = OperatingSystem,
+            Description = Description,
+            VMName = VMName,
+            SnapshotName = SnapshotName,
+            Enabled = Enabled,
+            GuestTransport = GuestTransport,
+            GuestAddress = GuestAddress,
+            TestSuite = TestSuite,
+            EnablePageHeap = EnablePageHeap,
+            GFlagsPath = GFlagsPath,
+            IncludeStressTests = IncludeStressTests,
+            RunNumber = runNumber,
+         };
 
          copy.PreInstallCommands.AddRange(PreInstallCommands);
          copy.PreInstallFileCopy.AddRange(PreInstallFileCopy);

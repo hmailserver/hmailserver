@@ -166,6 +166,16 @@ them by hand when needed:
 nunit3-console.exe hmailserver\test\VolumeTests\bin\x64\Debug\VolumeTests.dll
 ```
 
+`VMTestRunner.Console/` defines its runs in `TestEnvironments.json`. A run picks its suite with
+`testSuite` (`RegressionTests` or `VolumeTests`), and `enablePageHeap` turns page heap on for
+hMailServer.exe before the tests start, which needs the Debugging Tools for Windows feature of
+the Windows SDK on the host. Runs with `"enabled": false` are left out of a normal run and only
+execute when named:
+
+```
+VMTestRunner.Console.exe -i <installer> --test "Windows 10 - Page heap: Volume tests"
+```
+
 **Every bug fix and every new feature needs a regression test.** Add it to `RegressionTests/`,
 next to the existing tests for the same protocol or area. For a bug fix, write the test first and
 confirm it fails before the fix, so it is known to actually reproduce the issue.

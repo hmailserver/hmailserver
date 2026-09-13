@@ -23,7 +23,7 @@ namespace VolumeTests
       [SetUp]
       public new void SetUp()
       {
-         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "smtp@example.test", "test");
       }
 
       [Test]
@@ -50,7 +50,7 @@ namespace VolumeTests
 
          var sw = new Stopwatch();
          sw.Start();
-         SmtpClientSimulator.StaticSend("test@example.test", "list@example.test", "Test", "Test message");
+         SmtpClientSimulator.StaticSend("smtp@example.test", "list@example.test", "Test", "Test message");
          sw.Stop();
 
          Console.WriteLine("Elapsed time: " + sw.Elapsed.TotalSeconds);
@@ -103,7 +103,7 @@ namespace VolumeTests
 
          var sw = new Stopwatch();
          sw.Start();
-         SmtpClientSimulator.StaticSend("test@example.test", recipients, "Test", "Test message");
+         SmtpClientSimulator.StaticSend("smtp@example.test", recipients, "Test", "Test message");
          sw.Stop();
 
          Console.WriteLine("Elapsed time: " + sw.Elapsed.TotalSeconds);
@@ -172,7 +172,7 @@ namespace VolumeTests
          string dataDir =
              Path.Combine(SingletonProvider<TestSetup>.Instance.GetApp().Settings.Directories.DataDirectory, "example.test");
 
-         string accountDir = Path.Combine(dataDir, "test");
+         string accountDir = Path.Combine(dataDir, "smtp");
 
          int memoryUsage = Shared.GetCurrentMemoryUsage();
          int maxMemoryUsage = memoryUsage + 20;
@@ -182,7 +182,7 @@ namespace VolumeTests
 
          for (int i = 1; i <= numberOfMessages; i++)
          {
-            SmtpClientSimulator.StaticSend("test@example.test", "test@example.test", "Test", "Test message");
+            SmtpClientSimulator.StaticSend("smtp@example.test", "smtp@example.test", "Test", "Test message");
 
             if (i % 100 == 0)
             {
@@ -221,7 +221,7 @@ namespace VolumeTests
          string dataDir =
              Path.Combine(SingletonProvider<TestSetup>.Instance.GetApp().Settings.Directories.DataDirectory, "example.test");
 
-         string accountDir = Path.Combine(dataDir, "test");
+         string accountDir = Path.Combine(dataDir, "smtp");
 
          int memoryUsage = Shared.GetCurrentMemoryUsage();
          int maxMemoryUsage = memoryUsage + 5;
@@ -230,8 +230,8 @@ namespace VolumeTests
 
          string executableName = Shared.GetExecutableName();
 
-         var mail = new MailMessage {From = new MailAddress("test@example.test")};
-         mail.To.Add("test@example.test");
+         var mail = new MailMessage {From = new MailAddress("smtp@example.test")};
+         mail.To.Add("smtp@example.test");
          mail.Subject = "Automatic test";
          mail.Body = "Automatic test";
          mail.BodyEncoding = Encoding.GetEncoding(1252);
@@ -261,7 +261,7 @@ namespace VolumeTests
 
 
       /// <summary>
-      /// What happens if we connect to port 25 and send a 1000000000 character string with no new line.
+      /// What happens if we connect to port 25 and send a 1 000 000 000 character string with no new line.
       /// </summary>
       [Test]
       public void TestLongSMTPCommand()
@@ -331,9 +331,9 @@ namespace VolumeTests
 
          sb.Append(Environment.NewLine);
 
-         socket.Send("MAIL FROM: test@example.test\r\n");
+         socket.Send("MAIL FROM: smtp@example.test\r\n");
          socket.Receive();
-         socket.Send("RCPT TO: test@example.test\r\n");
+         socket.Send("RCPT TO: smtp@example.test\r\n");
          socket.Receive();
          socket.Send("DATA\r\n");
          socket.Receive();
@@ -387,9 +387,9 @@ namespace VolumeTests
             sb.Append("01234567890012345678900123456789001234567890012345678900123456789001234567890012345678900123456789001234567890");
          }
 
-         socket.Send("MAIL FROM: test@example.test\r\n");
+         socket.Send("MAIL FROM: smtp@example.test\r\n");
          socket.Receive();
-         socket.Send("RCPT TO: test@example.test\r\n");
+         socket.Send("RCPT TO: smtp@example.test\r\n");
          socket.Receive();
          socket.Send("DATA\r\n");
          socket.Receive();
@@ -437,7 +437,7 @@ namespace VolumeTests
          string dataDir =
              Path.Combine(SingletonProvider<TestSetup>.Instance.GetApp().Settings.Directories.DataDirectory, "example.test");
 
-         string accountDir = Path.Combine(dataDir, "test");
+         string accountDir = Path.Combine(dataDir, "smtp");
 
          int memoryUsage = Shared.GetCurrentMemoryUsage();
          int maxMemoryUsage = memoryUsage + 2;
@@ -445,8 +445,8 @@ namespace VolumeTests
          const int numberOfMessages = 100;
 
          var mail = new MailMessage();
-         mail.From = new MailAddress("test@example.test");
-         mail.To.Add("test@example.test");
+         mail.From = new MailAddress("smtp@example.test");
+         mail.To.Add("smtp@example.test");
          mail.Subject = "Automatic server test";
          mail.Body = "Automatic server test";
          mail.BodyEncoding = Encoding.GetEncoding(1252);

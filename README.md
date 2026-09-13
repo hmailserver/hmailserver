@@ -237,6 +237,6 @@ Without finding any serious issues:
 
 1. Run all integration tests on supported versions of Windows and the different supported databases. 
 2. Run all server stress tests
-3. Enable Gflags (gflags /p /enable hmailserver.exe) and run all integration tests to check for memory issues
+3. Run the page heap tests to check for memory issues, using the VM test runner: `--test "Windows 10 - Page heap: Regression tests"` and `--test "Windows 10 - Page heap: Volume tests"`
 4. Run for at least 1 week in production for hMailServer.com
 5. Wait for at least 500 downloads of the beta version

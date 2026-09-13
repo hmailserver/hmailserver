@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Newtonsoft.Json;
@@ -21,11 +21,30 @@ namespace VMTestRunner.Console
             if (item.GuestTransport == GuestTransport.Network && string.IsNullOrEmpty(item.GuestAddress))
                throw new System.Exception($"The environment '{item.Description}' uses the network transport, so it must specify guestAddress.");
 
+            // The stress category only exists in the regression suite.
+            if (item.TestSuite != TestSuite.RegressionTests && item.IncludeStressTests)
+               throw new System.Exception($"The environment '{item.Description}' runs {item.TestSuite}, so it cannot set includeStressTests.");
+
             // The name is what --test selects on; it defaults to the operating system and the description.
             var name = string.IsNullOrWhiteSpace(item.Name) ? $"{item.OperatingSystem} - {item.Description}" : item.Name;
 
-            var env = new TestEnvironment(name, item.OperatingSystem, item.Description, item.VmName, item.SnapshotName,
-               item.IncludeStressTests, item.GuestTransport, item.GuestAddress);
+            var env = new TestEnvironment
+            {
+               BaseName = name,
+               OperatingSystem = item.OperatingSystem,
+               Description = item.Description,
+               VMName = item.VmName,
+               SnapshotName = item.SnapshotName,
+               Enabled = item.Enabled,
+               GuestTransport = item.GuestTransport,
+               GuestAddress = item.GuestAddress,
+               TestSuite = item.TestSuite,
+               EnablePageHeap = item.EnablePageHeap,
+               IncludeStressTests = item.IncludeStressTests,
+
+               // Resolved here so a missing SDK is reported before any VM is started.
+               GFlagsPath = item.EnablePageHeap ? GetGFlags() : null,
+            };
 
             foreach (var cmd in item.PreInstallCommands)
                env.PreInstallCommands.Add(new InstallCommand(cmd.Executable, cmd.Parameters));
@@ -70,6 +89,38 @@ namespace VMTestRunner.Console
          return name;
       }
 
+      /// <summary>
+      /// Locates gflags.exe, which comes with the Debugging Tools for Windows feature
+      /// of the Windows SDK.
+      /// </summary>
+      private static string GetGFlags()
+      {
+         var candidates = new List<string>();
+
+         var sdkDir = System.Environment.GetEnvironmentVariable("WindowsSdkDir");
+
+         if (!string.IsNullOrEmpty(sdkDir))
+            candidates.Add(Path.Combine(sdkDir, @"Debuggers\x64\gflags.exe"));
+
+         foreach (var programFiles in new[] { "ProgramFiles(x86)", "ProgramFiles" })
+         {
+            var root = System.Environment.GetEnvironmentVariable(programFiles);
+
+            if (!string.IsNullOrEmpty(root))
+               candidates.Add(Path.Combine(root, @"Windows Kits\10\Debuggers\x64\gflags.exe"));
+         }
+
+         foreach (var candidate in candidates)
+         {
+            if (File.Exists(candidate))
+               return candidate;
+         }
+
+         throw new System.Exception("gflags.exe could not be found, so page heap cannot be enabled. " +
+            "Install the Debugging Tools for Windows feature of the Windows SDK. Looked in:" +
+            System.Environment.NewLine + string.Join(System.Environment.NewLine, candidates));
+      }
+
       private class EnvironmentDto
       {
          public string Name { get; set; }
@@ -81,7 +132,10 @@ namespace VMTestRunner.Console
          public List<FileCopyDto> PreInstallFileCopy { get; set; } = new List<FileCopyDto>();
          public List<CommandDto> PostInstallCommands { get; set; } = new List<CommandDto>();
          public List<FileCopyDto> PostInstallFileCopy { get; set; } = new List<FileCopyDto>();
-         public bool IncludeStressTests = false;
+         public bool IncludeStressTests { get; set; } = false;
+         public bool Enabled { get; set; } = true;
+         public TestSuite TestSuite { get; set; } = TestSuite.RegressionTests;
+         public bool EnablePageHeap { get; set; } = false;
          public GuestTransport GuestTransport { get; set; } = GuestTransport.PowerShellDirect;
          public string GuestAddress { get; set; }
       }
