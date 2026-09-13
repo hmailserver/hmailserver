@@ -40,10 +40,7 @@ namespace HM
       String explanation;
       SPFResult result = SPF::Instance()->Test(originatingAddress.ToString(), testData->GetEnvelopeFrom(), testData->GetHeloHost(), explanation);
 
-      // With a null sender, SPF authenticates the HELO identity instead.
-      String domain = StringParser::ExtractDomain(testData->GetEnvelopeFrom());
-      if (domain.IsEmpty())
-         domain = testData->GetHeloHost();
+      String domain = SPF::GetCheckedDomain(testData->GetEnvelopeFrom(), testData->GetHeloHost());
 
       spf_checked_ = true;
       spf_result_ = result;

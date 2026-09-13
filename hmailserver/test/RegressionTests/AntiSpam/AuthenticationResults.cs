@@ -66,6 +66,80 @@ namespace RegressionTests.AntiSpam
          Assert.IsTrue(text.Contains("dmarc=fail header.from=outlook.com"), text);
       }
 
+      // The SPF results the Authentication-Results header reports, over real DNS.
+      //
+      // The conformance suite under Server/Smtp/Spf/Conformance decides what an
+      // evaluation comes to, and runs inside hMailServer.exe through
+      // MainOperations.TestInternals, so it needs no help here. What these cover
+      // is the wiring the suite cannot see: that a check is made at all on the
+      // SMTP path, that the client address, the sender and the HELO argument reach
+      // it, that DNS answers it, and that the result reaches the header.
+      //
+      // Each sender is chosen so that the answer does not depend on the address
+      // the test connects from, which is the machine's own:
+      //
+      //   example.com                  v=spf1 -all     - reserved by IANA
+      //   hmailserver.com              v=spf1 mx -all  - this project's domain
+      //   nonexistent.hmailserver.com  no record at all
+
+      [Test]
+      [Description("A domain whose record authorizes no client at all should be reported as an SPF failure.")]
+      public void TestSpfFailureIsReported()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         SmtpClientSimulator.StaticSendRaw("sender@example.com", account.Address,
+            "From: sender@example.com\r\n" +
+            "Subject: SPF test\r\n" +
+            "\r\n" +
+            "Test body\r\n");
+
+         var text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         Assert.IsTrue(text.Contains("spf=fail smtp.mailfrom=example.com"), text);
+      }
+
+      [Test]
+      [Description("A record whose mx mechanism does not cover the client should be reported as an SPF failure.")]
+      public void TestSpfFailureThroughMxIsReported()
+      {
+         // "v=spf1 mx -all", so reaching the fail means the MX records were looked
+         // up and their addresses resolved. A lookup that could not be answered
+         // would be a temperror instead, which is what tells this apart from the
+         // case above: that one needs no DNS beyond the record itself.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         SmtpClientSimulator.StaticSendRaw("sender@hmailserver.com", account.Address,
+            "From: sender@hmailserver.com\r\n" +
+            "Subject: SPF test\r\n" +
+            "\r\n" +
+            "Test body\r\n");
+
+         var text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         Assert.IsTrue(text.Contains("spf=fail smtp.mailfrom=hmailserver.com"), text);
+      }
+
+      [Test]
+      [Description("A domain which publishes no SPF record should be reported as none rather than as neutral.")]
+      public void TestSpfNoneIsReported()
+      {
+         // RFC 7208 section 4.3: a domain with no record has said nothing, which
+         // is not the same as having said nothing about this client. The two are
+         // different results, and reporting them apart is the point.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         SmtpClientSimulator.StaticSendRaw("sender@nonexistent.hmailserver.com", account.Address,
+            "From: sender@nonexistent.hmailserver.com\r\n" +
+            "Subject: SPF test\r\n" +
+            "\r\n" +
+            "Test body\r\n");
+
+         var text = Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         Assert.IsTrue(text.Contains("spf=none smtp.mailfrom=nonexistent.hmailserver.com"), text);
+      }
+
       [Test]
       [Description("A header claiming to have been added by us should be removed, while other ones are kept.")]
       public void TestSpoofedHeaderIsRemoved()

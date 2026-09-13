@@ -18,10 +18,10 @@ namespace HM
 {
    namespace
    {
-      const char *CLIENT = "192.0.2.1";
-      const char *DOMAIN = "example.com";
-      const char *SENDER = "test@example.com";
-      const char *HELO = "mail.example.com";
+      const char *CLIENT_IP = "192.0.2.1";
+      const char *CHECKED_DOMAIN = "example.com";
+      const char *SENDER_ADDRESS = "test@example.com";
+      const char *HELO_HOST = "mail.example.com";
 
       const char *ResultName(SPFResult result)
       {
@@ -126,13 +126,13 @@ namespace HM
       {
          auto lookup = std::make_shared<SPFTestLookup>();
 
-         lookup->AddTXT(DOMAIN, cases[i].record);
-         lookup->AddMX(DOMAIN, "mail.example.com");
+         lookup->AddTXT(CHECKED_DOMAIN, cases[i].record);
+         lookup->AddMX(CHECKED_DOMAIN, "mail.example.com");
          lookup->AddA("mail.example.com", "10.0.0.1");
          lookup->AddA("host.example.com", "10.0.0.1");
          lookup->AddMX("mxhost.example.com", "mail.example.com");
          lookup->AddTXT("other.example.com", "v=spf1 -all");
-         lookup->AddA(DOMAIN, "10.0.0.1");
+         lookup->AddA(CHECKED_DOMAIN, "10.0.0.1");
 
          lookup->Fail(cases[i].failing);
 
@@ -140,7 +140,7 @@ namespace HM
 
          AnsiString explanation;
 
-         SPFResult result = evaluator.Check(AddressOf(CLIENT), DOMAIN, SENDER, HELO, explanation);
+         SPFResult result = evaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN, SENDER_ADDRESS, HELO_HOST, explanation);
 
          if (result == SPFResult::TempError)
             continue;
@@ -155,16 +155,16 @@ namespace HM
       {
          auto lookup = std::make_shared<SPFTestLookup>();
 
-         lookup->AddTXT(DOMAIN, "v=spf1 ptr -all");
+         lookup->AddTXT(CHECKED_DOMAIN, "v=spf1 ptr -all");
          lookup->AddPTR("1.2.0.192.in-addr.arpa", "mail.example.com");
-         lookup->AddA("mail.example.com", CLIENT);
+         lookup->AddA("mail.example.com", CLIENT_IP);
          lookup->Fail("1.2.0.192.in-addr.arpa");
 
          SPFEvaluator evaluator(lookup);
 
          AnsiString explanation;
 
-         SPFResult result = evaluator.Check(AddressOf(CLIENT), DOMAIN, SENDER, HELO, explanation);
+         SPFResult result = evaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN, SENDER_ADDRESS, HELO_HOST, explanation);
 
          if (result != SPFResult::Fail)
          {
@@ -217,9 +217,9 @@ namespace HM
       {
          auto lookup = std::make_shared<SPFTestLookup>();
 
-         lookup->AddTXT(DOMAIN, cases[i].record);
-         lookup->AddA(DOMAIN, "10.0.0.1");
-         lookup->AddMX(DOMAIN, "mail.example.com");
+         lookup->AddTXT(CHECKED_DOMAIN, cases[i].record);
+         lookup->AddA(CHECKED_DOMAIN, "10.0.0.1");
+         lookup->AddMX(CHECKED_DOMAIN, "mail.example.com");
          lookup->AddA("mail.example.com", "10.0.0.1");
          lookup->AddPTR("1.2.0.192.in-addr.arpa", "mail.example.com");
 
@@ -239,7 +239,7 @@ namespace HM
 
          AnsiString explanation;
 
-         evaluator.Check(AddressOf(CLIENT), DOMAIN, SENDER, HELO, explanation);
+         evaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN, SENDER_ADDRESS, HELO_HOST, explanation);
 
          if (evaluator.GetTermCount() == cases[i].terms)
             continue;
@@ -295,14 +295,14 @@ namespace HM
 
          AnsiString last = AnsiString("link") + AnsiString(std::to_string(cases[i].length).c_str()) + ".example.com";
 
-         lookup->AddTXT(last, AnsiString("v=spf1 ip4:") + CLIENT + " -all");
-         lookup->AddTXT(DOMAIN, "v=spf1 include:link0.example.com -all");
+         lookup->AddTXT(last, AnsiString("v=spf1 ip4:") + CLIENT_IP + " -all");
+         lookup->AddTXT(CHECKED_DOMAIN, "v=spf1 include:link0.example.com -all");
 
          SPFEvaluator evaluator(lookup);
 
          AnsiString explanation;
 
-         SPFResult result = evaluator.Check(AddressOf(CLIENT), DOMAIN, SENDER, HELO, explanation);
+         SPFResult result = evaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN, SENDER_ADDRESS, HELO_HOST, explanation);
 
          if (result != cases[i].expected)
          {
@@ -343,7 +343,7 @@ namespace HM
 
       const Case cases[] =
       {
-         { CLIENT, SPFResult::Pass, "the client's own address" },
+         { CLIENT_IP, SPFResult::Pass, "the client's own address" },
 
          // Not addresses at all. A mechanism cannot match against one, and
          // section 5.3 gives no way to report it, so it simply does not match.
@@ -363,14 +363,14 @@ namespace HM
       {
          auto lookup = std::make_shared<SPFTestLookup>();
 
-         lookup->AddTXT(DOMAIN, "v=spf1 a -all");
-         lookup->AddA(DOMAIN, cases[i].address);
+         lookup->AddTXT(CHECKED_DOMAIN, "v=spf1 a -all");
+         lookup->AddA(CHECKED_DOMAIN, cases[i].address);
 
          SPFEvaluator evaluator(lookup);
 
          AnsiString explanation;
 
-         SPFResult result = evaluator.Check(AddressOf(CLIENT), DOMAIN, SENDER, HELO, explanation);
+         SPFResult result = evaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN, SENDER_ADDRESS, HELO_HOST, explanation);
 
          if (result == cases[i].expected)
             continue;
@@ -410,14 +410,14 @@ namespace HM
       {
          auto lookup = std::make_shared<SPFTestLookup>();
 
-         lookup->AddTXT(DOMAIN, cases[i].record);
+         lookup->AddTXT(CHECKED_DOMAIN, cases[i].record);
          lookup->AddTXT("explain.example.com", "Computer says no.");
 
          SPFEvaluator evaluator(lookup);
 
          AnsiString explanation;
 
-         SPFResult result = evaluator.Check(AddressOf(CLIENT), DOMAIN, SENDER, HELO, explanation);
+         SPFResult result = evaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN, SENDER_ADDRESS, HELO_HOST, explanation);
 
          if (result != cases[i].expected)
          {
@@ -456,7 +456,7 @@ namespace HM
       {
          auto lookup = std::make_shared<SPFTestLookup>();
 
-         lookup->AddTXT(DOMAIN, AnsiString("v=spf1 -all exp=") + unreadable[i].target);
+         lookup->AddTXT(CHECKED_DOMAIN, AnsiString("v=spf1 -all exp=") + unreadable[i].target);
 
          lookup->AddTXT("two.example.com", "One explanation.");
          lookup->AddTXT("two.example.com", "And another.");
@@ -472,7 +472,7 @@ namespace HM
 
          AnsiString explanation;
 
-         SPFResult result = evaluator.Check(AddressOf(CLIENT), DOMAIN, SENDER, HELO, explanation);
+         SPFResult result = evaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN, SENDER_ADDRESS, HELO_HOST, explanation);
 
          if (result != SPFResult::Fail)
          {
