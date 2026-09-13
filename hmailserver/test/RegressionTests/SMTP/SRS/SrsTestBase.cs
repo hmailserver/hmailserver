@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using hMailServer;
 using RegressionTests.Infrastructure;
@@ -53,7 +54,21 @@ namespace RegressionTests.SMTP.SRS
 
       protected Route AddRoute(string domainName, int port)
       {
-         var route = _settings.Routes.Add();
+         var routes = _settings.Routes;
+
+         // A test which needs a second external server comes back here for it, and the
+         // new server listens on a port of its own. A route is unique by domain name and
+         // the server refuses a second one, so the route the previous server left behind
+         // is replaced rather than added alongside.
+         for (var i = routes.Count - 1; i >= 0; i--)
+         {
+            var existingRoute = routes[i];
+
+            if (string.Equals(existingRoute.DomainName, domainName, StringComparison.OrdinalIgnoreCase))
+               existingRoute.Delete();
+         }
+
+         var route = routes.Add();
 
          route.DomainName = domainName;
          route.TargetSMTPHost = "localhost";
