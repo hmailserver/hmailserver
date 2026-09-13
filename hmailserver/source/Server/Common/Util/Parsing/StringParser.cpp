@@ -7,7 +7,7 @@
 #include "StringParser.h"
 
 #include "../RegularExpression.h"
-#include "../../MIME/MimeCode.h"
+#include "../../Mime/MimeCode.h"
 #include <boost/lexical_cast.hpp>
 
 #ifdef _DEBUG

@@ -1,24 +1,24 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "BackupExecuter.h"
 #include "Backup.h"
 
-#include "..\Util\Utilities.h"
-#include "..\Util\Time.h"
-#include "..\BO\Domains.h"
-#include "..\BO\Domain.h"
-#include "..\BO\IMAPFolders.h"
-#include "..\BO\Accounts.h"
-#include "..\BO\Aliases.h"
-#include "..\BO\DomainAliases.h"
-#include "..\BO\DistributionLists.h"
+#include "../Util/Utilities.h"
+#include "../Util/Time.h"
+#include "../BO/Domains.h"
+#include "../BO/Domain.h"
+#include "../BO/IMAPFolders.h"
+#include "../BO/Accounts.h"
+#include "../BO/Aliases.h"
+#include "../BO/DomainAliases.h"
+#include "../BO/DistributionLists.h"
 
-#include "..\Persistence\PersistentMessage.h"
-#include "..\Util\Compression.h"
-#include "..\Util\ServiceManager.h"
+#include "../Persistence/PersistentMessage.h"
+#include "../Util/Compression.h"
+#include "../Util/ServiceManager.h"
 
 #include "BackupManager.h"
 #include "ACLManager.h"

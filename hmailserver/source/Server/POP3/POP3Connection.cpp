@@ -3,12 +3,12 @@
 
 #include "stdafx.h"
 
-#include "../common/BO/Account.h"
-#include "../common/BO/SecurityRange.h"
-#include "../common/BO/Message.h"
-#include "../common/util/file.h"
-#include "../common/Util/AccountLogon.h"
-#include "../common/util/ByteBuffer.h"
+#include "../Common/BO/Account.h"
+#include "../Common/BO/SecurityRange.h"
+#include "../Common/BO/Message.h"
+#include "../Common/Util/File.h"
+#include "../Common/Util/AccountLogon.h"
+#include "../Common/Util/ByteBuffer.h"
 #include "../Common/Application/TimeoutCalculator.h"
 
 #include "../Common/Application/FolderManager.h"
@@ -24,7 +24,7 @@
 
 #include "../Common/Util/TransparentTransmissionBuffer.h"
 
-#include "../common/Scripting/ClientInfo.h"
+#include "../Common/Scripting/ClientInfo.h"
 #include "../Common/Scripting/ScriptServer.h"
 #include "../Common/Scripting/ScriptObjectContainer.h"
 

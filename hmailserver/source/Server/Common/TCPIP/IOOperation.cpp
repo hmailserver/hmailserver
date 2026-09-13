@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 // Created 2008-08-12
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "IOOperation.h"
 #include "../Util/ByteBuffer.h"
 

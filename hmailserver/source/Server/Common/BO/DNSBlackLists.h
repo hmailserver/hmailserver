@@ -6,7 +6,7 @@
 #include "Collection.h"
 
 #include "DNSBlackList.h"
-#include "../Persistence/PersistentDNSBlackList.h"
+#include "../Persistence/PersistentDNSBlacklist.h"
 
 namespace HM
 {

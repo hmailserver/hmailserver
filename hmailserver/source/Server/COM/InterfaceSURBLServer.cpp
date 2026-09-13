@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
-#include "..\COM\InterfaceSURBLServer.h"
+#include "../COM/InterfaceSURBLServer.h"
 
 #include "../Common/Persistence/PersistentSURBLServer.h"
 

@@ -1,10 +1,10 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\PersistentDomainAlias.h"
-#include "..\BO\DomainAlias.h"
-#include "..\Application\ObjectCache.h"
+#include "stdafx.h"
+#include "./PersistentDomainAlias.h"
+#include "../BO/DomainAlias.h"
+#include "../Application/ObjectCache.h"
 
 #include "PreSaveLimitationsCheck.h"
 #include "PersistenceMode.h"

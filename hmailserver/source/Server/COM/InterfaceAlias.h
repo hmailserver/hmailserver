@@ -7,7 +7,7 @@
 #include "../hMailServer/hMailServer.h"
 #include "COMCollection.h"
 
-#include "../common/BO/Alias.h"
+#include "../Common/BO/Alias.h"
 
 namespace HM 
 { 

@@ -1,10 +1,10 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\FetchAccountUID.h"
+#include "stdafx.h"
+#include "./FetchAccountUID.h"
 
-#include "..\Util\Time.h"
+#include "../Util/Time.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

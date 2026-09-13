@@ -10,7 +10,7 @@
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/DKIM/DKIM.h"
 
-#include "..\Common\BO\WhiteListAddresses.h"
+#include "../Common/BO/WhiteListAddresses.h"
 
 #include "InterfaceAntiSpam.h"
 #include "InterfaceGreyListingWhiteAddresses.h"

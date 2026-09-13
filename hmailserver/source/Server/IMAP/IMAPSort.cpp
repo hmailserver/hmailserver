@@ -1,17 +1,17 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "IMAPSort.h"
 #include "IMAPSortParser.h"
 #include "IMAPConnection.h"
 
-#include "..\Common\Persistence\PersistentMessageMetaData.h"
-#include "..\Common\BO\Message.h"
-#include "..\Common\MIME\Mime.h"
-#include "..\Common\Util\Time.h"
-#include "..\Common\Util\VariantDateTime.h"
+#include "../Common/Persistence/PersistentMessageMetaData.h"
+#include "../Common/BO/Message.h"
+#include "../Common/Mime/Mime.h"
+#include "../Common/Util/Time.h"
+#include "../Common/Util/VariantDateTime.h"
 #include "../Common/Persistence/PersistentMessage.h"
 
 #ifdef _DEBUG

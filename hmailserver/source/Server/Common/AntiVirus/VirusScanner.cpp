@@ -7,7 +7,7 @@
 #include "../../SMTP/SMTPConfiguration.h"
 #include "../Mime/Mime.h"
 #include "../BO/Message.h"
-#include "../Util/GUIDcreator.h"
+#include "../Util/GUIDCreator.h"
 #include "../Util/File.h"
 #include "../BO/MessageData.h"
 

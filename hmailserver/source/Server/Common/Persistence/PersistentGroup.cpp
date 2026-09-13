@@ -1,15 +1,15 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "PersistentGroup.h"
 #include "PersistentACLPermission.h"
 
 #include "PreSaveLimitationsCheck.h"
 
-#include "..\BO\Group.h"
-#include "..\SQL\SQLStatement.h"
+#include "../BO/Group.h"
+#include "../SQL/SQLStatement.h"
 #include "../Cache/Cache.h"
 
 #include "PersistenceMode.h"

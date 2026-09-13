@@ -7,7 +7,7 @@
 
 #define STRICT
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #undef _UNICODE
 #undef UNICODE
@@ -23,7 +23,7 @@
 #define SPFEXP __declspec(dllexport)
 #endif //SPFDLL
 
-#include "rmspf.h"
+#include "RMSPF.H"
 
 // if required, define custom functions
 #ifndef spfmalloc

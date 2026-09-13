@@ -4,9 +4,9 @@
 #include "stdafx.h"
 #include "InterfaceRule.h"
 
-#include "..\Common\Bo\Rule.h"
-#include "..\Common\Bo\Rules.h"
-#include "..\Common\Persistence\PersistentRule.h"
+#include "../Common/BO/Rule.h"
+#include "../Common/BO/Rules.h"
+#include "../Common/Persistence/PersistentRule.h"
 
 #include "InterfaceRuleCriterias.h"
 #include "InterfaceRuleActions.h"

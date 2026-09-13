@@ -661,6 +661,7 @@ EXIT 0
     <Midl Include="hMailServer.idl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\PortableCore.h" />
     <ClInclude Include="..\Common\AntiSpam\AntiSpamConfiguration.h" />
     <ClInclude Include="..\Common\AntiSpam\SenderAuthentication.h" />
     <ClInclude Include="..\Common\AntiSpam\AuthenticationResultsHeader.h" />

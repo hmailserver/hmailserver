@@ -1,13 +1,13 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\persistentfetchaccount.h"
-#include "..\BO\FetchAccount.h"
-#include "..\BO\FetchAccounts.h"
-#include "..\BO\FetchAccountUIDs.h"
-#include "..\BO\FetchAccountUID.h"
-#include "..\Util\Time.h"
+#include "stdafx.h"
+#include "./PersistentFetchAccount.h"
+#include "../BO/FetchAccount.h"
+#include "../BO/FetchAccounts.h"
+#include "../BO/FetchAccountUIDs.h"
+#include "../BO/FetchAccountUID.h"
+#include "../Util/Time.h"
 #include "../Util/Crypt.h"
 
 #ifdef _DEBUG

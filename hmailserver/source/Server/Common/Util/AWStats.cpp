@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\awstats.h"
+#include "stdafx.h"
+#include "./AWStats.h"
 #include "Time.h"
 #include "../BO/Message.h"
 #include "../BO/MessageRecipients.h"

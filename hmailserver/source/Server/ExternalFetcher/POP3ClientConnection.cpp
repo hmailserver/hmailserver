@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\POP3ClientConnection.h"
+#include "stdafx.h"
+#include "./POP3ClientConnection.h"
 
 #include "FetchAccountUIDList.h"
 
@@ -15,15 +15,15 @@
 #include "../Common/Persistence/PersistentMessage.h"
 #include "../Common/Util/ByteBuffer.h"
 #include "../SMTP/RecipientParser.h"
-#include "../Common/Util/Parsing/AddressListParser.h"
+#include "../Common/Util/Parsing/AddresslistParser.h"
 #include "../Common/Util/Utilities.h"
 #include "../Common/Util/ServerStatus.h"
 #include "../Common/Mime/Mime.h"
 #include "../Common/BO/FetchAccountUID.h"
 #include "../Common/BO/MessageRecipients.h"
-#include "../common/util/MessageUtilities.h"
-#include "../common/Threading/AsynchronousTask.h"
-#include "../common/Threading/WorkQueue.h"
+#include "../Common/Util/MessageUtilities.h"
+#include "../Common/Threading/AsynchronousTask.h"
+#include "../Common/Threading/WorkQueue.h"
 
 #include "../Common/Util/TransparentTransmissionBuffer.h"
 

@@ -8,13 +8,13 @@
 
 #include "../BO/ACLPermissions.h"
 #include "../BO/IMAPFolders.h"
-#include "..\BO\IMAPFolder.h"
+#include "../BO/IMAPFolder.h"
 
-#include "..\..\IMAP\IMAPFolderContainer.h"
-#include "..\..\IMAP\MessagesContainer.h"
+#include "../../IMAP/IMAPFolderContainer.h"
+#include "../../IMAP/MessagesContainer.h"
 
-#include "..\Tracking\ChangeNotification.h"
-#include "..\Tracking\NotificationServer.h"
+#include "../Tracking/ChangeNotification.h"
+#include "../Tracking/NotificationServer.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

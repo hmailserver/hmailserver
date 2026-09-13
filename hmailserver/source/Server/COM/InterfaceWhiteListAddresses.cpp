@@ -8,8 +8,8 @@
 
 #include "InterfaceWhiteListAddress.h"
 
-#include "..\Common\BO\WhiteListAddress.h"
-#include "..\Common\BO\WhiteListAddresses.h"
+#include "../Common/BO/WhiteListAddress.h"
+#include "../Common/BO/WhiteListAddresses.h"
 
 
 void 

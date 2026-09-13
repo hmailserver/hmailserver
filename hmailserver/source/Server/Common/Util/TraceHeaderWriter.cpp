@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 // Created 2008-12-23
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "TraceHeaderWriter.h"
 #include "../BO/Message.h"
 #include "../Persistence/PersistentMessage.h"
