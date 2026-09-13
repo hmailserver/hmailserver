@@ -81,11 +81,27 @@ namespace RegressionTests.AntiSpam
       //   example.com                  v=spf1 -all     - reserved by IANA
       //   hmailserver.com              v=spf1 mx -all  - this project's domain
       //   nonexistent.hmailserver.com  no record at all
+      //
+      // Each enables SPF rather than leaning on the DMARC test to evaluate it.
+      // DMARC does evaluate SPF, but only after finding a policy for the From
+      // domain, so a sender which publishes no DMARC record would never be
+      // checked - and the sender with no SPF record has no DMARC record either.
+
+      private void EnableSpf()
+      {
+         _antiSpam.UseSPF = true;
+
+         // Enough to be visible in a score and far below SpamMarkThreshold, so
+         // that a failing message is still delivered and can be read back.
+         _antiSpam.UseSPFScore = 1;
+      }
 
       [Test]
       [Description("A domain whose record authorizes no client at all should be reported as an SPF failure.")]
       public void TestSpfFailureIsReported()
       {
+         EnableSpf();
+
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
 
          SmtpClientSimulator.StaticSendRaw("sender@example.com", account.Address,
@@ -103,6 +119,8 @@ namespace RegressionTests.AntiSpam
       [Description("A record whose mx mechanism does not cover the client should be reported as an SPF failure.")]
       public void TestSpfFailureThroughMxIsReported()
       {
+         EnableSpf();
+
          // "v=spf1 mx -all", so reaching the fail means the MX records were looked
          // up and their addresses resolved. A lookup that could not be answered
          // would be a temperror instead, which is what tells this apart from the
@@ -124,6 +142,8 @@ namespace RegressionTests.AntiSpam
       [Description("A domain which publishes no SPF record should be reported as none rather than as neutral.")]
       public void TestSpfNoneIsReported()
       {
+         EnableSpf();
+
          // RFC 7208 section 4.3: a domain with no record has said nothing, which
          // is not the same as having said nothing about this client. The two are
          // different results, and reporting them apart is the point.
