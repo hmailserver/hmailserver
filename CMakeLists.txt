@@ -52,20 +52,17 @@ if(HM_SANITIZE)
    target_link_options(hmailserver-core PUBLIC -fsanitize=address,undefined)
 endif()
 
-add_executable(hmailserver-core-tests "${HM_SERVER}/Portable/PortableCoreTests.cpp")
-target_link_libraries(hmailserver-core-tests PRIVATE hmailserver-core)
-
-# The openspf.org conformance suite for RFC 7208, and the stub resolver which
-# answers an evaluation's DNS queries out of it. A suite of its own rather than
-# more cases in the runner above: it is a fixture transcribed from someone
-# else's file, and it is large.
-add_executable(hmailserver-spf-conformance
+# The test code, which the server project builds too: the same testers run from
+# ClassTester under Visual Studio, where a case can be stepped through, and from
+# here under the sanitizers. Test code sits on the executable rather than in the
+# library above, which holds only sources the server itself is built from.
+add_executable(hmailserver-core-tests
+   "${HM_SERVER}/Portable/PortableCoreTests.cpp"
    "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceSuite.cpp"
    "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceLookup.cpp"
-   "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceTests.cpp"
+   "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceTester.cpp"
 )
-target_link_libraries(hmailserver-spf-conformance PRIVATE hmailserver-core)
+target_link_libraries(hmailserver-core-tests PRIVATE hmailserver-core)
 
 enable_testing()
 add_test(NAME hmailserver-core-tests COMMAND hmailserver-core-tests)
-add_test(NAME hmailserver-spf-conformance COMMAND hmailserver-spf-conformance)

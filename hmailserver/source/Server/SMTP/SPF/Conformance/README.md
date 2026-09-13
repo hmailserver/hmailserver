@@ -61,9 +61,20 @@ generator's own comments give them in full:
 
 ## Running the suite
 
-The runner is part of the portable build, which builds the Windows-free part of
-the server with gcc or clang and runs it under the address and
-undefined-behaviour sanitizers:
+`SPFConformanceTester` is built by both the server project and the portable
+build, and run from both. The cases are the same either way, and none of them
+reaches a network - `SPFConformanceLookup` answers an evaluation's DNS queries
+out of one section of the table, through the `SPFDnsLookup` interface the
+evaluator takes - so a whole run costs milliseconds.
+
+**Under Visual Studio**, where a case can be stepped through: build
+`hMailServer.sln`, set the debug command line of the hMailServer project to
+`/Test`, and run. `ClassTester::DoTests()` runs every C++ self-test in the
+server, this one among them; breakpoints in `SPFConformanceTester.cpp` and
+`SPFConformanceLookup.cpp` are hit like any other. Failures go to the Output
+window, one line each, before the run is failed.
+
+**On Linux**, under the address and undefined-behaviour sanitizers:
 
 ```
 cmake -S . -B out/portable -G Ninja -DCMAKE_BUILD_TYPE=Debug -DHM_SANITIZE=ON
@@ -71,9 +82,10 @@ cmake --build out/portable
 ctest --test-dir out/portable --output-on-failure
 ```
 
-`SPFConformanceLookup` answers an evaluation's DNS queries out of one section of
-the table, through the `SPFDnsLookup` interface the evaluator takes, so a case
-runs in microseconds and never reaches a network.
+Note that a failure fails the whole `/Test` run, which stops the self-tests that
+would have come after it - `Assert::IsTrue` is how every tester in
+`ClassTester` reports a failure, and it terminates. The failure lines are
+written before that happens, so the Output window still says which cases failed.
 
 A failing case is named by the key it is written under in `rfc7208-tests.yml`.
 Its description, and the commentary on what it is for and why RFC 7208 says what

@@ -16,6 +16,7 @@
 #include "stdafx.h"
 
 #include "../Common/Mime/MimeChar.h"
+#include "../SMTP/SPF/Conformance/SPFConformanceTester.h"
 
 #include <cstdio>
 #include <cstring>
@@ -93,11 +94,32 @@ namespace
                "delimiter is space or special");
       }
    }
+
+   // The RFC 7208 conformance suite, which is built into the server project as
+   // well and run from ClassTester there. Same cases either way; it reaches no
+   // network, so it costs milliseconds.
+   void TestSPFConformance()
+   {
+      HM::SPFConformance::SPFConformanceTester tester;
+
+      std::vector<HM::AnsiString> spfFailures = tester.Run();
+
+      for (const HM::AnsiString &failure : spfFailures)
+      {
+         printf("FAILED: %s\n", failure.c_str());
+         failures++;
+      }
+
+      printf("SPF conformance: %d of %d cases run.\n",
+             tester.GetCasesRun(),
+             HM::SPFConformance::SPFConformanceTester::GetCaseCount());
+   }
 }
 
 int main()
 {
    TestMimeChar();
+   TestSPFConformance();
 
    if (failures > 0)
    {

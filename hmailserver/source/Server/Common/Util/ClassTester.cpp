@@ -22,6 +22,7 @@
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"
 #include "../../SMTP/SPF/SPF.h"
+#include "../../SMTP/SPF/Conformance/SPFConformanceTester.h"
 #include "../AntiSpam/DMARC/DMARCTester.h"
 #include "PublicSuffixListTester.h"
 #include "../../SMTP/BLCheck.h"
@@ -31,6 +32,7 @@
 #include "../Util/Hashing/HashCreator.h"
 #include "../Util/Hashing/PasswordHasher.h"
 #include "../Util/EventTester.h"
+#include "../Util/Assert.h"
 #include <boost/pool/object_pool.hpp>
 
 #ifdef _DEBUG
@@ -109,6 +111,24 @@ namespace HM
       SPFTester *pSPF = new SPFTester();
       pSPF->Test();
       delete pSPF;
+
+      // The RFC 7208 conformance suite. Every failure is reported before the
+      // run is failed, because a conformance suite which stops at the first of
+      // 203 cases says much less than one which lists them all.
+      OutputDebugString(_T("hMailServer: Testing SPF conformance\n"));
+      SPFConformance::SPFConformanceTester spfConformanceTester;
+      std::vector<AnsiString> spfConformanceFailures = spfConformanceTester.Run();
+
+      for (AnsiString failure : spfConformanceFailures)
+      {
+         String message = _T("hMailServer: SPF conformance FAILED: ");
+         message += String(failure);
+         message += _T("\n");
+
+         OutputDebugString(message);
+      }
+
+      Assert::IsTrue(spfConformanceFailures.empty());
 
       OutputDebugString(_T("hMailServer: Testing public suffix list\n"));
       PublicSuffixListTester publicSuffixListTester;

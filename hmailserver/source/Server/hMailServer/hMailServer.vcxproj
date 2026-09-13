@@ -643,6 +643,9 @@ EXIT 0
     <ClCompile Include="..\SMTP\SMTPMessageHeaderCreator.cpp" />
     <ClCompile Include="..\Smtp\SMTPVacationMessageCreator.cpp" />
     <ClCompile Include="..\Smtp\SMTPVirusNotifier.cpp" />
+    <ClCompile Include="..\Smtp\Spf\Conformance\SPFConformanceLookup.cpp" />
+    <ClCompile Include="..\Smtp\Spf\Conformance\SPFConformanceSuite.cpp" />
+    <ClCompile Include="..\Smtp\Spf\Conformance\SPFConformanceTester.cpp" />
     <ClCompile Include="..\Smtp\Spf\RMSPF.cpp" />
     <ClCompile Include="..\Smtp\Spf\SPF.cpp" />
     <ClCompile Include="hMailServer.cpp" />
@@ -1159,8 +1162,12 @@ EXIT 0
     <ClInclude Include="..\SMTP\SMTPMessageHeaderCreator.h" />
     <ClInclude Include="..\Smtp\SMTPVacationMessageCreator.h" />
     <ClInclude Include="..\Smtp\SMTPVirusNotifier.h" />
+    <ClInclude Include="..\Smtp\Spf\Conformance\SPFConformanceLookup.h" />
+    <ClInclude Include="..\Smtp\Spf\Conformance\SPFConformanceSuite.h" />
+    <ClInclude Include="..\Smtp\Spf\Conformance\SPFConformanceTester.h" />
     <ClInclude Include="..\Smtp\Spf\Rmspf.h" />
     <ClInclude Include="..\Smtp\Spf\SPF.h" />
+    <ClInclude Include="..\Smtp\Spf\SPFDnsLookup.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
