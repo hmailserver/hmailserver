@@ -39,10 +39,7 @@ namespace HM
 
       char ToLower(char character)
       {
-         if (character >= 'A' && character <= 'Z')
-            return (char) (character - 'A' + 'a');
-
-         return character;
+         return SPFSyntax::ToLowerAscii(character);
       }
 
       // macro-literal: a visible character other than "%". RFC 7208 section 12
@@ -552,6 +549,39 @@ namespace HM
       }
 
       return true;
+   }
+
+   char
+   SPFSyntax::ToLowerAscii(char character)
+   {
+      if (character >= 'A' && character <= 'Z')
+         return (char) (character - 'A' + 'a');
+
+      return character;
+   }
+
+   bool
+   SPFSyntax::EqualsDnsName(const AnsiString &left, const AnsiString &right)
+   {
+      if (left.GetLength() != right.GetLength())
+         return false;
+
+      for (int i = 0; i < left.GetLength(); i++)
+      {
+         if (ToLowerAscii(left[i]) != ToLowerAscii(right[i]))
+            return false;
+      }
+
+      return true;
+   }
+
+   bool
+   SPFSyntax::EndsWithDnsName(const AnsiString &name, const AnsiString &suffix)
+   {
+      if (name.GetLength() < suffix.GetLength())
+         return false;
+
+      return EqualsDnsName(name.Right(suffix.GetLength()), suffix);
    }
 
    bool

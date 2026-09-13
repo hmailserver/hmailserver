@@ -9,6 +9,7 @@
 #include "SPFMacroExpander.h"
 #include "SPFRecord.h"
 #include "SPFRecordLocator.h"
+#include "SPFSyntax.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -25,43 +26,14 @@ namespace HM
       // here so that a change to the counting cannot turn into a stack overflow.
       const int MAXIMUM_DEPTH = SPFEvaluator::MaximumTerms + 2;
 
-      char ToLower(char character)
-      {
-         if (character >= 'A' && character <= 'Z')
-            return (char) (character - 'A' + 'a');
-
-         return character;
-      }
-
-      // RFC 4343: DNS compares names without regard to case, and only for the
-      // ASCII letters.
-      bool EqualsNoCase(const AnsiString &left, const AnsiString &right)
-      {
-         if (left.GetLength() != right.GetLength())
-            return false;
-
-         for (int i = 0; i < left.GetLength(); i++)
-         {
-            if (ToLower(left[i]) != ToLower(right[i]))
-               return false;
-         }
-
-         return true;
-      }
-
       // Section 5.5: a validated name matches if it is the target name or sits
       // below it.
       bool IsAtOrBelow(const AnsiString &name, const AnsiString &targetName)
       {
-         if (EqualsNoCase(name, targetName))
+         if (SPFSyntax::EqualsDnsName(name, targetName))
             return true;
 
-         AnsiString suffix = AnsiString(".") + targetName;
-
-         if (name.GetLength() <= suffix.GetLength())
-            return false;
-
-         return EqualsNoCase(name.Right(suffix.GetLength()), suffix);
+         return SPFSyntax::EndsWithDnsName(name, AnsiString(".") + targetName);
       }
 
       // Section 4.6.2: the qualifier of the directive that matched is the result
@@ -129,14 +101,10 @@ namespace HM
          return Count_(lookup_->GetPTRRecords(reverseName, hostNames), hostNames);
       }
 
-      // Whether more queries have come back empty than section 4.6.4 allows,
-      // which makes the check a permerror however the term itself came out.
-      bool GetHasTooManyVoidLookups() const
-      {
-         return void_lookups_ > SPFEvaluator::MaximumVoidLookups;
-      }
-
-      int GetVoidLookupCount() const { return void_lookups_; }
+      // How many queries have answered nothing. The evaluator turns this into
+      // the count of *terms* that answered nothing, which is what section 4.6.4
+      // limits.
+      int GetVoidQueryCount() const { return void_lookups_; }
 
    private:
 
@@ -161,6 +129,7 @@ namespace HM
       receiving_host_("unknown"),
       timestamp_(0),
       terms_(0),
+      void_terms_(0),
       error_result_(SPFResult::PermError)
    {
 
@@ -191,6 +160,7 @@ namespace HM
       explanation = "";
 
       terms_ = 0;
+      void_terms_ = 0;
       error_result_ = SPFResult::PermError;
       client_address_ = clientAddress;
 
@@ -200,13 +170,14 @@ namespace HM
       expander_->SetReceivingHost(receiving_host_);
       expander_->SetTimestamp(timestamp_);
 
-      return CheckDomain_(domain, 0, explanation);
+      return CheckDomain_(domain, 0, &explanation);
    }
 
    SPFResult
-   SPFEvaluator::CheckDomain_(const AnsiString &domain, int depth, AnsiString &explanation)
+   SPFEvaluator::CheckDomain_(const AnsiString &domain, int depth, AnsiString *explanation)
    {
-      explanation = "";
+      if (explanation)
+         *explanation = "";
 
       if (depth > MAXIMUM_DEPTH)
          return SPFResult::PermError;
@@ -216,7 +187,16 @@ namespace HM
       SPFRecord record;
       AnsiString error;
 
-      switch (locator.Locate(domain, record, error))
+      // The record lookup is the DNS query of whichever term sent the evaluation
+      // here - an include, a redirect, or the check itself - so a void answer here
+      // is that term's one void.
+      int voidQueriesBefore = counting_lookup_->GetVoidQueryCount();
+
+      SPFRecordLocator::Result located = locator.Locate(domain, record, error);
+
+      CountVoidTerm_(voidQueriesBefore);
+
+      switch (located)
       {
       case SPFRecordLocator::Result::NoRecord:
          return SPFResult::None;
@@ -232,6 +212,9 @@ namespace HM
          break;
       }
 
+      if (GetHasTooManyVoidTerms_())
+         return SPFResult::PermError;
+
       // Section 4.6.2: the directives are evaluated in the order they were
       // written, and the first one that matches decides.
       const std::vector<SPFMechanism> &mechanisms = record.GetMechanisms();
@@ -243,7 +226,7 @@ namespace HM
          // Checked after every term rather than where a query is made, so that
          // one place decides it. A term which matched on its way past the limit
          // does not get to keep the match: section 4.6.4 ends the check.
-         if (counting_lookup_->GetHasTooManyVoidLookups())
+         if (GetHasTooManyVoidTerms_())
             return SPFResult::PermError;
 
          if (match == Match::Error)
@@ -255,9 +238,9 @@ namespace HM
          SPFResult result = ResultOf(mechanisms[i].GetQualifier());
 
          // Section 6.2: only a fail is explained, and only by the record that
-         // produced it.
-         if (result == SPFResult::Fail)
-            explanation = ExplanationFor_(record, domain);
+         // produced it - and only where the caller has somewhere to put it.
+         if (result == SPFResult::Fail && explanation)
+            *explanation = ExplanationFor_(record, domain);
 
          return result;
       }
@@ -267,12 +250,28 @@ namespace HM
       // modifier is not used, which is what redirect-cancels-exp is about.
       if (record.GetHasRedirect())
       {
-         if (!CountTerm_())
-            return SPFResult::PermError;
+         SPFMechanism redirect(SPFMechanism::Type::Include, SPFMechanism::Qualifier::Pass);
+
+         redirect.SetDomainSpec(record.GetRedirectDomainSpec());
 
          AnsiString targetName;
 
-         if (!expander_->ExpandDomainSpec(record.GetRedirectDomainSpec(), domain, targetName))
+         switch (ResolveTargetName_(redirect, domain, targetName))
+         {
+         case TargetName::SyntaxError:
+            return SPFResult::PermError;
+
+         case TargetName::Unusable:
+            // A redirect naming something no query can be built from names a
+            // domain that publishes no record, which section 6.1 makes a
+            // permerror the same way it does for one that exists and has none.
+            return SPFResult::PermError;
+
+         case TargetName::Resolved:
+            break;
+         }
+
+         if (!CountTerm_())
             return SPFResult::PermError;
 
          SPFResult result = CheckDomain_(targetName, depth + 1, explanation);
@@ -282,7 +281,9 @@ namespace HM
          // own. The record said where to look and was wrong.
          if (result == SPFResult::None)
          {
-            explanation = "";
+            if (explanation)
+               *explanation = "";
+
             return SPFResult::PermError;
          }
 
@@ -300,37 +301,73 @@ namespace HM
       switch (mechanism.GetType())
       {
       case SPFMechanism::Type::All:
-         return MatchAll_();
+         // Section 5.1: it always matches, which is what puts a result on every
+         // client a record did not mention.
+         return Match::Yes;
 
       case SPFMechanism::Type::IP4:
       case SPFMechanism::Type::IP6:
          return MatchAddressLiteral_(mechanism);
 
-      case SPFMechanism::Type::A:
-         return MatchA_(mechanism, domain);
-
-      case SPFMechanism::Type::MX:
-         return MatchMX_(mechanism, domain);
-
-      case SPFMechanism::Type::PTR:
-         return MatchPTR_(mechanism, domain);
-
-      case SPFMechanism::Type::Exists:
-         return MatchExists_(mechanism, domain);
-
-      case SPFMechanism::Type::Include:
-         return MatchInclude_(mechanism, domain, depth);
+      default:
+         break;
       }
 
-      return Match::No;
-   }
+      // What is left is the five terms that query DNS. Resolving the target name
+      // and counting the term are the same for all of them, and section 4.6.4
+      // counts a term once however many queries it goes on to make.
+      AnsiString targetName;
 
-   SPFEvaluator::Match
-   SPFEvaluator::MatchAll_()
-   {
-      // Section 5.1: it always matches, which is what puts a result on every
-      // client a record did not mention.
-      return Match::Yes;
+      switch (ResolveTargetName_(mechanism, domain, targetName))
+      {
+      case TargetName::SyntaxError:
+         return Fail_(SPFResult::PermError);
+
+      case TargetName::Unusable:
+         return Match::No;
+
+      case TargetName::Resolved:
+         break;
+      }
+
+      if (!CountTerm_())
+         return Fail_(SPFResult::PermError);
+
+      int voidQueriesBefore = counting_lookup_->GetVoidQueryCount();
+
+      Match match = Match::No;
+
+      switch (mechanism.GetType())
+      {
+      case SPFMechanism::Type::A:
+         match = MatchA_(mechanism, targetName);
+         break;
+
+      case SPFMechanism::Type::MX:
+         match = MatchMX_(mechanism, targetName);
+         break;
+
+      case SPFMechanism::Type::PTR:
+         match = MatchPTR_(targetName);
+         break;
+
+      case SPFMechanism::Type::Exists:
+         match = MatchExists_(targetName);
+         break;
+
+      case SPFMechanism::Type::Include:
+         // An include's own void is the record lookup its recursion makes, which
+         // CheckDomain_ counts there; counting again here would charge one term
+         // twice.
+         return MatchInclude_(targetName, depth);
+
+      default:
+         break;
+      }
+
+      CountVoidTerm_(voidQueriesBefore);
+
+      return match;
    }
 
    SPFEvaluator::Match
@@ -356,16 +393,8 @@ namespace HM
    }
 
    SPFEvaluator::Match
-   SPFEvaluator::MatchA_(const SPFMechanism &mechanism, const AnsiString &domain)
+   SPFEvaluator::MatchA_(const SPFMechanism &mechanism, const AnsiString &targetName)
    {
-      AnsiString targetName;
-
-      if (!TryGetTargetName_(mechanism, domain, targetName))
-         return Fail_(SPFResult::PermError);
-
-      if (!CountTerm_())
-         return Fail_(SPFResult::PermError);
-
       std::vector<AnsiString> addresses;
 
       if (!TryLookupAddresses_(targetName, addresses))
@@ -375,16 +404,8 @@ namespace HM
    }
 
    SPFEvaluator::Match
-   SPFEvaluator::MatchMX_(const SPFMechanism &mechanism, const AnsiString &domain)
+   SPFEvaluator::MatchMX_(const SPFMechanism &mechanism, const AnsiString &targetName)
    {
-      AnsiString targetName;
-
-      if (!TryGetTargetName_(mechanism, domain, targetName))
-         return Fail_(SPFResult::PermError);
-
-      if (!CountTerm_())
-         return Fail_(SPFResult::PermError);
-
       std::vector<AnsiString> hostNames;
 
       if (!counting_lookup_->GetMXRecords(targetName, hostNames))
@@ -410,16 +431,8 @@ namespace HM
    }
 
    SPFEvaluator::Match
-   SPFEvaluator::MatchPTR_(const SPFMechanism &mechanism, const AnsiString &domain)
+   SPFEvaluator::MatchPTR_(const AnsiString &targetName)
    {
-      AnsiString targetName;
-
-      if (!TryGetTargetName_(mechanism, domain, targetName))
-         return Fail_(SPFResult::PermError);
-
-      if (!CountTerm_())
-         return Fail_(SPFResult::PermError);
-
       // Section 5.5: the names the client's reverse mapping gives, kept only
       // where they resolve back to the client. The expander does the work,
       // because the p macro of section 7.3 needs the same list and section 4.6.4
@@ -439,16 +452,8 @@ namespace HM
    }
 
    SPFEvaluator::Match
-   SPFEvaluator::MatchExists_(const SPFMechanism &mechanism, const AnsiString &domain)
+   SPFEvaluator::MatchExists_(const AnsiString &targetName)
    {
-      AnsiString targetName;
-
-      if (!TryGetTargetName_(mechanism, domain, targetName))
-         return Fail_(SPFResult::PermError);
-
-      if (!CountTerm_())
-         return Fail_(SPFResult::PermError);
-
       // Section 5.7: the query is for an A record whatever family the client
       // connected over, because what is being asked is only whether the name
       // exists. An IPv6 client does not make this an AAAA query.
@@ -461,22 +466,12 @@ namespace HM
    }
 
    SPFEvaluator::Match
-   SPFEvaluator::MatchInclude_(const SPFMechanism &mechanism, const AnsiString &domain, int depth)
+   SPFEvaluator::MatchInclude_(const AnsiString &targetName, int depth)
    {
-      AnsiString targetName;
-
-      if (!TryGetTargetName_(mechanism, domain, targetName))
-         return Fail_(SPFResult::PermError);
-
-      if (!CountTerm_())
-         return Fail_(SPFResult::PermError);
-
-      // Section 6.2: the included record's own exp modifier is not used. The
-      // explanation of a fail belongs to the record that included it, which is
-      // why this one is thrown away.
-      AnsiString unused;
-
-      SPFResult result = CheckDomain_(targetName, depth + 1, unused);
+      // Section 6.2: the included record's own exp modifier is not used, so it is
+      // not fetched either - a query spent on an answer this would throw away,
+      // and one that would spend the void budget of the evaluation that asked.
+      SPFResult result = CheckDomain_(targetName, depth + 1, 0);
 
       // Section 5.2's table. An include asks a question of another domain and
       // only "yes" counts: the included record's fail is not this record's fail,
@@ -504,19 +499,30 @@ namespace HM
       return Match::No;
    }
 
-   bool
-   SPFEvaluator::TryGetTargetName_(const SPFMechanism &mechanism, const AnsiString &domain, AnsiString &targetName)
+   SPFEvaluator::TargetName
+   SPFEvaluator::ResolveTargetName_(const SPFMechanism &mechanism, const AnsiString &domain, AnsiString &targetName)
    {
       if (!mechanism.GetHasDomainSpec())
       {
          // Sections 5.3, 5.4 and 5.5: a, mx and ptr check the domain being
          // evaluated where they name none of their own.
          targetName = domain;
-
-         return true;
+      }
+      else if (!expander_->ExpandDomainSpec(mechanism.GetDomainSpec(), domain, targetName))
+      {
+         return TargetName::SyntaxError;
       }
 
-      return expander_->ExpandDomainSpec(mechanism.GetDomainSpec(), domain, targetName);
+      // Section 7.1 does not re-parse an expansion, so what came out is not
+      // checked against the grammar - only against whether a query can be built
+      // from it at all. One that cannot is a name that does not exist. Without
+      // this an empty expansion reaches the resolver, which has no query to make
+      // and reports a failure, turning a mechanism that should not match into a
+      // temperror.
+      if (!SPFSyntax::IsValidDomainName(targetName))
+         return TargetName::Unusable;
+
+      return TargetName::Resolved;
    }
 
    bool
@@ -576,11 +582,11 @@ namespace HM
 
       std::vector<AnsiString> records;
 
-      // Section 4.6.4 leaves the exp modifier out of the term limit, so this
-      // query is not counted. It is made through the counter anyway, so that
-      // there is no second way of asking DNS anything; the void it may add is
-      // never read, because the result of the check has already been decided by
-      // the time an explanation is wanted.
+      // Section 4.6.4 leaves the exp modifier out of the term limit, and this
+      // query is outside every void-term window too: the result of the check is
+      // already decided by the time an explanation is wanted, so letting it spend
+      // the void budget could only change an answer that had nothing to do with
+      // it.
       if (!counting_lookup_->GetTXTRecords(targetName, records))
          return "";
 
@@ -604,6 +610,22 @@ namespace HM
       terms_++;
 
       return terms_ <= MaximumTerms;
+   }
+
+   void
+   SPFEvaluator::CountVoidTerm_(int voidQueriesBefore)
+   {
+      // Section 4.6.4 limits the terms whose queries answer nothing, not the
+      // queries. However many names one mx resolved, or one ptr validated, the
+      // term spends at most one of the two.
+      if (counting_lookup_->GetVoidQueryCount() > voidQueriesBefore)
+         void_terms_++;
+   }
+
+   bool
+   SPFEvaluator::GetHasTooManyVoidTerms_() const
+   {
+      return void_terms_ > MaximumVoidTerms;
    }
 
    SPFEvaluator::Match

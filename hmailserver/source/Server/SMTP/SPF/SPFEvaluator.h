@@ -59,10 +59,11 @@ namespace HM
       // mechanism is one term however many hosts it resolves.
       static const int MaximumTerms = 10;
 
-      // A query answered with no records at all. Section 4.6.4 limits these
-      // separately, because a record can spend an evaluation's budget on names
-      // which do not exist as easily as on names which do.
-      static const int MaximumVoidLookups = 2;
+      // Terms whose queries answered nothing at all. Section 4.6.4 limits the
+      // number of such terms, not the number of such queries: one mx over five
+      // exchangers with no address of the client's family is one of these, not
+      // five.
+      static const int MaximumVoidTerms = 2;
 
       // Section 4.6.4 caps the names one mx mechanism may resolve. Past it the
       // check is a permerror rather than a matter of resolving the first ten -
@@ -90,22 +91,40 @@ namespace HM
          Error
       };
 
-      SPFResult CheckDomain_(const AnsiString &domain, int depth, AnsiString &explanation);
+      // explanation is null where the caller will not use one - which an include
+      // will not, section 6.2, so fetching it would be a query spent on an answer
+      // thrown away.
+      SPFResult CheckDomain_(const AnsiString &domain, int depth, AnsiString *explanation);
 
       Match EvaluateMechanism_(const SPFMechanism &mechanism, const AnsiString &domain, int depth);
 
-      Match MatchAll_();
-      Match MatchAddressLiteral_(const SPFMechanism &mechanism);
-      Match MatchA_(const SPFMechanism &mechanism, const AnsiString &domain);
-      Match MatchMX_(const SPFMechanism &mechanism, const AnsiString &domain);
-      Match MatchPTR_(const SPFMechanism &mechanism, const AnsiString &domain);
-      Match MatchExists_(const SPFMechanism &mechanism, const AnsiString &domain);
-      Match MatchInclude_(const SPFMechanism &mechanism, const AnsiString &domain, int depth);
+      // The mechanisms that query DNS, each handed a target name already expanded
+      // and already counted against the limits by EvaluateMechanism_.
+      Match MatchA_(const SPFMechanism &mechanism, const AnsiString &targetName);
+      Match MatchMX_(const SPFMechanism &mechanism, const AnsiString &targetName);
+      Match MatchPTR_(const AnsiString &targetName);
+      Match MatchExists_(const AnsiString &targetName);
+      Match MatchInclude_(const AnsiString &targetName, int depth);
 
-      // Section 4.8's <target-name>: the mechanism's domain-spec expanded, or
-      // domain where the mechanism named none. False where the domain-spec would
-      // not expand, which section 4.6 makes a permerror.
-      bool TryGetTargetName_(const SPFMechanism &mechanism, const AnsiString &domain, AnsiString &targetName);
+      Match MatchAddressLiteral_(const SPFMechanism &mechanism);
+
+      // What resolving a mechanism's <target-name> came to, section 4.8.
+      enum class TargetName
+      {
+         Resolved,
+
+         // The expansion produced something no query can be built from. Section
+         // 7.1 does not re-parse an expansion, so this is a name that does not
+         // exist rather than an error: the mechanism does not match.
+         Unusable,
+
+         // The domain-spec itself does not expand, which section 4.6 makes a
+         // permerror. The parser has seen every domain-spec a record carries, so
+         // nothing reaches this.
+         SyntaxError
+      };
+
+      TargetName ResolveTargetName_(const SPFMechanism &mechanism, const AnsiString &domain, AnsiString &targetName);
 
       // The addresses of a host in the client's own family, sections 5.3 and
       // 5.4, and whether any of them is the client within the mechanism's prefix
@@ -126,6 +145,13 @@ namespace HM
       // budget is spent, which makes the check a permerror.
       bool CountTerm_();
 
+      // Counts one void term if the queries made since voidQueriesBefore
+      // answered nothing. Called once per term, which is what keeps a mechanism
+      // that resolves many names from spending the budget several times over.
+      void CountVoidTerm_(int voidQueriesBefore);
+
+      bool GetHasTooManyVoidTerms_() const;
+
       Match Fail_(SPFResult result);
 
       // Counts the queries an evaluation makes. Defined in the implementation:
@@ -143,6 +169,7 @@ namespace HM
       __int64 timestamp_;
 
       int terms_;
+      int void_terms_;
 
       // Set whenever a mechanism returns Match::Error, and read by the loop that
       // gave up because of it.

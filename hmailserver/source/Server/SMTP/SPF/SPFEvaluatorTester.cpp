@@ -72,6 +72,9 @@ namespace HM
       TestTermLimit_();
       TestResolverAnswers_();
       TestExplanationOnlyForFail_();
+      TestVoidLookupsAreCountedPerTerm_();
+      TestIncludeDoesNotFetchAnExplanation_();
+      TestUnusableTargetNames_();
 
       return failures_;
    }
@@ -486,6 +489,197 @@ namespace HM
 
          failures_.push_back(AnsiString(unreadable[i].what) + " produced the explanation \"" +
                              explanation + "\" rather than none");
+      }
+   }
+
+
+   // Section 4.6.4 limits the number of *terms* whose queries come back empty,
+   // not the number of empty queries. One mx resolving several hosts is one term
+   // however many of those hosts turn out to have no address of the client's
+   // family - which is the common case for an IPv6 client and IPv4-only
+   // exchangers.
+   void
+   SPFEvaluatorTester::TestVoidLookupsAreCountedPerTerm_()
+   {
+      const char *client = "2001:db8::1";
+
+      auto lookup = std::make_shared<SPFTestLookup>();
+
+      lookup->AddTXT(CHECKED_DOMAIN, "v=spf1 mx ip6:2001:db8::/32 -all");
+
+      // Three exchangers, none with an AAAA record, so the mx mechanism makes
+      // three queries that answer nothing and cannot match.
+      for (int i = 1; i <= 3; i++)
+      {
+         AnsiString host = AnsiString("mx") + AnsiString(std::to_string(i).c_str()) + ".example.com";
+
+         lookup->AddMX(CHECKED_DOMAIN, host);
+         lookup->AddA(host, "10.0.0.1");
+      }
+
+      SPFEvaluator evaluator(lookup);
+
+      AnsiString explanation;
+
+      SPFResult result = evaluator.Check(AddressOf(client), CHECKED_DOMAIN, SENDER_ADDRESS, HELO_HOST, explanation);
+
+      if (result != SPFResult::Pass)
+      {
+         failures_.push_back(AnsiString("one mx mechanism over three exchangers with no AAAA gave ") +
+                             ResultName(result) + " rather than reaching the ip6 mechanism");
+      }
+
+      // And a ptr, whose validation queries are also one term's worth.
+      {
+         auto ptrLookup = std::make_shared<SPFTestLookup>();
+
+         ptrLookup->AddTXT(CHECKED_DOMAIN, "v=spf1 ptr ip4:192.0.2.1 -all");
+
+         for (int i = 1; i <= 4; i++)
+         {
+            AnsiString host = AnsiString("stale") + AnsiString(std::to_string(i).c_str()) + ".example.com";
+
+            ptrLookup->AddPTR("1.2.0.192.in-addr.arpa", host);
+         }
+
+         SPFEvaluator ptrEvaluator(ptrLookup);
+
+         SPFResult ptrResult = ptrEvaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN,
+                                                 SENDER_ADDRESS, HELO_HOST, explanation);
+
+         if (ptrResult != SPFResult::Pass)
+         {
+            failures_.push_back(AnsiString("one ptr mechanism over four names that do not resolve gave ") +
+                                ResultName(ptrResult) + " rather than reaching the ip4 mechanism");
+         }
+      }
+
+      // The limit still bites when the terms themselves are void, which is what
+      // the suite's void-over-limit covers and what must not regress.
+      {
+         auto overLookup = std::make_shared<SPFTestLookup>();
+
+         overLookup->AddTXT(CHECKED_DOMAIN,
+            "v=spf1 a:nx1.example.com a:nx2.example.com a:nx3.example.com ip4:192.0.2.1 -all");
+
+         SPFEvaluator overEvaluator(overLookup);
+
+         SPFResult overResult = overEvaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN,
+                                                   SENDER_ADDRESS, HELO_HOST, explanation);
+
+         if (overResult != SPFResult::PermError)
+         {
+            failures_.push_back(AnsiString("three terms that each answer nothing gave ") +
+                                ResultName(overResult) + " rather than permerror");
+         }
+      }
+   }
+
+   // Section 6.2: the explanation of a record reached through an include is not
+   // used, so it should not be fetched either.
+   //
+   // Asserted as a query count rather than as a result. Fetching it changes no
+   // answer - the void it may add falls outside every void-term window - so the
+   // only thing to see is the round-trip itself, once per failing include.
+   void
+   SPFEvaluatorTester::TestIncludeDoesNotFetchAnExplanation_()
+   {
+      struct Case
+      {
+         const char *includedRecord;
+         const char *what;
+      };
+
+      const Case cases[] =
+      {
+         { "v=spf1 -all", "an included record with no explanation" },
+         { "v=spf1 -all exp=explain.inc.example.com", "an included record which names one" }
+      };
+
+      int queries[2] = { 0, 0 };
+
+      for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++)
+      {
+         auto lookup = std::make_shared<SPFTestLookup>();
+
+         lookup->AddTXT(CHECKED_DOMAIN, "v=spf1 include:inc.example.com ip4:192.0.2.1 -all");
+         lookup->AddTXT("inc.example.com", cases[i].includedRecord);
+         lookup->AddTXT("explain.inc.example.com", "Computer says no.");
+
+         SPFEvaluator evaluator(lookup);
+
+         AnsiString explanation;
+
+         SPFResult result = evaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN,
+                                            SENDER_ADDRESS, HELO_HOST, explanation);
+
+         if (result != SPFResult::Pass)
+         {
+            failures_.push_back(AnsiString(cases[i].what) + " gave " + ResultName(result) +
+                                " rather than reaching the ip4 mechanism");
+         }
+
+         if (!explanation.IsEmpty())
+         {
+            failures_.push_back(AnsiString(cases[i].what) +
+                                " put an explanation on a check that passed: \"" + explanation + "\"");
+         }
+
+         queries[i] = lookup->GetQueryCount();
+      }
+
+      if (queries[0] != queries[1])
+      {
+         failures_.push_back(AnsiString("an included record which names an explanation cost ") +
+                             AnsiString(std::to_string(queries[1] - queries[0]).c_str()) +
+                             " more quer(y/ies) than one which does not, so it was fetched and thrown away");
+      }
+   }
+
+   // Section 7.1 does not re-parse what a macro produced, and a name that comes
+   // out unusable is a name that does not exist: the mechanism does not match.
+   // It is not an error of either kind, and in particular not a temperror -
+   // which is what asking a resolver about an empty name produces.
+   void
+   SPFEvaluatorTester::TestUnusableTargetNames_()
+   {
+      struct Case
+      {
+         const char *record;
+         const char *heloHost;
+         const char *what;
+      };
+
+      const Case cases[] =
+      {
+         // "foo." split on "." keeps a trailing empty part, so one right-hand
+         // part of it is the empty string.
+         { "v=spf1 a:%{h1} ip4:192.0.2.1 -all", "foo.", "an a mechanism whose target expands to nothing" },
+         { "v=spf1 mx:%{h1} ip4:192.0.2.1 -all", "foo.", "an mx mechanism whose target expands to nothing" },
+         { "v=spf1 exists:%{h1} ip4:192.0.2.1 -all", "foo.", "an exists mechanism whose target expands to nothing" },
+
+         // A name with an empty label, and one past the length a query may have.
+         { "v=spf1 a:mail.example..com ip4:192.0.2.1 -all", "mail.example.com", "an a mechanism whose target holds an empty label" }
+      };
+
+      for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++)
+      {
+         auto lookup = std::make_shared<SPFTestLookup>();
+
+         lookup->AddTXT(CHECKED_DOMAIN, cases[i].record);
+
+         SPFEvaluator evaluator(lookup);
+
+         AnsiString explanation;
+
+         SPFResult result = evaluator.Check(AddressOf(CLIENT_IP), CHECKED_DOMAIN,
+                                            SENDER_ADDRESS, cases[i].heloHost, explanation);
+
+         if (result == SPFResult::Pass)
+            continue;
+
+         failures_.push_back(AnsiString(cases[i].what) + " gave " + ResultName(result) +
+                             " rather than not matching and reaching the ip4 mechanism");
       }
    }
 }

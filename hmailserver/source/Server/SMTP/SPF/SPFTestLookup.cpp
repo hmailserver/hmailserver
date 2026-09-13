@@ -5,6 +5,8 @@
 
 #include "SPFTestLookup.h"
 
+#include "SPFSyntax.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -90,14 +92,7 @@ namespace HM
       AnsiString folded;
 
       for (int i = 0; i < name.GetLength(); i++)
-      {
-         char character = name[i];
-
-         if (character >= 'A' && character <= 'Z')
-            character = (char) (character - 'A' + 'a');
-
-         folded += character;
-      }
+         folded += SPFSyntax::ToLowerAscii(name[i]);
 
       return folded;
    }
@@ -108,6 +103,14 @@ namespace HM
    {
       query_count_++;
       values.clear();
+
+      if (name.IsEmpty())
+      {
+         // What DNSResolver does with one: there is no query to make, so it
+         // reports a failure. Modelled here because an expansion that comes out
+         // empty is the way an evaluation reaches it.
+         return false;
+      }
 
       AnsiString folded = Fold_(name);
 

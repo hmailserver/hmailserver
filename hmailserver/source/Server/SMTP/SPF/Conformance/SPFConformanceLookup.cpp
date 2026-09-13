@@ -5,6 +5,8 @@
 
 #include "SPFConformanceLookup.h"
 
+#include "../SPFSyntax.h"
+
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
@@ -32,14 +34,7 @@ namespace HM
             AnsiString result;
 
             for (int i = 0; i < length; i++)
-            {
-               char character = name[i];
-
-               if (character >= 'A' && character <= 'Z')
-                  character = (char) (character - 'A' + 'a');
-
-               result += character;
-            }
+               result += SPFSyntax::ToLowerAscii(name[i]);
 
             return result;
          }
