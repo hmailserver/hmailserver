@@ -129,6 +129,17 @@ namespace RegressionTests.AntiSpam
          return "(no Authentication-Results header from " + HostName + ")";
       }
 
+      // RFC 8601 section 2.7.2: the client address is not a property of the spf
+      // method, so it travels as a comment, the way Microsoft 365 reports it.
+      // The test connects over loopback, in whichever family the stack picks.
+      private static void AssertSpfReported(string header, string result, string property, string domain)
+      {
+         var expected = "spf=" + result + @" \(sender IP is (127\.0\.0\.1|::1)\) " +
+                        Regex.Escape(property + "=" + domain) + "(;|$)";
+
+         Assert.IsTrue(Regex.IsMatch(header, expected), header);
+      }
+
       [Test]
       [Description("A domain whose record authorizes no client at all should be reported as an SPF failure.")]
       public void TestSpfFailureIsReported()
@@ -146,7 +157,41 @@ namespace RegressionTests.AntiSpam
          var header = GetOwnAuthenticationResults(
             Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test"));
 
-         Assert.IsTrue(header.Contains("spf=fail smtp.mailfrom=example.com"), header);
+         AssertSpfReported(header, "fail", "smtp.mailfrom", "example.com");
+      }
+
+      [Test]
+      [Description("A message with a null sender should be checked against the HELO host and reported as smtp.helo.")]
+      public void TestSpfBounceIsCheckedAgainstHelo()
+      {
+         EnableSpf();
+
+         // RFC 7208 section 2.4: with no MAIL FROM domain the check uses the HELO
+         // identity, and RFC 8601 names that identity smtp.helo. Reporting it as
+         // smtp.mailfrom would tell a downstream reader the wrong thing about
+         // what was authenticated.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var connection = new TcpConnection();
+         Assert.IsTrue(connection.Connect(25));
+         Assert.IsTrue(connection.Receive().StartsWith("220"));
+         Assert.IsTrue(connection.SendAndReceive("HELO example.com\r\n").StartsWith("250"));
+         Assert.IsTrue(connection.SendAndReceive("MAIL FROM:<>\r\n").StartsWith("250"));
+         Assert.IsTrue(connection.SendAndReceive("RCPT TO:<" + account.Address + ">\r\n").StartsWith("250"));
+         Assert.IsTrue(connection.SendAndReceive("DATA\r\n").StartsWith("354"));
+         Assert.IsTrue(connection.SendAndReceive(
+            "From: postmaster@example.com\r\n" +
+            "Subject: SPF bounce test\r\n" +
+            "\r\n" +
+            "Test body\r\n" +
+            ".\r\n").StartsWith("250"));
+         connection.SendAndReceive("QUIT\r\n");
+         connection.Disconnect();
+
+         var header = GetOwnAuthenticationResults(
+            Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test"));
+
+         AssertSpfReported(header, "fail", "smtp.helo", "example.com");
       }
 
       [Test]
@@ -170,7 +215,7 @@ namespace RegressionTests.AntiSpam
          var header = GetOwnAuthenticationResults(
             Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test"));
 
-         Assert.IsTrue(header.Contains("spf=fail smtp.mailfrom=hmailserver.com"), header);
+         AssertSpfReported(header, "fail", "smtp.mailfrom", "hmailserver.com");
       }
 
       [Test]
@@ -193,7 +238,7 @@ namespace RegressionTests.AntiSpam
          var header = GetOwnAuthenticationResults(
             Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test"));
 
-         Assert.IsTrue(header.Contains("spf=none smtp.mailfrom=nonexistent.hmailserver.com"), header);
+         AssertSpfReported(header, "none", "smtp.mailfrom", "nonexistent.hmailserver.com");
       }
 
       [Test]

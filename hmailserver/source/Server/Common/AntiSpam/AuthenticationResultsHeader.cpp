@@ -141,8 +141,14 @@ namespace HM
 
       if (senderAuthentication->GetSPFChecked())
       {
+         // RFC 8601 section 2.7.2: smtp.helo where the null sender left only the
+         // HELO identity to check. The client address is not a property, so it
+         // goes in a comment; an address holds nothing a comment must escape.
+         String property = senderAuthentication->GetSPFCheckedHelo() ? "smtp.helo" : "smtp.mailfrom";
+
          methods.push_back("spf=" + GetSPFResultText(senderAuthentication->GetSPFResult()) +
-                           " smtp.mailfrom=" + FormatValue(senderAuthentication->GetSPFDomain()));
+                           " (sender IP is " + senderAuthentication->GetSPFClientAddress() + ") " +
+                           property + "=" + FormatValue(senderAuthentication->GetSPFDomain()));
       }
 
       for (auto signature : senderAuthentication->GetDKIMSignatures())

@@ -33,6 +33,10 @@ namespace HM
       // The identity SPF authenticated - the MAIL FROM domain, or the HELO host
       // when the message has a null sender.
       String GetSPFDomain() const;
+      // Whether that identity was the HELO host, RFC 7208 section 2.4.
+      bool GetSPFCheckedHelo() const;
+      // The client address the check was made for.
+      String GetSPFClientAddress() const;
       String GetSPFExplanation() const;
 
       // Verifies every DKIM signature, unless it has already been done.
@@ -52,6 +56,8 @@ namespace HM
       bool spf_checked_;
       SPFResult spf_result_;
       String spf_domain_;
+      bool spf_checked_helo_;
+      String spf_client_address_;
       String spf_explanation_;
 
       bool dkim_checked_;

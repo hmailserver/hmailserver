@@ -27,6 +27,7 @@ namespace HM
       // this value nor a None in its place is observable. Anything that starts
       // reading the result without the flag needs a real sentinel first.
       spf_result_(SPFResult::Neutral),
+      spf_checked_helo_(false),
       dkim_checked_(false),
       dkim_result_(DKIM::Neutral),
       dmarc_result_(DMARCResult::NotEvaluated)
@@ -53,6 +54,8 @@ namespace HM
       spf_checked_ = true;
       spf_result_ = result;
       spf_domain_ = domain;
+      spf_checked_helo_ = StringParser::ExtractDomain(testData->GetEnvelopeFrom()).IsEmpty();
+      spf_client_address_ = originatingAddress.ToString();
       spf_explanation_ = explanation;
 
       return spf_result_;
@@ -74,6 +77,18 @@ namespace HM
    SenderAuthentication::GetSPFDomain() const
    {
       return spf_domain_;
+   }
+
+   bool
+   SenderAuthentication::GetSPFCheckedHelo() const
+   {
+      return spf_checked_helo_;
+   }
+
+   String
+   SenderAuthentication::GetSPFClientAddress() const
+   {
+      return spf_client_address_;
    }
 
    String
