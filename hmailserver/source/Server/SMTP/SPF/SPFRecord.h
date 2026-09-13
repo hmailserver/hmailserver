@@ -33,7 +33,9 @@ namespace HM
          Neutral
       };
 
-      SPFMechanism();
+      // No default constructor on purpose. A mechanism without a type and a
+      // qualifier is not a mechanism, and the defaults one would have to pick
+      // are "all" and "+" - the pair that authorizes every client there is.
       SPFMechanism(Type type, Qualifier qualifier);
 
       Type GetType() const { return type_; }

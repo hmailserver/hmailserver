@@ -18,6 +18,14 @@ namespace HM
 {
    SenderAuthentication::SenderAuthentication() :
       spf_checked_(false),
+
+      // There is no result for "not checked yet", and this is not one: a neutral
+      // is what a record that mentions nobody produces, which is a thing SPF can
+      // actually answer. spf_checked_ is what says whether a check was made, and
+      // every caller has to consult it - the Authentication-Results header does,
+      // and the spam tests only ever compare against Pass or Fail, so neither
+      // this value nor a None in its place is observable. Anything that starts
+      // reading the result without the flag needs a real sentinel first.
       spf_result_(SPFResult::Neutral),
       dkim_checked_(false),
       dkim_result_(DKIM::Neutral),

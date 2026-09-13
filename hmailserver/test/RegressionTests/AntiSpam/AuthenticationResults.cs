@@ -99,12 +99,22 @@ namespace RegressionTests.AntiSpam
 
       // This server's own Authentication-Results header, unfolded onto one line.
       //
-      // One line on purpose: the CI summary shows only the first line of a
+      // Unfolding is not a convenience, it is what makes an assertion on this
+      // header possible at all. Application.cpp turns MimeEnvironment auto
+      // folding on, and MimeCode folds a header value at 76 characters on the
+      // last space before the limit, so a field near that boundary is split
+      // across a continuation line and a Contains() over the raw message misses
+      // it. Worse, it is intermittent by construction: whether spf= survives
+      // intact depends on how long the dmarc= field ahead of it happens to be,
+      // so the same assertion passes for one sender and fails for another. That
+      // cost three CI runs to work out.
+      //
+      // One line also because the CI summary shows only the first line of a
       // failure message, so a failure has to be able to say what the header
-      // actually held without any of it being cut off. Asserting against the
-      // header rather than the whole message also tells a missing field apart
-      // from a field with the wrong value, which matters here because the two
-      // have different causes - one means no check was made.
+      // actually held without any of it being cut off. And asserting against the
+      // header rather than the whole message tells a missing field apart from a
+      // field with the wrong value, which matters because the two have different
+      // causes - one of them means no check was made.
       private string GetOwnAuthenticationResults(string messageText)
       {
          var unfolded = Regex.Replace(messageText, "\r\n[ \t]+", " ");
