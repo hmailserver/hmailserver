@@ -55,5 +55,17 @@ endif()
 add_executable(hmailserver-core-tests "${HM_SERVER}/Portable/PortableCoreTests.cpp")
 target_link_libraries(hmailserver-core-tests PRIVATE hmailserver-core)
 
+# The openspf.org conformance suite for RFC 7208, and the stub resolver which
+# answers an evaluation's DNS queries out of it. A suite of its own rather than
+# more cases in the runner above: it is a fixture transcribed from someone
+# else's file, and it is large.
+add_executable(hmailserver-spf-conformance
+   "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceSuite.cpp"
+   "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceLookup.cpp"
+   "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceTests.cpp"
+)
+target_link_libraries(hmailserver-spf-conformance PRIVATE hmailserver-core)
+
 enable_testing()
 add_test(NAME hmailserver-core-tests COMMAND hmailserver-core-tests)
+add_test(NAME hmailserver-spf-conformance COMMAND hmailserver-spf-conformance)
