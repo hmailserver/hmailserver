@@ -17,6 +17,7 @@
 
 #include "../Common/Mime/MimeChar.h"
 #include "../SMTP/SPF/Conformance/SPFConformanceTester.h"
+#include "../SMTP/SPF/SPFRecordTester.h"
 
 #include <cstdio>
 #include <cstring>
@@ -95,23 +96,29 @@ namespace
       }
    }
 
-   // The RFC 7208 conformance suite, which is built into the server project as
-   // well and run from ClassTester there. Same cases either way; it reaches no
-   // network, so it costs milliseconds.
-   void TestSPFConformance()
+   void ReportFailures(const std::vector<HM::AnsiString> &reported)
    {
-      HM::SPFConformance::SPFConformanceTester tester;
-
-      std::vector<HM::AnsiString> spfFailures = tester.Run();
-
-      for (const HM::AnsiString &failure : spfFailures)
+      for (const HM::AnsiString &failure : reported)
       {
          printf("FAILED: %s\n", failure.c_str());
          failures++;
       }
+   }
 
-      printf("SPF conformance: %d of %d cases run.\n",
-             tester.GetCasesRun(),
+   // The SPF record grammar, and the RFC 7208 conformance suite. Both are built
+   // into the server project as well and run from ClassTester there; the cases
+   // are the same either way, and neither reaches a network, so together they
+   // cost milliseconds.
+   void TestSPF()
+   {
+      HM::SPFRecordTester recordTester;
+      ReportFailures(recordTester.Run());
+
+      HM::SPFConformance::SPFConformanceTester conformanceTester;
+      ReportFailures(conformanceTester.Run());
+
+      printf("SPF conformance: %d of %d cases decided.\n",
+             conformanceTester.GetCasesRun(),
              HM::SPFConformance::SPFConformanceTester::GetCaseCount());
    }
 }
@@ -119,7 +126,7 @@ namespace
 int main()
 {
    TestMimeChar();
-   TestSPFConformance();
+   TestSPF();
 
    if (failures > 0)
    {
