@@ -17,6 +17,7 @@
 
 #include "../Common/Mime/MimeChar.h"
 #include "../SMTP/SPF/Conformance/SPFConformanceTester.h"
+#include "../SMTP/SPF/SPFMacroExpanderTester.h"
 #include "../SMTP/SPF/SPFRecordTester.h"
 
 #include <cstdio>
@@ -105,14 +106,17 @@ namespace
       }
    }
 
-   // The SPF record grammar, and the RFC 7208 conformance suite. Both are built
-   // into the server project as well and run from ClassTester there; the cases
-   // are the same either way, and neither reaches a network, so together they
-   // cost milliseconds.
+   // The SPF record grammar, the macro expansion of RFC 7208 section 7, and the
+   // RFC 7208 conformance suite. All three are built into the server project as
+   // well and run from ClassTester there; the cases are the same either way, and
+   // none of them reaches a network, so together they cost milliseconds.
    void TestSPF()
    {
       HM::SPFRecordTester recordTester;
       ReportFailures(recordTester.Run());
+
+      HM::SPFMacroExpanderTester macroExpanderTester;
+      ReportFailures(macroExpanderTester.Run());
 
       HM::SPFConformance::SPFConformanceTester conformanceTester;
       ReportFailures(conformanceTester.Run());

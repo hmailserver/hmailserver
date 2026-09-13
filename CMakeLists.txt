@@ -30,8 +30,10 @@ set(HM_SERVER "${CMAKE_CURRENT_SOURCE_DIR}/hmailserver/source/Server")
 add_library(hmailserver-core STATIC
    "${HM_SERVER}/Common/Mime/MimeChar.cpp"
    "${HM_SERVER}/SMTP/SPF/SPFSyntax.cpp"
+   "${HM_SERVER}/SMTP/SPF/SPFAddress.cpp"
    "${HM_SERVER}/SMTP/SPF/SPFRecord.cpp"
    "${HM_SERVER}/SMTP/SPF/SPFRecordLocator.cpp"
+   "${HM_SERVER}/SMTP/SPF/SPFMacroExpander.cpp"
 )
 
 # Portable/ holds this build's stand-in for the precompiled header. The server
@@ -65,6 +67,7 @@ add_executable(hmailserver-core-tests
    "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceLookup.cpp"
    "${HM_SERVER}/SMTP/SPF/Conformance/SPFConformanceTester.cpp"
    "${HM_SERVER}/SMTP/SPF/SPFRecordTester.cpp"
+   "${HM_SERVER}/SMTP/SPF/SPFMacroExpanderTester.cpp"
 )
 target_link_libraries(hmailserver-core-tests PRIVATE hmailserver-core)
 

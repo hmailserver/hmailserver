@@ -17,19 +17,23 @@ namespace HM
       // either way; nothing here reaches a network, so a whole run takes
       // milliseconds.
       //
-      // What it runs today is the harness rather than an evaluation: that the
-      // table transcribed from rfc7208-tests.yml is whole, and that the stub
-      // resolver reads the suite's zones the way the suite means them. There is
-      // no SPF evaluator to hand the cases to yet - the record parser, the macro
-      // expander and the evaluator come after this - so no case is decided, and
-      // Run() says how many of them it decided. RunCases_ is where they will be
-      // driven from.
+      // Alongside the cases it runs the harness itself: that the table
+      // transcribed from rfc7208-tests.yml is whole, and that the stub resolver
+      // reads the suite's zones the way the suite means them. The resolver is
+      // worth pinning down separately because its rules are not obvious - a zone
+      // that times out for one record type and answers for another, host names
+      // differing only in case, an alias for itself - and if one of them is
+      // wrong, every case leaning on it fails for a reason that looks like the
+      // evaluator's fault.
       //
-      // The resolver is worth pinning down ahead of the evaluator because its
-      // rules are not obvious - a zone that times out for one record type and
-      // answers for another, host names differing only in case, an alias for
-      // itself - and if one of them is wrong, every case leaning on it fails for
-      // a reason that looks like the evaluator's fault.
+      // Not every case is decided yet. Finding and parsing a domain's record
+      // settles the ones whose answer does not depend on a mechanism, which is
+      // what RunCases_ does; the rest wait on the evaluator. What SPFRecord and
+      // SPFMacroExpander do beyond that is asserted directly, by SPFRecordTester
+      // and SPFMacroExpanderTester, because a case the suite leaves undecided
+      // says nothing either way. Run() reports how many were decided, and
+      // RunCases_ holds that count to a floor: a parser which accepts too much
+      // does not fail a case, it quietly stops deciding it.
       class SPFConformanceTester
       {
       public:
@@ -46,8 +50,9 @@ namespace HM
          // which is what makes 203 cases worth having.
          std::vector<AnsiString> Run();
 
-         // How many of the suite's cases the last run actually decided. Zero
-         // until there is an evaluator to decide them.
+         // How many of the suite's cases the last run actually decided. Rises as
+         // more of the evaluation is written; a fall means something that used to
+         // be recognised no longer is.
          int GetCasesRun() const { return casesRun_; }
 
          // How many cases the suite holds, decided or not.

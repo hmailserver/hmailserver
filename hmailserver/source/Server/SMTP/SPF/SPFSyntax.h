@@ -27,6 +27,52 @@ namespace HM
          ExplanationText
       };
 
+      // One macro expansion, taken apart:
+      //
+      //   macro-expand = ( "%{" macro-letter transformers *delimiter "}" )
+      //                  / "%%" / "%_" / "%-"
+      //   transformers = *DIGIT [ "r" ]
+      //
+      // The parser only needs to know whether a macro-string is well formed and
+      // the expander needs the pieces, but the two have to agree about where a
+      // macro ends, so there is one reader and this is what it returns.
+      struct Macro
+      {
+         // "%%", "%_" and "%-" carry no letter. The character which follows the
+         // percent sign is kept as written; what it stands for is section 7.1's
+         // business rather than the grammar's.
+         bool is_literal;
+         char literal;
+
+         // The macro letter, as written. ABNF makes the letter itself case
+         // insensitive; section 7.1 gives the upper case spelling the added
+         // meaning that the expansion is URL escaped, so the case is kept.
+         char letter;
+
+         // How many of the right-hand parts to keep. Zero means all of them -
+         // either no digits were written, or a zero was. RFC 7208 does not
+         // allow a value of zero and does not say what to do with one; keeping
+         // every part is the only reading that leaves the record usable, and
+         // evaluating a record beats failing it.
+         int digits;
+
+         // The "r" of the transformers, in either case.
+         bool reverse;
+
+         // The characters to split the value on, as written. Empty where none
+         // were, and section 7.1's default is then ".".
+         AnsiString delimiters;
+
+         // Just past the closing "}", or past the two characters of a "%%",
+         // "%_" or "%-".
+         int end;
+      };
+
+      // Reads the macro expansion which begins at position. Returns false if
+      // what is there is not one, which is what makes a stray "%" a syntax
+      // error and what keeps "exp=%{r}.example.com" out of a record's own terms.
+      static bool TryReadMacro(const AnsiString &text, int position, MacroSet macros, Macro &macro);
+
       // macro-string. The argument of an unknown modifier is one of these, so
       // there is no requirement that it look like a domain name.
       static bool IsValidMacroString(const AnsiString &text, MacroSet macros);

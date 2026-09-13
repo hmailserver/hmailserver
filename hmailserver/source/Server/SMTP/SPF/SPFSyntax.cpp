@@ -48,9 +48,20 @@ namespace HM
       // macro-literal: a visible character other than "%". RFC 7208 section 12
       // writes it as %x21-24 / %x26-7E, which is every printable character
       // except the space and the percent sign.
-      bool IsMacroLiteral(char character)
+      //
+      // The space is what section 12 separates a record's terms by, so a term
+      // cannot hold one. The text an exp modifier fetches is not a term and is
+      // spelled by a rule of its own which puts the space back:
+      //
+      //   explain-string = *( macro-string / SP )
+      //
+      // Without that, an explanation could not be a sentence.
+      bool IsMacroLiteral(char character, SPFSyntax::MacroSet macros)
       {
          unsigned char byte = (unsigned char) character;
+
+         if (byte == ' ')
+            return macros == SPFSyntax::MacroSet::ExplanationText;
 
          return (byte >= 0x21 && byte <= 0x24) || (byte >= 0x26 && byte <= 0x7E);
       }
@@ -90,60 +101,6 @@ namespace HM
          }
 
          return false;
-      }
-
-      // A macro expansion beginning at position. Returns the position just past
-      // it, or -1 if what is there is not one.
-      //
-      // macro-expand = ( "%{" macro-letter transformers *delimiter "}" )
-      //                / "%%" / "%_" / "%-"
-      // transformers = *DIGIT [ "r" ]
-      int ReadMacroExpansion(const AnsiString &text, int position, SPFSyntax::MacroSet macros)
-      {
-         int length = text.GetLength();
-
-         if (position >= length || text[position] != '%')
-            return -1;
-
-         if (position + 1 >= length)
-         {
-            // A percent sign at the very end expands to nothing and is not
-            // allowed to stand alone.
-            return -1;
-         }
-
-         char next = text[position + 1];
-
-         if (next == '%' || next == '_' || next == '-')
-            return position + 2;
-
-         if (next != '{')
-            return -1;
-
-         int at = position + 2;
-
-         if (at >= length || !IsMacroLetter(text[at], macros))
-            return -1;
-
-         at++;
-
-         // The digits say how many of the right-hand parts to keep. A zero is
-         // not useful, but neither the test suite nor the implementation the
-         // suite was written against rejects one, and a record which uses it is
-         // better evaluated than failed.
-         while (at < length && IsDigit(text[at]))
-            at++;
-
-         if (at < length && ToLower(text[at]) == 'r')
-            at++;
-
-         while (at < length && IsMacroDelimiter(text[at]))
-            at++;
-
-         if (at >= length || text[at] != '}')
-            return -1;
-
-         return at + 1;
       }
 
       // toplabel, RFC 7208 section 12: a label which cannot be read as a
@@ -271,6 +228,89 @@ namespace HM
    }
 
    bool
+   SPFSyntax::TryReadMacro(const AnsiString &text, int position, MacroSet macros, Macro &macro)
+   {
+      macro.is_literal = false;
+      macro.literal = 0;
+      macro.letter = 0;
+      macro.digits = 0;
+      macro.reverse = false;
+      macro.delimiters = "";
+      macro.end = position;
+
+      int length = text.GetLength();
+
+      if (position < 0 || position >= length || text[position] != '%')
+         return false;
+
+      if (position + 1 >= length)
+      {
+         // A percent sign at the very end of the string expands to nothing, and
+         // is not allowed to stand alone.
+         return false;
+      }
+
+      char next = text[position + 1];
+
+      if (next == '%' || next == '_' || next == '-')
+      {
+         macro.is_literal = true;
+         macro.literal = next;
+         macro.end = position + 2;
+
+         return true;
+      }
+
+      if (next != '{')
+         return false;
+
+      int at = position + 2;
+
+      if (at >= length || !IsMacroLetter(text[at], macros))
+         return false;
+
+      macro.letter = text[at];
+      at++;
+
+      // The digits say how many of the right-hand parts to keep. The count is
+      // capped rather than accumulated without limit: a count past the number of
+      // parts means every part either way, and no expansion has more parts than
+      // it has characters, so clamping changes no answer and cannot overflow.
+      const int maximumDigits = 256;
+
+      while (at < length && IsDigit(text[at]))
+      {
+         if (macro.digits < maximumDigits)
+            macro.digits = macro.digits * 10 + (text[at] - '0');
+
+         if (macro.digits > maximumDigits)
+            macro.digits = maximumDigits;
+
+         at++;
+      }
+
+      if (at < length && ToLower(text[at]) == 'r')
+      {
+         macro.reverse = true;
+         at++;
+      }
+
+      int delimitersAt = at;
+
+      while (at < length && IsMacroDelimiter(text[at]))
+         at++;
+
+      macro.delimiters = text.Mid(delimitersAt, at - delimitersAt);
+
+      if (at >= length || text[at] != '}')
+         return false;
+
+      macro.end = at + 1;
+
+      return true;
+   }
+
+   bool
    SPFSyntax::IsValidMacroString(const AnsiString &text, MacroSet macros)
    {
       int at = 0;
@@ -279,16 +319,16 @@ namespace HM
       {
          if (text[at] == '%')
          {
-            int next = ReadMacroExpansion(text, at, macros);
+            Macro macro;
 
-            if (next < 0)
+            if (!TryReadMacro(text, at, macros, macro))
                return false;
 
-            at = next;
+            at = macro.end;
             continue;
          }
 
-         if (!IsMacroLiteral(text[at]))
+         if (!IsMacroLiteral(text[at], macros))
             return false;
 
          at++;
@@ -317,7 +357,10 @@ namespace HM
          {
             // IsValidMacroString has already walked this, so every expansion
             // here reads cleanly.
-            at = ReadMacroExpansion(text, at, MacroSet::RecordTerm);
+            Macro macro;
+            TryReadMacro(text, at, MacroSet::RecordTerm, macro);
+
+            at = macro.end;
             lastExpansionEnd = at;
             continue;
          }
