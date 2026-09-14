@@ -7,6 +7,7 @@
 
 #include "../../Common/Util/Encoding/Base64.h"
 
+#include <openssl/crypto.h>
 #include <openssl/hmac.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
@@ -345,8 +346,28 @@ namespace HM
          return false;
 
       // Compared without regard to case, for the same reason the input is lower-cased
-      // before it is hashed.
-      return expected.Mid(0, length).CompareNoCase(hash) == 0;
+      // before it is hashed. The comparison takes the same time whether the first
+      // character differs or the last one does, so that how long a rejection takes
+      // tells the sender nothing about how much of the hash they got right.
+      String expectedPrefix = expected.Mid(0, length);
+      expectedPrefix.ToLower();
+
+      String candidate = hash;
+      candidate.ToLower();
+
+      AnsiString expectedBytes;
+      AnsiString candidateBytes;
+
+      if (!ToUTF8_(expectedPrefix, expectedBytes) || !ToUTF8_(candidate, candidateBytes))
+         return false;
+
+      // A hash is Base64, so a candidate with characters outside ASCII cannot match. Its
+      // length in bytes then differs from the expected one, which is public knowledge and
+      // safe to bail out on early.
+      if (expectedBytes.GetLength() != candidateBytes.GetLength())
+         return false;
+
+      return CRYPTO_memcmp(expectedBytes.c_str(), candidateBytes.c_str(), (size_t) expectedBytes.GetLength()) == 0;
    }
 
    bool
