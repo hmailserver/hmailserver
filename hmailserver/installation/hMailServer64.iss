@@ -31,7 +31,7 @@
 ; 10.0.14393 is the newest one Microsoft supports on Windows Vista through 8.1 - see
 ; "Universal CRT deployment" on Microsoft Learn - so it is checked in here rather than taken
 ; from whichever Windows SDK the build machine happens to carry. A newer one breaks Vista:
-; its loader cannot resolve the "kernel32.dll.VirtualAlloc" forwarders they use, and
+; its loader cannot resolve the "module.dll.Function" forwarders they use, and
 ; hMailServer.exe then dies at startup. build\Test-DownlevelForwarders.ps1 guards that.
 ; Taken from the Windows 10 SDK version 1607, Redist\ucrt\DLLs\x64:
 ; https://learn.microsoft.com/en-us/windows/apps/windows-sdk/downloads-archive

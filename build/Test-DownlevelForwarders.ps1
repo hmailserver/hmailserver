@@ -1,6 +1,6 @@
 function Test-DownlevelForwarders {
     # Fails if any DLL in $Path exports a forwarder whose module part carries its own ".dll"
-    # extension - "kernel32.dll.VirtualAlloc" rather than "kernel32.VirtualAlloc".
+    # extension - "module.dll.Function" rather than "module.Function".
     #
     # The loader in Windows Vista cannot resolve that form. Windows 10 can, so a build made
     # with a newer Universal CRT redistributable passes every test on a modern machine and
