@@ -2728,7 +2728,7 @@ STDMETHODIMP InterfaceSettings::put_SRSSecret(BSTR newVal)
          // it may be is bounded rather than left to whoever sets it. Length is not what
          // makes a secret hard to guess in any case - the one the server generates for
          // itself is 32 random bytes, well inside this.
-         return COMError::GenerateError(Formatter::Format("The SRS secret may not be longer than {0} characters.",
+         return COMError::GenerateError(HM::Formatter::Format("The SRS secret may not be longer than {0} characters.",
             HM::SRS::MaxSecretLength));
       }
 
