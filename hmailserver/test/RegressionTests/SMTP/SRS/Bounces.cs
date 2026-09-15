@@ -85,7 +85,7 @@ namespace RegressionTests.SMTP.SRS
          // what keeps SRS from turning the server into an open relay.
          var forged = SrsAddress.Create("not the server's secret", "victim@" + ExternalDomain, _domain.Name);
 
-         AssertRejected(forged, "The SRS address has an invalid hash.");
+         AssertRejected(forged, "Unknown user");
       }
 
       [Test]
@@ -97,15 +97,17 @@ namespace RegressionTests.SMTP.SRS
          var address = SrsAddress.Create(Secret, ExternalSender, _domain.Name);
 
          // The recipient the address decodes to is changed, and the hash no longer
-         // matches what the rest of the address says.
-         AssertRejected(address.Replace("=sender@", "=victim@"), "The SRS address has an invalid hash.");
+         // matches what the rest of the address says. It is refused the way any other
+         // unknown address is; what it was about the address that did not add up is not
+         // something the sender is told.
+         AssertRejected(address.Replace("=sender@", "=victim@"), "Unknown user");
 
          // As is the reverse: a valid hash for another address.
          var otherAddress = SrsAddress.Parse(SrsAddress.Create(Secret, "someone@" + ExternalDomain, _domain.Name));
          var parsed = SrsAddress.Parse(address);
 
          AssertRejected("SRS0=" + otherAddress.Hash + "=" + parsed.Timestamp + "=" + parsed.Domain + "=" +
-                        parsed.LocalPart + "@" + _domain.Name, "The SRS address has an invalid hash.");
+                        parsed.LocalPart + "@" + _domain.Name, "Unknown user");
       }
 
       [Test]
@@ -176,7 +178,7 @@ namespace RegressionTests.SMTP.SRS
          var truncated = "SRS0=" + parsed.Hash.Substring(0, SrsAddress.MinHashLength - 1) + "=" +
                          parsed.Timestamp + "=" + parsed.Domain + "=" + parsed.LocalPart + "@" + _domain.Name;
 
-         AssertRejected(truncated, "The SRS address has an invalid hash.");
+         AssertRejected(truncated, "Unknown user");
       }
 
       [Test]
@@ -185,8 +187,8 @@ namespace RegressionTests.SMTP.SRS
       {
          EnableSrs();
 
-         AssertRejected("SRS0=hash=7G@" + _domain.Name, "The SRS address is malformed.");
-         AssertRejected("SRS1=hash=hop.example@" + _domain.Name, "The SRS address is malformed.");
+         AssertRejected("SRS0=hash=7G@" + _domain.Name, "Unknown user");
+         AssertRejected("SRS1=hash=hop.example@" + _domain.Name, "Unknown user");
       }
 
       [Test]
@@ -244,7 +246,7 @@ namespace RegressionTests.SMTP.SRS
          var forged = SrsAddress.CreateChained("not the server's secret", firstHopAddress, _domain.Name,
             SrsAddress.DefaultHashLength);
 
-         AssertRejected(forged, "The SRS address has an invalid hash.");
+         AssertRejected(forged, "Unknown user");
       }
 
       [Test]
@@ -318,6 +320,28 @@ namespace RegressionTests.SMTP.SRS
 
             CustomAsserts.AssertReportedError("The SRS address", "could not be reversed");
          }
+      }
+
+      [Test]
+      [Description("A rejection tells a sender who does not hold an address of ours no more than that nobody answers to it.")]
+      public void AnAddressWhichIsNotOursIsRejectedTheWayAnyUnknownAddressIs()
+      {
+         EnableSrs();
+
+         // Saying which part of an address did not add up answers a question only someone
+         // guessing at addresses asks, and an unknown address which merely begins the way
+         // ours do is an ordinary typo, not an SRS address at all.
+         AssertRejected(SrsAddress.Create("not the server's secret", ExternalSender, _domain.Name), "Unknown user");
+         AssertRejected("SRS0=hash=7G@" + _domain.Name, "Unknown user");
+         AssertRejected("srs0-bounces@" + _domain.Name, "Unknown user");
+
+         // An address which has run out of time is the exception: its hash is ours, so it
+         // is one this server really did hand out, and only somebody who holds one can get
+         // that answer out of it.
+         var expired = SrsAddress.Create(Secret, ExternalSender, _domain.Name,
+            DateTime.UtcNow.AddDays(-(SrsAddress.DefaultMaxAgeDays + 1)), SrsAddress.DefaultHashLength);
+
+         AssertRejected(expired, "The SRS address has expired.");
       }
 
       private void AssertRejected(string address, string expectedError)

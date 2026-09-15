@@ -31,6 +31,16 @@ namespace RegressionTests.SMTP.SRS
       /// </summary>
       internal SmtpServerSimulator StartExternalServer(int numberOfConnections, params string[] recipients)
       {
+         return StartServerForDomain(ExternalDomain, numberOfConnections, recipients);
+      }
+
+      /// <summary>
+      /// The same, for a domain of the caller's choosing. A route can be set up for a
+      /// domain we host as well, and mail for an address in it which no account, alias or
+      /// list answers to then leaves the server through the route.
+      /// </summary>
+      internal SmtpServerSimulator StartServerForDomain(string domainName, int numberOfConnections, params string[] recipients)
+      {
          var port = TestSetup.GetNextFreePort();
 
          var server = new SmtpServerSimulator(numberOfConnections, port);
@@ -47,7 +57,7 @@ namespace RegressionTests.SMTP.SRS
 
          server.StartListen();
 
-         AddRoute(ExternalDomain, port);
+         AddRoute(domainName, port);
 
          return server;
       }

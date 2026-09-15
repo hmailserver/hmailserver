@@ -7,6 +7,7 @@
 
 #include "SRS.h"
 
+#include "../PlusAddressing.h"
 #include "../SMTPConfiguration.h"
 
 #include "../../Common/Application/ObjectCache.h"
@@ -18,6 +19,8 @@
 #include "../../Common/BO/Domain.h"
 #include "../../Common/BO/DomainAliases.h"
 #include "../../Common/BO/Message.h"
+#include "../../Common/BO/RouteAddresses.h"
+#include "../../Common/BO/Routes.h"
 #include "../../Common/Cache/CacheContainer.h"
 
 // DistributionListRecipients is a Collection over this, and instantiating the
@@ -156,7 +159,11 @@ namespace HM
 
          LOG_DEBUG(Formatter::Format("SRS: The address {0} was not accepted. {1}", recipientAddress, errorMessage));
 
-         return ReversalFailed;
+         // An expired address is one whose hash we have just validated, so it is an
+         // address this server handed out rather than one someone made up. That is worth
+         // keeping apart from the rest: it is the only failure the sender can be told
+         // about without the answer saying something about the secret behind it.
+         return result == SRS::ResultExpired ? Expired : ReversalFailed;
       }
 
       LOG_DEBUG(Formatter::Format("SRS: The address {0} was reversed to {1}.", recipientAddress, originalSender));
@@ -220,21 +227,27 @@ namespace HM
       if (domainName.IsEmpty())
          return false;
 
-      if (!CacheContainer::Instance()->GetDomain(domainName))
+      std::shared_ptr<const Domain> domain = CacheContainer::Instance()->GetDomain(domainName);
+
+      if (!domain)
          return true;
 
-      if (CacheContainer::Instance()->GetAccount(resolvedAddress))
+      // A message addressed to user+tag@ is delivered to the account user@, the way
+      // RecipientParser works it out when the message comes in.
+      String accountAddress = PlusAddressing::ExtractAccountAddress(resolvedAddress, domain);
+
+      if (CacheContainer::Instance()->GetAccount(accountAddress))
          return false;
 
       // An alias or a distribution list in one of our domains is only where the message
       // is handed on; where it ends up is what decides whether it leaves the server, and
       // whether the SPF check at the next server is one we have to pass.
-      std::shared_ptr<const Alias> alias = CacheContainer::Instance()->GetAlias(resolvedAddress);
+      std::shared_ptr<const Alias> alias = CacheContainer::Instance()->GetAlias(accountAddress);
 
       if (alias)
          return LeavesThisServer_(alias->GetValue(), recursionLevel + 1);
 
-      std::shared_ptr<const DistributionList> list = CacheContainer::Instance()->GetDistributionList(resolvedAddress);
+      std::shared_ptr<const DistributionList> list = CacheContainer::Instance()->GetDistributionList(accountAddress);
 
       if (list)
       {
@@ -249,8 +262,32 @@ namespace HM
          return false;
       }
 
-      // Nothing in the domain answers to the address, so it is the catch-all account or
-      // nothing at all. Either way the message stays here.
+      // Nothing in the domain answers to the address. It is not necessarily staying here
+      // for all that: a route for the domain hands the message to another server, the way
+      // RecipientParser resolves it when the message comes in.
+      if (MatchesRoute_(resolvedAddress, domainName))
+         return true;
+
+      // And where there is no route, the domain's catch-all account is where the message
+      // ends up. That account is an address like any other, and may well be one outside.
+      String catchAllAddress = domain->GetPostmaster();
+
+      if (!catchAllAddress.IsEmpty())
+         return LeavesThisServer_(catchAllAddress, recursionLevel + 1);
+
+      // Nothing at all answers to the address, so the message is not going anywhere.
       return false;
+   }
+
+   bool
+   SenderRewriteScheme::MatchesRoute_(const String &address, const String &domainName)
+   {
+      std::shared_ptr<Route> route =
+         Configuration::Instance()->GetSMTPConfiguration()->GetRoutes()->GetItemByNameWithWildcardMatch(domainName);
+
+      if (!route)
+         return false;
+
+      return route->ToAllAddresses() || route->GetAddresses()->GetItemByName(address) != nullptr;
    }
 }

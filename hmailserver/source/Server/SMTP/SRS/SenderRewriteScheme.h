@@ -22,6 +22,7 @@ namespace HM
          NotAnSrsAddress = 0,
          Reversed = 1,
          ReversalFailed = 2,
+         Expired = 3,
       };
 
       static bool GetIsEnabled();
@@ -46,11 +47,14 @@ namespace HM
       // Recovers the sender a rewritten address was created for. NotAnSrsAddress means the
       // address is an ordinary one, which the rest of the server is to make sense of;
       // ReversalFailed that it looks like one we have handed out, but was not created by
-      // this server or has expired.
+      // this server. Expired is the one failure we know to be about an address this server
+      // really did hand out, since its hash is ours: only its validity period has run out.
+      // errorMessage says which it was, in either case.
 
    private:
       static std::shared_ptr<SRS> Create_();
       static bool IsLocalDomain_(const String &address);
       static bool LeavesThisServer_(const String &address, int recursionLevel);
+      static bool MatchesRoute_(const String &address, const String &domainName);
    };
 }

@@ -62,9 +62,9 @@ namespace HM
 
       String recipientAddress = sOriginalRecipient;
 
-      // Kept from the iteration an address which looks like one we have handed out failed
-      // to reverse in, so that the sender is told why rather than merely that the address
-      // is unknown.
+      // Kept from the iteration an address this server really did hand out turned out to
+      // have expired in, so that the sender is told why rather than merely that the
+      // address is unknown.
       String srsErrorMessage;
 
       while (true)
@@ -165,8 +165,9 @@ namespace HM
             // address keeps its mail; reversing is only done if the address validates,
             // since otherwise anyone could make one up and relay mail through us.
             String originalSender;
+            String reversalError;
 
-            switch (SenderRewriteScheme::TryReverse(primaryAddressWithoutPlusaddressing, originalSender, srsErrorMessage))
+            switch (SenderRewriteScheme::TryReverse(primaryAddressWithoutPlusaddressing, originalSender, reversalError))
             {
             case SenderRewriteScheme::Reversed:
                {
@@ -183,12 +184,24 @@ namespace HM
                   recipientAddress = originalSender;
                   continue;
                }
+            case SenderRewriteScheme::Expired:
+               {
+                  // The hash is ours, so this is an address we handed out and whose
+                  // validity period has since run out. The domain's catch-all account
+                  // still gets it, as with any other unknown address, but if nothing
+                  // picks it up the sender is told why rather than merely that the
+                  // address is unknown. Only someone who holds an address we created can
+                  // get this answer, so it gives nothing away.
+                  srsErrorMessage = reversalError;
+                  break;
+               }
             case SenderRewriteScheme::ReversalFailed:
                {
-                  // Not an address this server handed out, or one which has expired. It is
-                  // treated as any other unknown address from here on, so that the domain's
-                  // catch-all account still gets it - but the reason it could not be
-                  // reversed is what the sender is told if nothing else picks it up.
+                  // Not an address this server handed out: a forged one, or an ordinary
+                  // unknown address which happens to begin the way ours do. It is treated
+                  // as any other unknown address from here on, the reason included - a
+                  // sender who has guessed at an address learns no more from the answer
+                  // than that nobody here answers to it.
                   break;
                }
             case SenderRewriteScheme::NotAnSrsAddress:
@@ -366,6 +379,7 @@ namespace HM
 
                return;
             }
+         case SenderRewriteScheme::Expired:
          case SenderRewriteScheme::ReversalFailed:
          case SenderRewriteScheme::NotAnSrsAddress:
             break;

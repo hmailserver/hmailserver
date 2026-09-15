@@ -98,22 +98,25 @@ namespace HM
       int version = 0;
       String payload;
 
-      if (ParseTag_(senderLocalPart, version, payload) && version == 0 && IsChainableSrs0Payload_(payload))
+      if (ParseTag_(senderLocalPart, version, payload))
       {
-         // The sender has been rewritten once already, by whoever forwarded it to us.
-         // That server becomes the first hop of the address we create.
-         localPart = BuildSrs1_(senderDomain, payload);
-      }
-      else if (version == 1)
-      {
-         // It has been rewritten at least twice. The first hop is the one to bounce
-         // back to, so it is kept as it is and only the hash is replaced with ours.
-         String hash;
-         String firstHop;
-         String srs0Payload;
+         if (version == 0 && IsChainableSrs0Payload_(payload))
+         {
+            // The sender has been rewritten once already, by whoever forwarded it to us.
+            // That server becomes the first hop of the address we create.
+            localPart = BuildSrs1_(senderDomain, payload);
+         }
+         else if (version == 1)
+         {
+            // It has been rewritten at least twice. The first hop is the one to bounce
+            // back to, so it is kept as it is and only the hash is replaced with ours.
+            String hash;
+            String firstHop;
+            String srs0Payload;
 
-         if (SplitSrs1Payload_(payload, hash, firstHop, srs0Payload) && IsChainableSrs0Payload_(srs0Payload))
-            localPart = BuildSrs1_(firstHop, srs0Payload);
+            if (SplitSrs1Payload_(payload, hash, firstHop, srs0Payload) && IsChainableSrs0Payload_(srs0Payload))
+               localPart = BuildSrs1_(firstHop, srs0Payload);
+         }
       }
 
       if (localPart.IsEmpty())
@@ -432,10 +435,12 @@ namespace HM
 
       String tag = localPart.Mid(0, 4);
 
+      int parsedVersion = 0;
+
       if (tag.CompareNoCase(_T("SRS0")) == 0)
-         version = 0;
+         parsedVersion = 0;
       else if (tag.CompareNoCase(_T("SRS1")) == 0)
-         version = 1;
+         parsedVersion = 1;
       else
          return false;
 
@@ -443,6 +448,10 @@ namespace HM
 
       if (separator != '=' && separator != '+' && separator != '-')
          return false;
+
+      // Only now, so that a caller which looks at the version without checking whether the
+      // tag parsed at all does not find one left behind by an address which is not ours.
+      version = parsedVersion;
 
       // The payload keeps a leading separator, normalized to ours: an SRS1 address
       // embeds the payload of the SRS0 address it was created from, separator and all.

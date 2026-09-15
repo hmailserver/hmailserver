@@ -302,6 +302,97 @@ namespace RegressionTests.SMTP.SRS
       }
 
       [Test]
+      [Description("A forward to a local address whose domain hands unknown addresses to an external catch-all is rewritten.")]
+      public void ForwardingToAnAddressWithAnExternalCatchAllRewritesTheSender()
+      {
+         EnableSrs();
+
+         // Nothing in the domain answers to the address the message is forwarded to, so
+         // the domain's catch-all account is where it ends up - and that account is an
+         // address outside, with the SPF check the rewrite exists for waiting at the
+         // other end of it.
+         _domain.Postmaster = ForwardTarget;
+         _domain.Save();
+
+         AddForwardingAccount("forwarder@example.test", "nobody@example.test");
+
+         using (var server = StartExternalServer(1, ForwardTarget))
+         {
+            Assert.AreEqual(SrsAddress.Create(Secret, ExternalSender, _domain.Name),
+               GetSenderOfForwardedMessage(server, ExternalSender, "forwarder@example.test"));
+         }
+      }
+
+      [Test]
+      [Description("A forward to a local address whose domain catch-all is a local account is not rewritten.")]
+      public void ForwardingToAnAddressWithALocalCatchAllDoesNotRewriteTheSender()
+      {
+         EnableSrs();
+
+         // The other half of the test above: the catch-all account is one of ours, so the
+         // message stops here and there is no SPF check ahead of it.
+         var postmaster = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "postmaster@example.test", "test");
+
+         _domain.Postmaster = postmaster.Address;
+         _domain.Save();
+
+         AddForwardingAccount("forwarder@example.test", "nobody@example.test");
+
+         SmtpClientSimulator.StaticSend(ExternalSender, "forwarder@example.test", "Forwarded message", "This is the body");
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(postmaster.Address, "test");
+
+         Assert.IsTrue(message.Contains("Return-Path: <" + ExternalSender + ">"), message);
+      }
+
+      [Test]
+      [Description("A forward to a local address which a route sends to another server is rewritten.")]
+      public void ForwardingToAnAddressCoveredByARouteRewritesTheSender()
+      {
+         EnableSrs();
+
+         // A route can be set up for a domain we host, and mail for an address in it which
+         // nothing local answers to is handed to the server the route names. The domain
+         // being ours does not keep the message here, so the sender is rewritten.
+         using (var server = StartServerForDomain(_domain.Name, 1, "routed@example.test"))
+         {
+            AddForwardingAccount("forwarder@example.test", "routed@example.test");
+
+            Assert.AreEqual(SrsAddress.Create(Secret, ExternalSender, _domain.Name),
+               GetSenderOfForwardedMessage(server, ExternalSender, "forwarder@example.test"));
+         }
+      }
+
+      [Test]
+      [Description("A forward to a plus addressed local account is not rewritten, even where the catch-all leads outside.")]
+      public void ForwardingToAPlusAddressedLocalAccountDoesNotRewriteTheSender()
+      {
+         EnableSrs();
+
+         // user+tag@ is delivered to the account user@, so the message stays here. Without
+         // the tag being taken off first the address would look like one nothing answers
+         // to, and the catch-all account below would be taken for where it ends up.
+         _domain.PlusAddressingEnabled = true;
+         _domain.PlusAddressingCharacter = "+";
+         _domain.Postmaster = ForwardTarget;
+         _domain.Save();
+
+         var recipient = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient@example.test", "test");
+
+         AddForwardingAccount("forwarder@example.test", "recipient+tag@example.test");
+
+         SmtpClientSimulator.StaticSend(ExternalSender, "forwarder@example.test", "Forwarded message", "This is the body");
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(recipient.Address, "test");
+
+         Assert.IsTrue(message.Contains("Return-Path: <" + ExternalSender + ">"), message);
+      }
+
+      [Test]
       [Description("A message forwarded by a global rule is rewritten in the same way as one forwarded by an account rule.")]
       public void GlobalRuleForwardingRewritesTheSender()
       {

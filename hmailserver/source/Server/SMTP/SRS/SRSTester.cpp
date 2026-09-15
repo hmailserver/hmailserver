@@ -448,6 +448,21 @@ namespace HM
       AssertTrue_(srs.Reverse(notReallyChained, TestTime, originalAddress) == SRS::ResultSuccess);
       AssertEqual_(_T("SRS1=hash=hop.test@example.com"), originalAddress);
 
+      // A tag is only a tag where one of the separators follows it. Nothing separates this
+      // one from the rest of the local part, so the sender was never rewritten by anybody,
+      // whichever of the two tags it happens to begin with.
+      String unseparatedTag = srs.Forward(_T("SRS1_hash=hop.test@example.com"), _T("hop2.test"), TestTime);
+
+      AssertTrue_(unseparatedTag.StartsWith(_T("SRS0=")));
+      AssertTrue_(srs.Reverse(unseparatedTag, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(_T("SRS1_hash=hop.test@example.com"), originalAddress);
+
+      String unseparatedSrs0Tag = srs.Forward(_T("SRS0_hash=7G=example.com=user@example.org"), _T("hop2.test"), TestTime);
+
+      AssertTrue_(unseparatedSrs0Tag.StartsWith(_T("SRS0=")));
+      AssertTrue_(srs.Reverse(unseparatedSrs0Tag, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(_T("SRS0_hash=7G=example.com=user@example.org"), originalAddress);
+
       // A hash shorter than we would ever write is still chained: other implementations
       // default to four characters, and their addresses have to keep working.
       String shortHashFirstHop = String(_T("SRS0=abcd=")) + TestTimestamp + _T("=example.com=user@hop1.test");
