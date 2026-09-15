@@ -57,6 +57,38 @@ namespace RegressionTests.SMTP.SRS
       }
 
       [Test]
+      [Description("A hash the server issued for one form of address is not accepted as a hash over the other.")]
+      public void AnSrs0SignatureIsNotAcceptedOnAnSrs1Address()
+      {
+         EnableSrs();
+
+         // What the two forms of address hash is easy to make into the same string unless
+         // the tag is part of it: one covers "<timestamp>=<domain>=<local part>", the other
+         // "<first hop>" followed by an embedded SRS0 payload which opens with a separator
+         // of its own. This sender's domain reads like a hash and its local part like the
+         // tail of an SRS0 payload, so the address the server hands out for it carries a
+         // signature which would otherwise carry over to an address it never created.
+         var sender = "7g=example.org=victim@" + ExternalDomain;
+
+         var rewritten = SrsAddress.Create(Secret, sender, _domain.Name);
+         var parsed = SrsAddress.Parse(rewritten);
+
+         Assert.AreEqual("SRS0", parsed.Tag);
+         Assert.IsTrue(parsed.HasValidHash(Secret), "The address was not signed with the server's SRS secret.");
+
+         var crafted = "SRS1=" + parsed.Hash + "=" + parsed.Timestamp + "==" + ExternalDomain +
+                       "=7g=example.org=victim@" + _domain.Name;
+
+         var client = new SmtpClientSimulator();
+
+         Assert.Throws<DeliveryFailedException>(
+            () => client.Send("", crafted, "Undelivered mail", "The message could not be delivered."),
+            "An SRS1 address carrying the hash of an SRS0 address was accepted.");
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+      }
+
+      [Test]
       [Description("A client which may relay through the server can still send to a rewritten address.")]
       public void AnAuthenticatedClientCanSendToARewrittenAddress()
       {

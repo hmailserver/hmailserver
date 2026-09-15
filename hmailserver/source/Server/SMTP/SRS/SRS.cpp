@@ -57,6 +57,11 @@ namespace HM
    // address we create is one we will also accept when the bounce comes back.
    const int SRS::MaxAddressLength = 254;
    const int SRS::SecretLength = 32;
+   // A secret is stored encrypted, and its encrypted form is written to a column with a
+   // size of its own, so what may be written here is bounded rather than left to whoever
+   // sets it. Length is not what makes a secret hard to guess in any case: the one the
+   // server generates for itself is 32 random bytes, well inside this.
+   const int SRS::MaxSecretLength = 128;
 
    SRS::SRS(const String &secret, int maxAgeDays, int hashLength) :
       max_age_days_(ClampMaxAgeDays(maxAgeDays)),
@@ -180,7 +185,7 @@ namespace HM
          if (!SplitSrs0Payload_(payload, hash, timestamp, senderDomain, senderLocalPart))
             return ResultMalformed;
 
-         if (!ValidateHash_(timestamp + FieldSeparator + senderDomain + FieldSeparator + senderLocalPart, hash))
+         if (!ValidateHash_(Srs0HashData_(timestamp, senderDomain, senderLocalPart), hash))
             return ResultInvalidHash;
 
          if (!ValidateTimestamp_(timestamp, now, max_age_days_))
@@ -198,7 +203,7 @@ namespace HM
       if (!SplitSrs1Payload_(payload, hash, firstHop, srs0Payload))
          return ResultMalformed;
 
-      if (!ValidateHash_(firstHop + srs0Payload, hash))
+      if (!ValidateHash_(Srs1HashData_(firstHop, srs0Payload), hash))
          return ResultInvalidHash;
 
       // The embedded SRS0 payload was signed by us when we created the address, so its
@@ -304,7 +309,7 @@ namespace HM
    {
       String timestamp = CreateTimestamp_(now);
 
-      String hash = CreateHash_(timestamp + FieldSeparator + senderDomain + FieldSeparator + senderLocalPart);
+      String hash = CreateHash_(Srs0HashData_(timestamp, senderDomain, senderLocalPart));
 
       if (hash.IsEmpty())
          return "";
@@ -321,7 +326,7 @@ namespace HM
       if (firstHop.IsEmpty() || srs0Payload.GetLength() < 2 || srs0Payload.GetAt(0) != FieldSeparator)
          return "";
 
-      String hash = CreateHash_(firstHop + srs0Payload);
+      String hash = CreateHash_(Srs1HashData_(firstHop, srs0Payload));
 
       if (hash.IsEmpty())
          return "";
@@ -331,6 +336,28 @@ namespace HM
       return String(_T("SRS1")) + FieldSeparator + hash +
                                   FieldSeparator + firstHop +
                                   FieldSeparator + srs0Payload;
+   }
+
+   String
+   SRS::Srs0HashData_(const String &timestamp, const String &senderDomain, const String &senderLocalPart)
+   {
+      return String(_T("SRS0")) + FieldSeparator + timestamp +
+                                  FieldSeparator + senderDomain +
+                                  FieldSeparator + senderLocalPart;
+   }
+
+   String
+   SRS::Srs1HashData_(const String &firstHop, const String &srs0Payload)
+   {
+      // The tag is hashed along with the rest so that the two forms cannot be confused
+      // for one another. Without it the data an SRS0 hash covers and the data an SRS1
+      // hash covers are the same byte string whenever the first hop happens to read like
+      // a timestamp, and a signature we issued for an address of the one form validates
+      // an address of the other form which we never handed out.
+      //
+      // srs0Payload opens with a separator of its own, which is where the double
+      // separator in the hashed data comes from, as it does in the address.
+      return String(_T("SRS1")) + FieldSeparator + firstHop + srs0Payload;
    }
 
    String
@@ -599,9 +626,12 @@ namespace HM
 
          int index = -1;
 
+         // The alphabet is widened to compare, rather than the candidate narrowed to a
+         // char: narrowing keeps only the low byte, which makes U+0141 the same character
+         // as 'A', and a timestamp belonging to no day would be read as one that does.
          for (int j = 0; j < TimestampCharacters.GetLength(); j++)
          {
-            if (TimestampCharacters.GetAt(j) == (char) character)
+            if ((wchar_t) TimestampCharacters.GetAt(j) == character)
             {
                index = j;
                break;

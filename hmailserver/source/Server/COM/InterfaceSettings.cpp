@@ -21,6 +21,7 @@
 
 #include "../POP3/POP3Configuration.h"
 #include "../SMTP/SMTPConfiguration.h"
+#include "../SMTP/SRS/SRS.h"
 #include "../IMAP/IMAPConfiguration.h"
 
 
@@ -2719,6 +2720,16 @@ STDMETHODIMP InterfaceSettings::put_SRSSecret(BSTR newVal)
          // address. Clearing the secret used to generate a new one, which is a thing to ask
          // for rather than to arrive at by accident.
          return COMError::GenerateError("The SRS secret cannot be empty. Use RotateSRSSecret to replace it with a new one.");
+      }
+
+      if (sNewVal.GetLength() > HM::SRS::MaxSecretLength)
+      {
+         // The secret is stored encrypted, in a column with a size of its own, so how long
+         // it may be is bounded rather than left to whoever sets it. Length is not what
+         // makes a secret hard to guess in any case - the one the server generates for
+         // itself is 32 random bytes, well inside this.
+         return COMError::GenerateError(Formatter::Format("The SRS secret may not be longer than {0} characters.",
+            HM::SRS::MaxSecretLength));
       }
 
       config_->GetSMTPConfiguration()->SetSRSSecret(sNewVal);

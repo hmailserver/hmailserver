@@ -10,7 +10,11 @@ namespace RegressionTests.SMTP.SRS
       [Description("The server generates a secret of its own, so that SRS works without anyone configuring one.")]
       public void ASecretIsGeneratedAutomatically()
       {
-         Assert.IsNotEmpty(Secret);
+         // Not merely non-empty: a test which sets a secret of its own would leave one
+         // behind, and the assertion would then hold without the server ever having
+         // generated anything. TestSetup puts a generated secret back for every test, and
+         // this is the shape of one - 32 random bytes in unpadded base64.
+         Assert.AreEqual(SrsAddress.GeneratedSecretLength, Secret.Length);
       }
 
       [Test]
@@ -19,19 +23,56 @@ namespace RegressionTests.SMTP.SRS
       {
          var originalSecret = Secret;
 
-         // Every address already handed out stops being reversible when the secret
-         // changes, so clearing it is refused rather than quietly taken as a rotation.
-         Assert.Throws<COMException>(() => _settings.SRSSecret = "");
-         Assert.AreEqual(originalSecret, Secret);
+         try
+         {
+            // Every address already handed out stops being reversible when the secret
+            // changes, so clearing it is refused rather than quietly taken as a rotation.
+            Assert.Throws<COMException>(() => _settings.SRSSecret = "");
+            Assert.AreEqual(originalSecret, Secret);
 
-         _settings.RotateSRSSecret();
+            _settings.RotateSRSSecret();
 
-         Assert.IsNotEmpty(Secret);
-         Assert.AreNotEqual(originalSecret, Secret);
+            Assert.IsNotEmpty(Secret);
+            Assert.AreNotEqual(originalSecret, Secret);
 
-         // A secret which is set is kept as it is.
-         _settings.SRSSecret = "a secret of my own";
-         Assert.AreEqual("a secret of my own", Secret);
+            // A secret which is set is kept as it is.
+            _settings.SRSSecret = "a secret of my own";
+            Assert.AreEqual("a secret of my own", Secret);
+         }
+         finally
+         {
+            // Whatever happened above, the server is not left signing with a secret which
+            // is written down in the source tree.
+            _settings.SRSSecret = originalSecret;
+         }
+      }
+
+      [Test]
+      [Description("A secret longer than the server accepts is refused, and one at the limit survives being stored.")]
+      public void AnOverlongSecretIsRefused()
+      {
+         var originalSecret = Secret;
+
+         try
+         {
+            var longest = new string('a', SrsAddress.MaxSecretLength);
+
+            _settings.SRSSecret = longest;
+            Assert.AreEqual(longest, Secret);
+
+            Assert.Throws<COMException>(() => _settings.SRSSecret = longest + "a");
+            Assert.AreEqual(longest, Secret);
+
+            // The secret is encrypted on its way into the database and decrypted on the
+            // way back out, so one at the limit is checked against a reload rather than
+            // only against the copy the server is holding.
+            _application.Reinitialize();
+            Assert.AreEqual(longest, _application.Settings.SRSSecret);
+         }
+         finally
+         {
+            _settings.SRSSecret = originalSecret;
+         }
       }
 
       [Test]

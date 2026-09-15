@@ -189,41 +189,38 @@ namespace HM
    String
    BlowFishEncryptor::EncryptToString(const String &sUnEncrypted)
    {
-
       DWORD InLength = sUnEncrypted.GetLength();
 
-      const int bufSize = 255;
-      BYTE *pBuffer = new BYTE[bufSize];
-      memset(pBuffer, 0, bufSize);
-      strncpy_s((char*)pBuffer, bufSize, Unicode::ToANSI(sUnEncrypted), InLength);
+      // Encode writes the input length rounded up to a multiple of eight, so the buffer is
+      // sized from the input rather than fixed at 255 bytes, which a long enough string was
+      // written past the end of. One byte more than Encode writes, so that the count handed
+      // to strncpy_s is always less than the size of the buffer.
+      std::vector<BYTE> buffer((size_t) GetOutputLength(InLength) + 1, 0);
 
-      DWORD Length = Encode(pBuffer, pBuffer, InLength);
-      
-      String sRetVal = ToHex_(pBuffer, Length);
+      strncpy_s((char*) &buffer[0], buffer.size(), Unicode::ToANSI(sUnEncrypted), InLength);
 
-      delete [] pBuffer;
+      DWORD Length = Encode(&buffer[0], &buffer[0], InLength);
 
-      return sRetVal;
+      return ToHex_(&buffer[0], Length);
    }
 
    String
    BlowFishEncryptor::DecryptFromString(const String &sEncrypted)
    {
+      // First convert to a byte array. ToByteArray_ writes one byte per two characters,
+      // rounded up; Decode works in blocks of eight and touches the whole of the block the
+      // last byte falls in; and the result is read back as a null-terminated string. The
+      // buffer covers all three, rather than being a fixed 255 bytes a long enough string
+      // would be written past the end of.
+      DWORD byteCount = (DWORD) ((sEncrypted.GetLength() + 1) / 2);
 
-      // First convert to a byte array.
+      std::vector<BYTE> buffer((size_t) GetOutputLength(byteCount) + 1, 0);
 
-      BYTE *pBuffer = new BYTE[255];
-      memset(pBuffer, 0, 255);
-      
-      int InLength = ToByteArray_(sEncrypted, pBuffer);
+      int InLength = ToByteArray_(sEncrypted, &buffer[0]);
 
-      DWORD OutLen = GetOutputLength(InLength);
-      
-      Decode(pBuffer, pBuffer, InLength);
+      Decode(&buffer[0], &buffer[0], InLength);
 
-      String sRetVal = (char*) pBuffer;
-
-      delete [] pBuffer;
+      String sRetVal = (char*) &buffer[0];
 
       return sRetVal;
    }
@@ -263,7 +260,13 @@ namespace HM
 		 	   }
 		 	   else		// pad end of data with null bytes to complete encryption
 		 	   {
-				   po = pInput + lSize ;	// point at byte past the end of actual data
+				   // pInput has been walked forward to the start of this block, so the byte
+				   // past the end of the actual data is lSize - lCount bytes into it, not
+				   // lSize. Measuring from the start of the buffer instead put the padding
+				   // a whole block past the end of the data, and past the end of the buffer
+				   // along with it for anything but the 255-byte one this used to run
+				   // everything through.
+				   po = pInput + (lSize - lCount) ;	// point at byte past the end of actual data
 				   j = (int) (lOutSize - lSize) ;	// number of bytes to set to null
 				   for (i = 0 ; i < j ; i++)
 					   *po++ = 0 ;
@@ -361,6 +364,29 @@ namespace HM
             assert(0);
             throw;
          }
+      }
+
+      // A value longer than the 255-byte buffer this used to run everything through. The
+      // round trip is what is being checked, but so is the fact that neither half writes
+      // past the end of a buffer while making it.
+      for (int length = 250; length <= 600; length += 50)
+      {
+         String sLong;
+         for (int i = 0; i < length; i++)
+            sLong += _T("a");
+
+         if (pBL->DecryptFromString(pBL->EncryptToString(sLong)).Compare(sLong) != 0)
+         {
+            assert(0);
+            throw;
+         }
+      }
+
+      // Nothing at all is a value as well, and comes back as nothing.
+      if (!pBL->DecryptFromString(pBL->EncryptToString(_T(""))).IsEmpty())
+      {
+         assert(0);
+         throw;
       }
 
       delete pBL;

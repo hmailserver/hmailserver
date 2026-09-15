@@ -38,6 +38,7 @@ namespace HM
       TestMalformedAddresses_();
       TestTimestamps_();
       TestChaining_();
+      TestVersionConfusion_();
       TestLimits_();
       TestSecretGeneration_();
       TestQuotedLocalParts_();
@@ -463,6 +464,18 @@ namespace HM
       AssertTrue_(srs.Reverse(unseparatedSrs0Tag, TestTime, originalAddress) == SRS::ResultSuccess);
       AssertEqual_(_T("SRS0_hash=7G=example.com=user@example.org"), originalAddress);
 
+      // A timestamp written in characters which are not the ones the counter uses, but
+      // whose low bytes are. Narrowing the comparison to a char would read U+0141 as 'A'
+      // and U+0147 as 'G', and an address which was never really rewritten would be
+      // chained rather than rewritten as the ordinary sender it is.
+      String wideTimestamp = _T("SRS0=abcdefgh=\x0141\x0147=example.com=user@lists.example.org");
+
+      String notReallyRewrittenWideTimestamp = srs.Forward(wideTimestamp, _T("hop2.test"), TestTime);
+
+      AssertTrue_(notReallyRewrittenWideTimestamp.StartsWith(_T("SRS0=")));
+      AssertTrue_(srs.Reverse(notReallyRewrittenWideTimestamp, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(wideTimestamp, originalAddress);
+
       // A hash shorter than we would ever write is still chained: other implementations
       // default to four characters, and their addresses have to keep working.
       String shortHashFirstHop = String(_T("SRS0=abcd=")) + TestTimestamp + _T("=example.com=user@hop1.test");
@@ -471,6 +484,57 @@ namespace HM
       AssertTrue_(shortHashSecondHop.StartsWith(_T("SRS1=")));
       AssertTrue_(srs.Reverse(shortHashSecondHop, TestTime, originalAddress) == SRS::ResultSuccess);
       AssertEqual_(shortHashFirstHop, originalAddress);
+   }
+
+   void
+   SRSTester::TestVersionConfusion_()
+   {
+      SRS srs = CreateSRS_();
+
+      // What the two forms hash is easy to make into the same string. An SRS0 address
+      // covers "<timestamp>=<domain>=<local part>"; an SRS1 address covers "<first hop>"
+      // followed by the embedded SRS0 payload, which opens with a separator of its own.
+      // A sender whose domain reads like a hash and whose local part reads like the tail
+      // of an SRS0 payload therefore gets an address whose signature would carry straight
+      // over to an SRS1 address this server never handed out - unless the version is part
+      // of what is hashed.
+      String sender = String(_T("7g=example.com=user@evil.test"));
+
+      String address = srs.Forward(sender, _T("forwarder.test"), TestTime);
+
+      String originalAddress;
+      AssertTrue_(srs.Reverse(address, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(sender, originalAddress);
+
+      std::vector<String> parts = StringParser::SplitString(address, _T("="));
+      AssertEqual_(_T("SRS0"), parts[0]);
+
+      // The very same hash, presented as one over the other form: the first hop is the
+      // timestamp of the address above, and the hash the crafted address embeds is that
+      // address's sender domain. Reversing it would yield an address at the two-character
+      // domain "7G", which this server never created and must not sign for.
+      String crafted = String(_T("SRS1=")) + parts[1] + _T("=") + TestTimestamp +
+                       _T("==evil.test=7g=example.com=user@forwarder.test");
+
+      AssertReverse_(srs, crafted, SRS::ResultInvalidHash);
+
+      // The same the other way round: the hash of an SRS1 address we did create, offered
+      // back as the hash of an SRS0 address. The one separator which tells the two forms
+      // apart is dropped, and what is left reads as an SRS0 address whose timestamp is the
+      // first hop - so the hash would be accepted, and the address turned away only for
+      // having a timestamp belonging to no day, which says that the hash was ours.
+      String firstHop = srs.Forward(_T("user@example.com"), _T("hop1.test"), TestTime);
+      String secondHop = srs.Forward(firstHop, _T("hop2.test"), TestTime);
+
+      std::vector<String> firstHopParts = StringParser::SplitString(firstHop, _T("="));
+      std::vector<String> chainedParts = StringParser::SplitString(secondHop, _T("="));
+
+      AssertEqual_(_T("SRS1"), chainedParts[0]);
+
+      String craftedSrs0 = String(_T("SRS0=")) + chainedParts[1] + _T("=hop1.test=") + firstHopParts[1] +
+                           _T("=") + TestTimestamp + _T("=example.com=user@hop2.test");
+
+      AssertReverse_(srs, craftedSrs0, SRS::ResultInvalidHash);
    }
 
    void

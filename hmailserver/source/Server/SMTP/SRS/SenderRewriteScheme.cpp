@@ -265,7 +265,13 @@ namespace HM
       // Nothing in the domain answers to the address. It is not necessarily staying here
       // for all that: a route for the domain hands the message to another server, the way
       // RecipientParser resolves it when the message comes in.
-      if (MatchesRoute_(resolvedAddress, domainName))
+      //
+      // The route is looked up by the address as it was written rather than by the one the
+      // domain aliases resolve it to, because that is the address RecipientParser looks it
+      // up by. Resolving it first would find a route for an address RecipientParser hands
+      // to the catch-all account instead, and the two would disagree on whether the
+      // message ever leaves this server.
+      if (MatchesRoute_(address, StringParser::ExtractDomain(address)))
          return true;
 
       // And where there is no route, the domain's catch-all account is where the message

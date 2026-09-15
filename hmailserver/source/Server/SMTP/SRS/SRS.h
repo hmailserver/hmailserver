@@ -82,11 +82,19 @@ namespace HM
       static const int MaxMaxAgeDays;
       static const int MaxAddressLength;
       static const int SecretLength;
+      static const int MaxSecretLength;
 
    private:
 
       String BuildSrs0_(const String &senderLocalPart, const String &senderDomain, time_t now) const;
       String BuildSrs1_(const String &firstHop, const String &srs0Payload) const;
+
+      static String Srs0HashData_(const String &timestamp, const String &senderDomain, const String &senderLocalPart);
+      static String Srs1HashData_(const String &firstHop, const String &srs0Payload);
+      // What the hash of an address covers. The version the address carries is part of it,
+      // so that a signature issued for one form cannot be presented as one of the other:
+      // without it, "<timestamp>=<domain>=<local part>" and "<first hop><SRS0 payload>"
+      // are the same string often enough to matter.
 
       String CreateHash_(const String &data) const;
       String CreateFullHash_(const String &data) const;

@@ -22,6 +22,7 @@ namespace HM
       void TestMalformedAddresses_();
       void TestTimestamps_();
       void TestChaining_();
+      void TestVersionConfusion_();
       void TestLimits_();
       void TestSecretGeneration_();
       void TestQuotedLocalParts_();

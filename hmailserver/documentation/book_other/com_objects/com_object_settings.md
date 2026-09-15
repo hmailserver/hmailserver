@@ -308,7 +308,7 @@ The Settings object is the root-object for all hMailServer settings which are no
 
 <div class="api_method_name">string SRSSecret</div>
 
-<div class="api_description">The secret SRS addresses are signed with. The server generates one on first start, so this normally does not need to be set. It cannot be set to an empty string; use RotateSRSSecret to replace it.<br></div>
+<div class="api_description">The secret SRS addresses are signed with. The server generates one on first start, so this normally does not need to be set. It cannot be set to an empty string; use RotateSRSSecret to replace it. It may not be longer than 128 characters.<br></div>
 
 <div class="api_method_name">void RotateSRSSecret()</div>
 

@@ -366,6 +366,64 @@ namespace RegressionTests.SMTP.SRS
       }
 
       [Test]
+      [Description("A forward to an address at a domain alias which a route sends to another server is rewritten.")]
+      public void ForwardingToAnAddressAtADomainAliasCoveredByARouteRewritesTheSender()
+      {
+         EnableSrs();
+
+         // A route is matched against the address as it was written rather than the one
+         // the domain aliases resolve it to, which is how this message comes to be handed
+         // to another server at all. Resolving the alias first finds no route, and the
+         // message would go out with a sender the receiving server fails on SPF.
+         var domainAlias = _domain.DomainAliases.Add();
+         domainAlias.AliasName = "alias.test";
+         domainAlias.Save();
+
+         using (var server = StartServerForDomain("alias.test", 1, "routed@alias.test"))
+         {
+            AddForwardingAccount("forwarder@example.test", "routed@alias.test");
+
+            Assert.AreEqual(SrsAddress.Create(Secret, ExternalSender, _domain.Name),
+               GetSenderOfForwardedMessage(server, ExternalSender, "forwarder@example.test"));
+         }
+      }
+
+      [Test]
+      [Description("A forward to an address at a domain alias is not rewritten when only the domain the alias points at has a route.")]
+      public void ForwardingToAnAddressAtADomainAliasWithoutARouteDoesNotRewriteTheSender()
+      {
+         EnableSrs();
+
+         // The other half of the test above. The route covers the domain the alias points
+         // at, not the alias, so it is not the route this message takes: it ends up with
+         // the domain's catch-all account, which is one of ours, and the sender is left
+         // alone. Looking the route up by the resolved address instead would find one, and
+         // a local mailbox would be handed a rewritten Return-Path.
+         var domainAlias = _domain.DomainAliases.Add();
+         domainAlias.AliasName = "alias.test";
+         domainAlias.Save();
+
+         var postmaster = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "postmaster@example.test", "test");
+
+         _domain.Postmaster = postmaster.Address;
+         _domain.Save();
+
+         // Nothing ever listens here; a message which took the route would be left in the
+         // delivery queue, which is checked below.
+         AddRoute(_domain.Name, TestSetup.GetNextFreePort());
+
+         AddForwardingAccount("forwarder@example.test", "nobody@alias.test");
+
+         SmtpClientSimulator.StaticSend(ExternalSender, "forwarder@example.test", "Forwarded message", "This is the body");
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(postmaster.Address, "test");
+
+         Assert.IsTrue(message.Contains("Return-Path: <" + ExternalSender + ">"), message);
+      }
+
+      [Test]
       [Description("A forward to a plus addressed local account is not rewritten, even where the catch-all leads outside.")]
       public void ForwardingToAPlusAddressedLocalAccountDoesNotRewriteTheSender()
       {

@@ -13,8 +13,11 @@ namespace RegressionTests.SMTP.SRS
    ///    SRS0=hash=timestamp=domain=local part@forwarding domain
    ///    SRS1=hash=first hop=the SRS0 part of the address@forwarding domain
    ///
-   /// The hash covers the fields which follow it, lower-cased, and is the first few
-   /// characters of the base64 of an HMAC-SHA1 taken with the server's SRS secret.
+   /// The hash covers the tag and the fields which follow it, lower-cased, and is the
+   /// first few characters of the base64 of an HMAC-SHA1 taken with the server's SRS
+   /// secret. The tag is part of it so that a hash issued for one of the two forms cannot
+   /// be presented as a hash over the other: without it the two cover the same bytes
+   /// whenever the first hop of an SRS1 address reads like an SRS0 timestamp.
    /// </summary>
    internal class SrsAddress
    {
@@ -25,6 +28,16 @@ namespace RegressionTests.SMTP.SRS
       public const int DefaultMaxAgeDays = 21;
       public const int MinMaxAgeDays = 1;
       public const int MaxMaxAgeDays = 512;
+
+      /// <summary>
+      /// A secret the server generates for itself is 32 random bytes in unpadded base64.
+      /// </summary>
+      public const int GeneratedSecretLength = 43;
+
+      /// <summary>
+      /// The longest secret the server accepts through the COM API.
+      /// </summary>
+      public const int MaxSecretLength = 128;
 
       public string Tag { get; private set; }
       public string Hash { get; private set; }
@@ -50,6 +63,23 @@ namespace RegressionTests.SMTP.SRS
                TimestampCharacters[(int) ((days >> 5) & 31)],
                TimestampCharacters[(int) (days & 31)]
             });
+      }
+
+      /// <summary>
+      /// What the hash of an SRS0 address covers.
+      /// </summary>
+      public static string Srs0HashData(string timestamp, string domain, string localPart)
+      {
+         return "SRS0=" + timestamp + "=" + domain + "=" + localPart;
+      }
+
+      /// <summary>
+      /// What the hash of an SRS1 address covers. The SRS0 payload opens with a separator
+      /// of its own, which is where the double separator comes from.
+      /// </summary>
+      public static string Srs1HashData(string firstHop, string srs0Payload)
+      {
+         return "SRS1=" + firstHop + srs0Payload;
       }
 
       public static string CreateHash(string secret, string data, int hashLength)
@@ -79,7 +109,7 @@ namespace RegressionTests.SMTP.SRS
          var domain = originalSender.Substring(separatorPosition + 1);
 
          var timestamp = CreateTimestamp(utcTime);
-         var hash = CreateHash(secret, timestamp + "=" + domain + "=" + localPart, hashLength);
+         var hash = CreateHash(secret, Srs0HashData(timestamp, domain, localPart), hashLength);
 
          return "SRS0=" + hash + "=" + timestamp + "=" + domain + "=" + localPart + "@" + forwardingDomain;
       }
@@ -94,7 +124,7 @@ namespace RegressionTests.SMTP.SRS
          var firstHop = srs0Address.Substring(separatorPosition + 1);
          var payload = srs0Address.Substring(4, separatorPosition - 4);
 
-         var hash = CreateHash(secret, firstHop + payload, hashLength);
+         var hash = CreateHash(secret, Srs1HashData(firstHop, payload), hashLength);
 
          return "SRS1=" + hash + "=" + firstHop + "=" + payload + "@" + forwardingDomain;
       }
@@ -161,8 +191,8 @@ namespace RegressionTests.SMTP.SRS
       public bool HasValidHash(string secret)
       {
          var data = IsSrs0
-            ? Timestamp + "=" + Domain + "=" + LocalPart
-            : Domain + Srs0Payload;
+            ? Srs0HashData(Timestamp, Domain, LocalPart)
+            : Srs1HashData(Domain, Srs0Payload);
 
          var expected = CreateHash(secret, data, Hash.Length);
 
