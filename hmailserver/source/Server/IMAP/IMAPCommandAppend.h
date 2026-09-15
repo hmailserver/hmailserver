@@ -26,7 +26,7 @@ namespace HM
 
       void Finish_(std::shared_ptr<IMAPConnection> pConnection);
       bool TruncateBuffer_(const std::shared_ptr<IMAPConnection> pConnection );
-      bool WriteData_(const std::shared_ptr<IMAPConnection> pConnection, const BYTE *pBuf, size_t WriteLen);
+      void WriteData_(const std::shared_ptr<IMAPConnection> pConnection, const BYTE *pBuf, size_t WriteLen);
       void KillCurrentMessage_();
       
       int GetMaxMessageSize_(std::shared_ptr<const Domain> pDomain);
@@ -35,6 +35,9 @@ namespace HM
       String flags_to_set_;
       String create_time_to_set_;
       size_t bytes_left_to_receive_;
+
+      // Set when the message file could not be written. The literal is still read to the end.
+      bool write_failed_;
 
       String message_file_name_;
 

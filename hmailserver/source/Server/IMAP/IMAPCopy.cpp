@@ -11,6 +11,8 @@
 #include "IMAPSimpleCommandParser.h"
 #include "../Common/BO/ACLPermission.h"
 #include "../Common/Tracking/ChangeNotification.h"
+#include "../Common/Tracking/NotificationServer.h"
+#include "../Common/BO/Messages.h"
 
 
 #include "MessagesContainer.h"
@@ -24,7 +26,55 @@ namespace HM
 {
    IMAPCopy::IMAPCopy()
    {
-      
+
+   }
+
+   String
+   IMAPCopy::GetResponseCode() const
+   {
+      // A client that can't read the destination must not learn its UIDs (RFC 4315 6).
+      if (source_uids_.empty() || !destination_readable_)
+         return String();
+
+      String sResponseCode;
+      sResponseCode.Format(_T("[COPYUID %u "), destination_folder_->GetUIDValidity());
+      sResponseCode += FormatUIDSet_(source_uids_);
+      sResponseCode += _T(" ");
+      sResponseCode += FormatUIDSet_(destination_uids_);
+      sResponseCode += _T("] ");
+
+      return sResponseCode;
+   }
+
+   String
+   IMAPCopy::FormatUIDSet_(const std::vector<unsigned int> &uids)
+   {
+      // The order must be kept, since the two sets correspond element by element. So only
+      // ascending runs of consecutive UIDs are written as ranges.
+      String sResult;
+
+      size_t start = 0;
+      while (start < uids.size())
+      {
+         size_t end = start;
+         while (end + 1 < uids.size() && uids[end + 1] == uids[end] + 1)
+            end++;
+
+         String sPart;
+         if (end > start)
+            sPart.Format(_T("%u:%u"), uids[start], uids[end]);
+         else
+            sPart.Format(_T("%u"), uids[start]);
+
+         if (!sResult.IsEmpty())
+            sResult += _T(",");
+
+         sResult += sPart;
+
+         start = end + 1;
+      }
+
+      return sResult;
    }
 
 
@@ -76,7 +126,17 @@ namespace HM
          pNewMessage->SetFlagSeen(false);  
 
       if (!PersistentMessage::SaveObject(pNewMessage))
+      {
+         // The file was copied, but no message refers to it.
+         PersistentMessage::DeleteFile(pAccount, pNewMessage);
          return IMAPResult(IMAPResult::ResultBad, "Failed to save copy of message.");
+      }
+
+      destination_folder_ = pFolder;
+      destination_readable_ = pConnection->CheckPermission(pFolder, ACLPermission::PermissionRead);
+      source_uids_.push_back(pOldMessage->GetUID());
+      destination_uids_.push_back(pNewMessage->GetUID());
+      copied_message_ids_.insert(pNewMessage->GetID());
 
       MessagesContainer::Instance()->SetFolderNeedsRefresh(pFolder->GetID());
 
@@ -88,5 +148,30 @@ namespace HM
       pConnection->SetDelayedChangeNotification(pNotification);
 
       return IMAPResult();
+   }
+
+   void
+   IMAPCopy::RollBack(std::shared_ptr<IMAPConnection> pConnection)
+   {
+      if (copied_message_ids_.empty())
+         return;
+
+      pConnection->SetDelayedChangeNotification(std::shared_ptr<ChangeNotification>());
+
+      auto messages = MessagesContainer::Instance()->GetMessages(destination_folder_->GetAccountID(), destination_folder_->GetID());
+      auto deleted_message_ids = messages->DeleteMessagesById(copied_message_ids_);
+
+      // Other sessions may already have been told about the copies.
+      if (!deleted_message_ids.empty())
+      {
+         std::shared_ptr<ChangeNotification> pNotification =
+            std::shared_ptr<ChangeNotification>(new ChangeNotification(destination_folder_->GetAccountID(), destination_folder_->GetID(), ChangeNotification::NotificationMessageDeleted, deleted_message_ids));
+
+         Application::Instance()->GetNotificationServer()->SendNotification(pConnection->GetNotificationClient(), pNotification);
+      }
+
+      source_uids_.clear();
+      destination_uids_.clear();
+      copied_message_ids_.clear();
    }
 }

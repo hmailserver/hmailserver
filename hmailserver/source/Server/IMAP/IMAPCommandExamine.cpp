@@ -69,7 +69,7 @@ namespace HM
 
       sResponse += _T("* FLAGS (\\Deleted \\Seen \\Draft \\Answered \\Flagged)\r\n");
    
-      sRespTemp.Format(_T("* OK [UIDVALIDITY %d] current uidvalidity\r\n"), pSelectedFolder->GetCreationTime().ToInt());   
+      sRespTemp.Format(_T("* OK [UIDVALIDITY %u] current uidvalidity\r\n"), pSelectedFolder->GetUIDValidity());
       sResponse += sRespTemp;
 
       if (lFirstUnseenID > 0)

@@ -590,6 +590,7 @@ EXIT 0
     <ClCompile Include="..\IMAP\IMAPCommandMyRights.cpp" />
     <ClCompile Include="..\IMAP\IMAPCommandNamespace.cpp" />
     <ClCompile Include="..\IMAP\IMAPCommandRangeAction.cpp" />
+    <ClCompile Include="..\IMAP\IMAPCommandRangeActionTester.cpp" />
     <ClCompile Include="..\Imap\IMAPCommandRename.cpp" />
     <ClCompile Include="..\Imap\IMAPCommandSearch.cpp" />
     <ClCompile Include="..\Imap\IMAPCommandSelect.cpp" />
@@ -1121,6 +1122,7 @@ EXIT 0
     <ClInclude Include="..\IMAP\IMAPCommandMyRights.h" />
     <ClInclude Include="..\IMAP\IMAPCommandNamespace.h" />
     <ClInclude Include="..\IMAP\IMAPCommandRangeAction.h" />
+    <ClInclude Include="..\IMAP\IMAPCommandRangeActionTester.h" />
     <ClInclude Include="..\Imap\IMAPCommandRename.h" />
     <ClInclude Include="..\Imap\IMAPCommandSearch.h" />
     <ClInclude Include="..\Imap\IMAPCommandSelect.h" />

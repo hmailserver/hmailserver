@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "IMAPCommandExpunge.h"
+#include "IMAPCommandRangeAction.h"
 #include "IMAPConnection.h"
 
 #include "MessagesContainer.h"
@@ -24,6 +25,19 @@
 
 namespace HM
 {
+   IMAPCommandEXPUNGE::IMAPCommandEXPUNGE() :
+      is_uid_(false)
+   {
+
+   }
+
+   IMAPCommandEXPUNGE::IMAPCommandEXPUNGE(const String &uid_set) :
+      is_uid_(true),
+      uid_set_(uid_set)
+   {
+
+   }
+
    IMAPResult
    IMAPCommandEXPUNGE::ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument)
    {
@@ -54,23 +68,47 @@ namespace HM
       // EXPUNGE may report new messages as well, so take them into the view first.
       view->AppendNewMessages(messages);
 
-      // Only messages this session knows about may be expunged. It hasn't been told about the
-      // others, so their sequence numbers would mean nothing to the client.
-      std::set<__int64> messages_to_delete;
+      std::set<__int64> messages_in_uid_set;
+      if (is_uid_)
+      {
+         std::vector<std::pair<int, IMAPViewEntry>> targets;
+
+         if (!IMAPCommandRangeAction::ResolveTargets(view, uid_set_, true, targets))
+            return IMAPResult(IMAPResult::ResultBad, "Incorrect message set.");
+
+         for (const auto &target : targets)
+            messages_in_uid_set.insert(target.second.message_id);
+      }
 
       auto entries = view->GetAllEntries();
 
+      // Only messages this session knows about may be expunged. It hasn't been told about the
+      // others, so their sequence numbers would mean nothing to the client.
       std::set<__int64> view_message_ids;
-      for (const auto &entry : entries)
-         view_message_ids.insert(entry.second.message_id);
-
-      auto view_messages = messages->GetCopyByIds(view_message_ids);
+      std::set<__int64> candidate_ids;
 
       for (const auto &entry : entries)
       {
-         auto iter = view_messages.find(entry.second.message_id);
+         view_message_ids.insert(entry.second.message_id);
 
-         if (iter == view_messages.end())
+         if (!is_uid_ || messages_in_uid_set.find(entry.second.message_id) != messages_in_uid_set.end())
+            candidate_ids.insert(entry.second.message_id);
+      }
+
+      // Copies are only needed for the messages whose flags are read.
+      auto candidates = messages->GetCopyByIds(candidate_ids);
+
+      std::map<__int64, std::shared_ptr<Message>> live_messages;
+      if (is_uid_)
+         live_messages = messages->GetItemsByIds(view_message_ids);
+
+      const auto &existing_messages = is_uid_ ? live_messages : candidates;
+
+      std::set<__int64> messages_to_delete;
+
+      for (const auto &entry : entries)
+      {
+         if (existing_messages.find(entry.second.message_id) == existing_messages.end())
          {
             // Expunged by another session. The client is told about the expunge the next
             // time we're allowed to send one.
@@ -78,7 +116,9 @@ namespace HM
             continue;
          }
 
-         if (iter->second->GetFlagDeleted())
+         auto iter = candidates.find(entry.second.message_id);
+
+         if (iter != candidates.end() && iter->second->GetFlagDeleted())
             messages_to_delete.insert(entry.second.message_id);
       }
 
@@ -109,9 +149,7 @@ namespace HM
          Application::Instance()->GetNotificationServer()->SendNotification(pConnection->GetNotificationClient(), pNotification);
       }
 
-      // We're done.
-      sResponse = pArgument->Tag() + " OK EXPUNGE Completed\r\n";
-      pConnection->SendAsciiData(sResponse);   
+      pConnection->SendAsciiData(pArgument->Tag() + (is_uid_ ? " OK UID EXPUNGE completed\r\n" : " OK EXPUNGE Completed\r\n"));
 
       return IMAPResult();
    }

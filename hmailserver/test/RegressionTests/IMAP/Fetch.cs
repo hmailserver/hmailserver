@@ -3,6 +3,8 @@
 
 using System;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -43,6 +45,37 @@ namespace RegressionTests.IMAP
 
          // utf-8 representation of 本本本.zip:
          Assert.IsTrue(result.Contains("=?utf-8?B?5pys5pys5pys?=.zip"));
+      }
+
+      // The message set rules are tested in IMAPCommandRangeActionTester. This checks that FETCH uses them.
+      [TestCase("FETCH * (UID)", "3")]
+      [TestCase("UID FETCH * (UID)", "3")]
+      [Description("* is the highest number in the folder (RFC 3501 9).")]
+      public void FetchResolvesStar(string command, string expectedUids)
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var simulator = new ImapClientSimulator();
+         Assert.IsTrue(simulator.ConnectAndLogon(account.Address, "test"));
+
+         for (var i = 0; i < 3; i++)
+         {
+            var append = simulator.Append("INBOX", "Subject: " + i + "\r\n\r\nBody\r\n");
+            Assert.IsTrue(append.Contains("A40 OK"), append);
+         }
+
+         Assert.IsTrue(simulator.SelectFolder("INBOX"));
+
+         var result = simulator.SendSingleCommand("A01 " + command);
+         Assert.IsTrue(result.Contains("A01 OK"), result);
+
+         var uids = Regex.Matches(result, @"^\* \d+ FETCH \(UID (\d+)\)", RegexOptions.Multiline)
+            .Cast<Match>()
+            .Select(match => match.Groups[1].Value);
+
+         Assert.AreEqual(expectedUids, string.Join(" ", uids), result);
+
+         simulator.Disconnect();
       }
 
       [Test]

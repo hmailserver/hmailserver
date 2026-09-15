@@ -52,9 +52,6 @@ namespace HM
       if (sMailNo.IsEmpty())
          return IMAPResult(IMAPResult::ResultBad, "No mail number specified");
 
-      if (!StringParser::ValidateString(sMailNo, "01234567890,.:*"))
-         return IMAPResult(IMAPResult::ResultBad, "Incorrect mail number");
-      
       IMAPResult result = pFetch->DoForMails(pConnection, sMailNo, pArgument);
 
       if (result.GetResult() == IMAPResult::ResultOK)
