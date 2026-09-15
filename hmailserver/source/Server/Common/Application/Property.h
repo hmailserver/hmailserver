@@ -22,6 +22,9 @@ namespace HM
 
       String GetStringValue() const {return string_value_; }
       void SetStringValue(const String &NewVal);
+      void SetStringValueWithoutSaving(const String &NewVal) {string_value_ = NewVal; }
+      // For a value which has just been read back out of the database, and so does not
+      // need writing to it again.
 
       bool GetBoolValue() const {return long_value_ ? true : false; }
       void SetBoolValue(bool NewVal);

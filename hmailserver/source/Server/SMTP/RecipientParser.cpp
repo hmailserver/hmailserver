@@ -9,6 +9,8 @@
 
 #include "PlusAddressing.h"
 
+#include "SRS/SenderRewriteScheme.h"
+
 #include "../Common/Application/ObjectCache.h"
 #include "../Common/Cache/CacheContainer.h"
 
@@ -59,6 +61,11 @@ namespace HM
       sSender = pDA->ApplyAliasesOnAddress(sSender);
 
       String recipientAddress = sOriginalRecipient;
+
+      // Kept from the iteration an address this server really did hand out turned out to
+      // have expired in, so that the sender is told why rather than merely that the
+      // address is unknown.
+      String srsErrorMessage;
 
       while (true)
       {
@@ -151,6 +158,56 @@ namespace HM
                return DP_Possible;
             }
 
+            // Nothing in the domain answers to the address. It may be one we have handed
+            // out when forwarding a message, in which case it is a bounce on its way back
+            // to whoever sent that message, and is delivered to them. The lookups above
+            // come first so that an account which happens to be named like a rewritten
+            // address keeps its mail; reversing is only done if the address validates,
+            // since otherwise anyone could make one up and relay mail through us.
+            String originalSender;
+            String reversalError;
+
+            switch (SenderRewriteScheme::TryReverse(primaryAddressWithoutPlusaddressing, originalSender, reversalError))
+            {
+            case SenderRewriteScheme::Reversed:
+               {
+                  if (!sSender.IsEmpty())
+                  {
+                     // Only a bounce is passed on to the original sender. The address is
+                     // in one of our domains, so without this the security check ahead
+                     // would treat delivery to the external sender as delivery to a local
+                     // recipient, and anyone who came by an address we handed out could
+                     // relay whatever they liked through us for as long as it is valid.
+                     bTreatSecurityAsLocal = false;
+                  }
+
+                  recipientAddress = originalSender;
+                  continue;
+               }
+            case SenderRewriteScheme::Expired:
+               {
+                  // The hash is ours, so this is an address we handed out and whose
+                  // validity period has since run out. The domain's catch-all account
+                  // still gets it, as with any other unknown address, but if nothing
+                  // picks it up the sender is told why rather than merely that the
+                  // address is unknown. Only someone who holds an address we created can
+                  // get this answer, so it gives nothing away.
+                  srsErrorMessage = reversalError;
+                  break;
+               }
+            case SenderRewriteScheme::ReversalFailed:
+               {
+                  // Not an address this server handed out: a forged one, or an ordinary
+                  // unknown address which happens to begin the way ours do. It is treated
+                  // as any other unknown address from here on, the reason included - a
+                  // sender who has guessed at an address learns no more from the answer
+                  // than that nobody here answers to it.
+                  break;
+               }
+            case SenderRewriteScheme::NotAnSrsAddress:
+               break;
+            }
+
             // OK, we are now finished looking through the domain.
          }
 
@@ -199,7 +256,7 @@ namespace HM
             return DP_Possible;
          }
 
-         sErrMsg = CONST_UNKNOWN_USER;
+         sErrMsg = srsErrorMessage.IsEmpty() ? CONST_UNKNOWN_USER : srsErrorMessage;
          return DP_RecipientUnknown;
       }
    }
@@ -228,12 +285,19 @@ namespace HM
       String primaryAddress = pDA->ApplyAliasesOnAddress(recipientAddress);
       String primaryDomain = StringParser::ExtractDomain(primaryAddress);
 
+      // Why an address which looks like one we have handed out could not be reversed, if
+      // it could not. The message was accepted when it arrived, so a bounce which is
+      // dropped here is one the sender was told we would deliver.
+      String srsErrorMessage;
+
       // First check if the domain is remote. If it is, we don't really
       // have to care what type of email this is.
 
       
       std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(primaryDomain);
-      
+
+      const String primaryAddressWithoutPlusaddressing = primaryAddress;
+
       // Apply plus addressing on the recipient address
       primaryAddress = PlusAddressing::ExtractAccountAddress(primaryAddress, pDomain); 
 
@@ -301,6 +365,25 @@ namespace HM
             return;
          }
 
+         // A bounce coming back to an address we have handed out when forwarding a
+         // message. Where it should go is encoded in the address itself. As when the
+         // message was accepted, the lookups above come first, and an address which does
+         // not reverse is left to the catch-all account.
+         String originalSender;
+
+         switch (SenderRewriteScheme::TryReverse(primaryAddressWithoutPlusaddressing, originalSender, srsErrorMessage))
+         {
+         case SenderRewriteScheme::Reversed:
+            {
+               CreateMessageRecipientList_(originalSender, sOriginalAddress, lRecurse, pRecipients, recipientOK);
+
+               return;
+            }
+         case SenderRewriteScheme::Expired:
+         case SenderRewriteScheme::ReversalFailed:
+         case SenderRewriteScheme::NotAnSrsAddress:
+            break;
+         }
       }
       
       // Check for routes. This happens under two circumstances:
@@ -329,7 +412,10 @@ namespace HM
          }
 
          if (!bIsLocalDomain || pDomain->GetPostmaster().IsEmpty())
+         {
+            ReportUndeliverableSrsBounce_(recipientAddress, srsErrorMessage);
             return;
+         }
       }
 
       if (bIsLocalDomain)
@@ -344,6 +430,8 @@ namespace HM
 
             return;
          }
+
+         ReportUndeliverableSrsBounce_(recipientAddress, srsErrorMessage);
       }
       else
       {
@@ -361,6 +449,21 @@ namespace HM
 
          AddRecipient_(pRecipients, NewRecipient);
       }
+   }
+
+   void
+   RecipientParser::ReportUndeliverableSrsBounce_(const String &recipientAddress, const String &errorMessage)
+   {
+      if (errorMessage.IsEmpty())
+         return;
+
+      // The address was accepted when the message arrived, so the secret has been rotated
+      // or the address has expired since. Nothing is left to deliver the message to, and a
+      // bounce which disappears without a word leaves no trace of a message the sender was
+      // told we had taken on.
+      ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5733, "RecipientParser::CreateMessageRecipientList_",
+         Formatter::Format("The SRS address {0} could not be reversed, and the message sent to it could not be delivered. {1}",
+            recipientAddress, errorMessage));
    }
 
    RecipientParser::DeliveryPossibility 

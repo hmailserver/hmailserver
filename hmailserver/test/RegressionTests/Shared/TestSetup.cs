@@ -141,6 +141,24 @@ namespace RegressionTests.Shared
          if (_settings.MaxNumberOfMXHosts != 15)
             _settings.MaxNumberOfMXHosts = 15;
 
+         if (_settings.SRSEnabled)
+            _settings.SRSEnabled = false;
+         if (_settings.SRSMaxAgeDays != 21)
+            _settings.SRSMaxAgeDays = 21;
+         if (_settings.SRSHashLength != 8)
+            _settings.SRSHashLength = 8;
+         // A test may set a secret of its own. The default is one the server generated, so
+         // anything which is not the shape of a generated secret is replaced with one -
+         // both so that a secret from the source tree does not outlive the test that set
+         // it, and so that the test which checks that the server generates one is not
+         // handed something a previous test left behind.
+         if (_settings.SRSSecret.Length != RegressionTests.SMTP.SRS.SrsAddress.GeneratedSecretLength)
+            _settings.RotateSRSSecret();
+         if (_settings.RewriteEnvelopeFromWhenForwarding)
+            _settings.RewriteEnvelopeFromWhenForwarding = false;
+         if (_settings.DenyMailFromNull)
+            _settings.DenyMailFromNull = false;
+
          if (_settings.VerifyRemoteSslCertificate)
             _settings.VerifyRemoteSslCertificate = false;
 

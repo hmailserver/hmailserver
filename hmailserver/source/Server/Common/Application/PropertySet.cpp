@@ -143,6 +143,49 @@ namespace HM
          OnPropertyChanged_(pProperty);
    }
 
+   String
+   PropertySet::InitializeStringIfEmpty(const String &sPropertyName, const String &sValue)
+   {
+      bool bIsCrypted = IsCryptedProperty_(sPropertyName);
+
+      String sStoredValue = bIsCrypted ? Crypt::Instance()->EnCrypt(sValue, Crypt::ETBlowFish) : sValue;
+
+      // A single guarded statement, so that two servers sharing a database and starting at
+      // the same time cannot both believe they have set the value: whichever of them gets
+      // there first is the one the write takes effect for, and the other updates no rows.
+      // Encrypting leaves an empty string empty, so the guard holds for a crypted property
+      // as well.
+      SQLCommand command("update hm_settings set settingstring = @SETTINGSTRING where settingname = @SETTINGNAME and (settingstring is null or settingstring = '')");
+      command.AddParameter("@SETTINGSTRING", sStoredValue);
+      command.AddParameter("@SETTINGNAME", sPropertyName);
+
+      if (!Application::Instance()->GetDBManager()->Execute(command))
+         return "";
+
+      // Read back rather than assume our own write is the one which took: a server signing
+      // with a secret the database no longer holds cannot reverse what the other one hands
+      // out, and the other one cannot reverse what it hands out either.
+      SQLCommand selectCommand("select settingstring from hm_settings where settingname = @SETTINGNAME");
+      selectCommand.AddParameter("@SETTINGNAME", sPropertyName);
+
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(selectCommand);
+
+      if (!pRS || pRS->IsEOF())
+         return "";
+
+      String sResult = pRS->GetStringValue("settingstring");
+
+      if (bIsCrypted)
+         sResult = Crypt::Instance()->DeCrypt(sResult, Crypt::ETBlowFish);
+
+      // Only this one property is brought up to date. A full Refresh() would re-fire the
+      // change handler of every property, and this runs in the middle of the configuration
+      // being loaded.
+      GetProperty_(sPropertyName)->SetStringValueWithoutSaving(sResult);
+
+      return sResult;
+   }
+
    void 
    PropertySet::OnPropertyChanged_(std::shared_ptr<Property> pProperty)
    {
@@ -154,6 +197,11 @@ namespace HM
    PropertySet::IsCryptedProperty_(const String &sPropertyName)
    {
       if (sPropertyName == PROPERTY_SMTPRELAYER_PASSWORD)
+         return true;
+
+      // The SRS secret is what stops someone from making up an address which relays mail
+      // through this server, so it is stored the way the relay password is.
+      if (sPropertyName == PROPERTY_SRS_SECRET)
          return true;
 
       return false;

@@ -755,6 +755,14 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('AS
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ASAddAuthResultsHeader', '', 0);
 
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSEnabled', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSSecret', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSMaxAgeDays', '', 21);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSHashLength', '', 8);
+
 insert into hm_settings (settingname, settingstring, settinginteger) values ('AutoBanOnLogonFailureEnabled', '', 1);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('MaxInvalidLogonAttempts', '', 3);
@@ -821,4 +829,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5711);
+insert into hm_dbversion values (5712);

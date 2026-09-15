@@ -18,6 +18,9 @@
 #include "../Common/BO/Account.h"
 #include "../Common/BO/MessageRecipients.h"
 #include "../Common/Cache/CacheContainer.h"
+#include "../Common/Application/ObjectCache.h"
+#include "../Common/BO/Domain.h"
+#include "../Common/BO/DomainAliases.h"
 #include "../Common/Util/Time.h"
 #include "../Common/Util/RegularExpression.h"
 
@@ -26,6 +29,8 @@
 #include "RecipientParser.h"
 
 #include "SMTPConfiguration.h"
+
+#include "SRS/SenderRewriteScheme.h"
 
 #include "../Common/Scripting/ScriptServer.h"
 #include "../Common/Scripting/ScriptObjectContainer.h"
@@ -256,11 +261,19 @@ namespace HM
       pNewMsgData->IncreaseRuleLoopCount();
       pNewMsgData->Write(newFileName);
       
-      // We need to update the SMTP envelope from address, if this
-      // message is forwarded by a user-level account.
+      // We need to update the SMTP envelope from address. As when an account forwards a
+      // message, the sender is rewritten into one of our own domains, so that the message
+      // passes the SPF check at the next server and a bounce still comes back to us to be
+      // passed on to the sender. A global rule has no account behind it - its rule account
+      // id is zero - so the domain the message was addressed to is what the rewritten
+      // address is created in.
       std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
-      if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !pMsg->GetFromAddress().IsEmpty())
-         pMsg->SetFromAddress(pAccount->GetAddress());
+
+      const String forwardingAccount = pAccount ? pAccount->GetAddress() : String();
+      const String forwardingDomain = pAccount ? StringParser::ExtractDomain(pAccount->GetAddress())
+                                               : GetLocalRecipientDomain_(pMsgData->GetMessage());
+
+      SenderRewriteScheme::ApplyToForwardedMessage(pMsg, forwardingAccount, forwardingDomain, pAction->GetTo());
       
       // Add new recipients
       bool recipientOK = false;
@@ -278,6 +291,29 @@ namespace HM
       }
 
       PersistentMessage::SaveObject(pMsg);
+   }
+
+   String
+   RuleApplier::GetLocalRecipientDomain_(std::shared_ptr<Message> message)
+   {
+      // The domain a rewritten sender is created in when no account is forwarding the
+      // message: the first of the domains it was addressed to which is one of ours.
+      if (!message)
+         return "";
+
+      std::shared_ptr<DomainAliases> domainAliases = ObjectCache::Instance()->GetDomainAliases();
+
+      std::vector<std::shared_ptr<MessageRecipient> > recipients = message->GetRecipients()->GetVector();
+
+      for (auto recipient = recipients.begin(); recipient != recipients.end(); recipient++)
+      {
+         String domainName = StringParser::ExtractDomain(domainAliases->ApplyAliasesOnAddress((*recipient)->GetAddress()));
+
+         if (!domainName.IsEmpty() && CacheContainer::Instance()->GetDomain(domainName))
+            return domainName;
+      }
+
+      return "";
    }
 
    void 
