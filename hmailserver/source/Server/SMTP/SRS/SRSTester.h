@@ -24,6 +24,8 @@ namespace HM
       void TestChaining_();
       void TestLimits_();
       void TestSecretGeneration_();
+      void TestQuotedLocalParts_();
+      void TestNonAsciiSecret_();
 
       static SRS CreateSRS_();
       static void AssertTrue_(bool value);

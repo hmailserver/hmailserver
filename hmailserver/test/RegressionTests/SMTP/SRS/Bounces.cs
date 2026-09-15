@@ -128,14 +128,18 @@ namespace RegressionTests.SMTP.SRS
 
          _settings.SRSMaxAgeDays = 3;
 
-         var justInsideTheLimit = SrsAddress.Create(Secret, ExternalSender, _domain.Name,
-            DateTime.UtcNow.AddDays(-3), SrsAddress.DefaultHashLength);
+         // The timestamp counts whole days, and the server allows for a clock which runs a
+         // little behind the one of the server that created the address, so an age is only
+         // ever accurate to a day. These two are a day clear of the limit on either side,
+         // so that the test says the same thing whatever time of day it runs at.
+         var insideTheLimit = SrsAddress.Create(Secret, ExternalSender, _domain.Name,
+            DateTime.UtcNow.AddDays(-2), SrsAddress.DefaultHashLength);
 
-         var justOutsideTheLimit = SrsAddress.Create(Secret, ExternalSender, _domain.Name,
-            DateTime.UtcNow.AddDays(-4), SrsAddress.DefaultHashLength);
+         var outsideTheLimit = SrsAddress.Create(Secret, ExternalSender, _domain.Name,
+            DateTime.UtcNow.AddDays(-5), SrsAddress.DefaultHashLength);
 
-         AssertAccepted(justInsideTheLimit);
-         AssertRejected(justOutsideTheLimit, "The SRS address has expired.");
+         AssertAccepted(insideTheLimit);
+         AssertRejected(outsideTheLimit, "The SRS address has expired.");
       }
 
       [Test]
@@ -195,7 +199,7 @@ namespace RegressionTests.SMTP.SRS
 
          using (var server = StartExternalServer(1, "sender.name@" + ExternalDomain))
          {
-            SmtpClientSimulator.StaticSend("postmaster@" + ExternalDomain, address.ToLowerInvariant(),
+            SmtpClientSimulator.StaticSend("", address.ToLowerInvariant(),
                "Undelivered mail", "The message could not be delivered.");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -219,7 +223,7 @@ namespace RegressionTests.SMTP.SRS
 
          using (var server = StartExternalServer(1, firstHopAddress))
          {
-            SmtpClientSimulator.StaticSend("postmaster@" + ExternalDomain, ourAddress, "Undelivered mail",
+            SmtpClientSimulator.StaticSend("", ourAddress, "Undelivered mail",
                "The message could not be delivered.");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
@@ -255,22 +259,65 @@ namespace RegressionTests.SMTP.SRS
       }
 
       [Test]
-      [Description("An address which cannot be reversed does not end up in the catch-all account either.")]
-      public void AnAddressWhichCannotBeReversedDoesNotReachTheCatchAllAccount()
+      [Description("An address which cannot be reversed is treated as any other unknown address.")]
+      public void AnAddressWhichCannotBeReversedReachesTheCatchAllAccount()
       {
          EnableSrs();
 
-         // A made-up address is rejected before the catch-all account is considered, so
-         // that bounces to addresses nobody handed out do not pile up in a mailbox.
+         // An address which does not reverse is not ours to deliver to the sender it
+         // claims, but it is still an address in one of our domains, and the catch-all
+         // account is where every other unknown address in the domain ends up.
          var postmaster = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "postmaster@example.test", "test");
 
          _domain.Postmaster = postmaster.Address;
          _domain.Save();
 
-         AssertRejected(SrsAddress.Create("not the server's secret", ExternalSender, _domain.Name),
-            "The SRS address has an invalid hash.");
+         SmtpClientSimulator.StaticSend("", SrsAddress.Create("not the server's secret", ExternalSender, _domain.Name),
+            "Undelivered mail", "The message could not be delivered.");
 
-         Pop3ClientSimulator.AssertMessageCount(postmaster.Address, "test", 0);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         Pop3ClientSimulator.AssertMessageCount(postmaster.Address, "test", 1);
+      }
+
+      [Test]
+      [Description("An account whose address looks like a rewritten one still gets its own mail.")]
+      public void AnAccountNamedLikeARewrittenAddressKeepsItsMail()
+      {
+         EnableSrs();
+
+         // SRS0 and SRS1 are not reserved words. The address is only reversed once nothing
+         // in the domain answers to it, so switching SRS on does not make an account, an
+         // alias or a distribution list which happens to be named this way unreachable.
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "srs1-announce@example.test", "test");
+
+         SmtpClientSimulator.StaticSend(ExternalSender, account.Address, "Hello", "This is the body");
+
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+      }
+
+      [Test]
+      [Description("A bounce which cannot be delivered because its address no longer reverses is reported.")]
+      public void ABounceWhichCannotBeReversedAtDeliveryTimeIsReported()
+      {
+         EnableSrs();
+
+         // The server writes an address like this into the envelope of every message it
+         // forwards, and a bounce comes back to it. Once the secret behind it is gone - it
+         // has been rotated, or the address has expired - there is nothing left to deliver
+         // that bounce to, and it must not disappear without a word.
+         var unreversibleSender = SrsAddress.Create("not the server's secret", ExternalSender, _domain.Name);
+
+         using (var server = StartRejectingExternalServer(ForwardTarget))
+         {
+            SmtpClientSimulator.StaticSend(unreversibleSender, ForwardTarget, "Forwarded message", "This is the body");
+
+            server.WaitForCompletion();
+
+            CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+            CustomAsserts.AssertReportedError("The SRS address", "could not be reversed");
+         }
       }
 
       private void AssertRejected(string address, string expectedError)
@@ -278,7 +325,7 @@ namespace RegressionTests.SMTP.SRS
          var client = new SmtpClientSimulator();
 
          var exception = Assert.Throws<DeliveryFailedException>(
-            () => client.Send("postmaster@" + ExternalDomain, address, "Undelivered mail", "The body"));
+            () => client.Send("", address, "Undelivered mail", "The body"));
 
          Assert.IsTrue(exception.Message.Contains(expectedError),
             "Expected the delivery to fail with '" + expectedError + "', but it failed with: " + exception.Message);
@@ -288,7 +335,7 @@ namespace RegressionTests.SMTP.SRS
       {
          using (var server = StartExternalServer(1, ExternalSender))
          {
-            SmtpClientSimulator.StaticSend("postmaster@" + ExternalDomain, address, "Undelivered mail", "The body");
+            SmtpClientSimulator.StaticSend("", address, "Undelivered mail", "The body");
 
             CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 

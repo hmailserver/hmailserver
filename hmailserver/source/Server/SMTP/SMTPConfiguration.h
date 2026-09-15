@@ -93,6 +93,7 @@ namespace HM
 
       String GetSRSSecret();
       void SetSRSSecret(const String &newValue);
+      bool RotateSRSSecret();
 
       int GetSRSMaxAgeDays();
       void SetSRSMaxAgeDays(int newValue);

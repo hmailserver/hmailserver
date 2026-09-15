@@ -258,6 +258,8 @@ END_COM_MAP()
    STDMETHOD(get_SRSHashLength)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_SRSHashLength)(/*[in]*/ long newVal);
 
+   STDMETHOD(RotateSRSSecret)();
+
    STDMETHOD(get_CreateDefaultSpecialUseFoldersEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_CreateDefaultSpecialUseFoldersEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 

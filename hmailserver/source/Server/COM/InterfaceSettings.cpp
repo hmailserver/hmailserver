@@ -2712,7 +2712,34 @@ STDMETHODIMP InterfaceSettings::put_SRSSecret(BSTR newVal)
          return GetAccessDenied();
 
       HM::String sNewVal = newVal;
+
+      if (sNewVal.IsEmpty())
+      {
+         // A server with SRS switched on and no secret can neither rewrite nor reverse an
+         // address. Clearing the secret used to generate a new one, which is a thing to ask
+         // for rather than to arrive at by accident.
+         return COMError::GenerateError("The SRS secret cannot be empty. Use RotateSRSSecret to replace it with a new one.");
+      }
+
       config_->GetSMTPConfiguration()->SetSRSSecret(sNewVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::RotateSRSSecret()
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      if (!config_->GetSMTPConfiguration()->RotateSRSSecret())
+         return COMError::GenerateError("Failed to generate a new SRS secret.");
 
       return S_OK;
    }

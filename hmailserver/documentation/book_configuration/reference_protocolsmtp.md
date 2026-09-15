@@ -126,7 +126,11 @@ The Sender Rewriting Scheme solves this by replacing the envelope sender with an
 
 The receiving server now checks the SPF record of your domain, which does list your server. Should the message bounce, the bounce comes back to that address, hMailServer recognizes it, recovers the address it was created from, and passes the bounce on to the person who wrote the message - which is what the older *RewriteEnvelopeFromWhenForwarding* ini-file setting could not do.
 
-Every address is signed with a secret, which is generated the first time the server starts after this feature has been installed and is stored in the database. Servers which share a database therefore share the secret, and can reverse each other's addresses. Without the secret, an address which decodes into a recipient of somebody else's choosing cannot be made up, so this cannot be used to relay mail through your server: an address which does not validate is rejected with a *550* error.
+Every address is signed with a secret, which is generated the first time the server starts after this feature has been installed and is stored in the database. Servers which share a database therefore share the secret, and can reverse each other's addresses. Without the secret, an address which decodes into a recipient of somebody else's choosing cannot be made up, so this cannot be used to relay mail through your server: an address which does not validate is treated as any other unknown address.
+
+Only a bounce is passed on. A message sent to a rewritten address with an envelope sender of its own is not a bounce, and is subject to the same relaying rules as any other message to an address outside your domains - so a client which is not allowed to relay through your server cannot use an address it has come by to do so.
+
+An account, alias or distribution list whose address happens to look like a rewritten one keeps its mail: the address is only reversed once nothing in the domain answers to it.
 
 ### Rewrite sender when forwarding to other servers
 
@@ -134,7 +138,7 @@ Every address is signed with a secret, which is generated the first time the ser
 
 Senders are only rewritten when a message is actually leaving the server. Forwarding between two local accounts changes nothing, and neither does forwarding a message which was sent from one of your own domains, since your server is already a permitted sender for it and leaving the address alone keeps the message aligned with its From header for DMARC.
 
-Aliases and distribution lists which point at an external address are not affected: they hand the message on without a copy of their own, and a single message has a single envelope sender. Only the forwarding configured in the account settings and the <em>Forward email</em> rule action rewrite the sender.</div>
+Aliases and distribution lists which point at an external address are not affected: they hand the message on without a copy of their own, and a single message has a single envelope sender. Only the forwarding configured in the account settings and the <em>Forward email</em> rule action rewrite the sender - including a rule action in a global rule, and including a forward whose target is a local alias or distribution list which the message then leaves the server through.</div>
 
 ### Number of days addresses are valid
 

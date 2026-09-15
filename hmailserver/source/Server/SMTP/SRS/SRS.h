@@ -48,7 +48,7 @@ namespace HM
          ResultNotConfigured = 5,
       };
 
-      SRS(const AnsiString &secret, int maxAgeDays, int hashLength);
+      SRS(const String &secret, int maxAgeDays, int hashLength);
       ~SRS();
 
       String Forward(const String &sender, const String &forwardingDomain) const;
@@ -68,6 +68,11 @@ namespace HM
 
       static AnsiString GenerateSecret();
       static String GetResultDescription(ReverseResult result);
+
+      static int ClampMaxAgeDays(int maxAgeDays);
+      static int ClampHashLength(int hashLength);
+      // The range a setting is read as. The server goes by the clamped value, so this is
+      // also what the configuration reports back rather than what was written to it.
 
       static const int DefaultMaxAgeDays;
       static const int DefaultHashLength;
@@ -91,8 +96,10 @@ namespace HM
       static bool ParseTag_(const String &localPart, int &version, String &payload);
       static bool SplitSrs0Payload_(const String &payload, String &hash, String &timestamp, String &domain, String &localPart);
       static bool SplitSrs1Payload_(const String &payload, String &hash, String &firstHop, String &srs0Payload);
+      static bool IsChainableSrs0Payload_(const String &payload);
       static AnsiString CreateTimestamp_(time_t now);
       static bool ToUTF8_(const String &input, AnsiString &output);
+      static bool ParseTimestamp_(const String &timestamp, int &day);
       static bool ValidateTimestamp_(const String &timestamp, time_t now, int maxAgeDays);
 
       AnsiString secret_;

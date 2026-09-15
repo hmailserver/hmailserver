@@ -59,18 +59,19 @@ namespace RegressionTests.SMTP.SRS
          // A test which needs a second external server comes back here for it, and the
          // new server listens on a port of its own. A route is unique by domain name and
          // the server refuses a second one, so the route the previous server left behind
-         // is replaced rather than added alongside.
-         for (var i = routes.Count - 1; i >= 0; i--)
-         {
-            var existingRoute = routes[i];
+         // is pointed at the new port rather than added alongside.
+         Route route = null;
 
-            if (string.Equals(existingRoute.DomainName, domainName, StringComparison.OrdinalIgnoreCase))
-               existingRoute.Delete();
+         for (var i = 0; i < routes.Count && route == null; i++)
+            if (string.Equals(routes[i].DomainName, domainName, StringComparison.OrdinalIgnoreCase))
+               route = routes[i];
+
+         if (route == null)
+         {
+            route = routes.Add();
+            route.DomainName = domainName;
          }
 
-         var route = routes.Add();
-
-         route.DomainName = domainName;
          route.TargetSMTPHost = "localhost";
          route.TargetSMTPPort = port;
          route.NumberOfTries = 1;
@@ -81,6 +82,30 @@ namespace RegressionTests.SMTP.SRS
          route.Save();
 
          return route;
+      }
+
+      /// <summary>
+      /// An external server which rejects everything it is offered, so that hMailServer
+      /// gives up on the message and sends a bounce back to whoever it came from.
+      /// </summary>
+      internal SmtpServerSimulator StartRejectingExternalServer(params string[] recipients)
+      {
+         var port = TestSetup.GetNextFreePort();
+
+         var server = new SmtpServerSimulator(1, port);
+
+         var deliveryResults = new Dictionary<string, int>();
+
+         foreach (var recipient in recipients)
+            deliveryResults[recipient] = 550;
+
+         server.AddRecipientResult(deliveryResults);
+
+         server.StartListen();
+
+         AddRoute(ExternalDomain, port);
+
+         return server;
       }
 
       protected Account AddForwardingAccount(string address, string forwardAddress)

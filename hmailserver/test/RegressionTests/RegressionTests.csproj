@@ -187,6 +187,7 @@
     <Compile Include="Security\SMTPAuthentication.cs" />
     <Compile Include="SMTP\Signatures.cs" />
     <Compile Include="SMTP\SRS\Bounces.cs" />
+    <Compile Include="SMTP\SRS\Relaying.cs" />
     <Compile Include="SMTP\SRS\Forwarding.cs" />
     <Compile Include="SMTP\SRS\Settings.cs" />
     <Compile Include="SMTP\SRS\SrsAddress.cs" />

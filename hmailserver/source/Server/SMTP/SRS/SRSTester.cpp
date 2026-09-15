@@ -18,7 +18,7 @@ namespace HM
    // "7G" in the base32 alphabet SRS uses.
    namespace
    {
-      const AnsiString TestSecret = "hMailServer SRS unit test secret";
+      const wchar_t * const TestSecret = _T("hMailServer SRS unit test secret");
       const time_t TestTime = 1767225600;
       const wchar_t * const TestTimestamp = _T("7G");
       const int TestMaxAgeDays = 21;
@@ -40,6 +40,8 @@ namespace HM
       TestChaining_();
       TestLimits_();
       TestSecretGeneration_();
+      TestQuotedLocalParts_();
+      TestNonAsciiSecret_();
    }
 
    SRS
@@ -341,11 +343,16 @@ namespace HM
       AssertTrue_(srs.Reverse(address, TestTime + (TestMaxAgeDays + 1) * SecondsPerTestDay, originalAddress) == SRS::ResultExpired);
       AssertTrue_(srs.Reverse(address, TestTime + 400 * SecondsPerTestDay, originalAddress) == SRS::ResultExpired);
 
-      // A single day of clock difference between the server which created the address
-      // and the one reversing it is tolerated; more than that is an address from before
-      // the day counter last wrapped.
-      AssertTrue_(srs.Reverse(address, TestTime - SecondsPerTestDay, originalAddress) == SRS::ResultSuccess);
-      AssertTrue_(srs.Reverse(address, TestTime - 2 * SecondsPerTestDay, originalAddress) == SRS::ResultExpired);
+      // A clock which runs a little behind the one of the server which created the address
+      // - far enough behind for the two of them to be on different days - still validates
+      // it. TestTime is midnight, so half an hour earlier is the day before.
+      AssertTrue_(srs.Reverse(address, TestTime - 1800, originalAddress) == SRS::ResultSuccess);
+
+      // More than that is not a clock difference. Modulo the day counter, a timestamp from
+      // tomorrow and one from TimestampCycle - 1 days ago are written the same way, so an
+      // address which is a whole cycle old must not be let through as tomorrow's.
+      AssertTrue_(srs.Reverse(address, TestTime - SecondsPerTestDay, originalAddress) == SRS::ResultExpired);
+      AssertTrue_(srs.Reverse(address, TestTime + 1023 * SecondsPerTestDay, originalAddress) == SRS::ResultExpired);
 
       // The hash is checked before the age is, so a forged address which has also
       // expired is reported as forged.
@@ -400,19 +407,103 @@ namespace HM
       AssertTrue_(srs.Reverse(thirdHop, TestTime, originalAddress) == SRS::ResultSuccess);
       AssertEqual_(firstHop, originalAddress);
 
-      // The timestamp in an SRS1 address belongs to the first hop, which is the server
-      // that can tell whether it is still valid. Ours is the hash, and only that is
-      // checked here.
-      AssertTrue_(srs.Reverse(secondHop, TestTime + 400 * SecondsPerTestDay, originalAddress) == SRS::ResultSuccess);
+      // The SRS0 payload an SRS1 address carries is covered by our own hash, so its
+      // timestamp is as much ours to go by as the one in an SRS0 address. Without that an
+      // SRS1 address would never expire, and a single forward would leave an address
+      // relaying mail to a domain of somebody else's choosing for good.
+      AssertTrue_(srs.Reverse(secondHop, TestTime + (TestMaxAgeDays + 1) * SecondsPerTestDay, originalAddress) == SRS::ResultExpired);
+      AssertTrue_(srs.Reverse(secondHop, TestTime + 400 * SecondsPerTestDay, originalAddress) == SRS::ResultExpired);
+
+      String expiredFirstHop = srs.Forward(_T("user@example.com"), _T("hop1.test"), TestTime - 400 * SecondsPerTestDay);
+      String expiredSecondHop = srs.Forward(expiredFirstHop, _T("hop2.test"), TestTime);
+
+      AssertReverse_(srs, expiredSecondHop, SRS::ResultExpired);
 
       // Forging one is no easier than forging an SRS0 address.
       String forged = secondHop;
       forged.Replace(_T("=hop1.test=="), _T("=hop9.test=="));
       AssertReverse_(srs, forged, SRS::ResultInvalidHash);
 
-      // Chaining an address we cannot take apart yields nothing, and the sender is left
-      // as it is.
-      AssertTrue_(srs.Forward(_T("SRS1=hash=hop.test@example.com"), _T("hop2.test"), TestTime).IsEmpty());
+      // A sender whose local part starts with the tag but holds none of the fields a
+      // rewritten sender holds was never rewritten by anybody - a mailing list posting as
+      // srs0-bounces@ is the everyday case. Chaining it would produce an address which
+      // reverses to one that never existed, so it is rewritten as any other sender is.
+      String notReallyRewritten = srs.Forward(_T("srs0-bounces@lists.example.org"), _T("hop2.test"), TestTime);
+
+      AssertTrue_(notReallyRewritten.StartsWith(_T("SRS0=")));
+      AssertTrue_(srs.Reverse(notReallyRewritten, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(_T("srs0-bounces@lists.example.org"), originalAddress);
+
+      // The same where the fields are there but the timestamp belongs to no day, and
+      // where an SRS1 address does not hold the fields one of ours holds.
+      String unparsableTimestamp = srs.Forward(_T("SRS0=abcdefgh=!!=example.com=user@lists.example.org"), _T("hop2.test"), TestTime);
+
+      AssertTrue_(unparsableTimestamp.StartsWith(_T("SRS0=")));
+      AssertTrue_(srs.Reverse(unparsableTimestamp, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(_T("SRS0=abcdefgh=!!=example.com=user@lists.example.org"), originalAddress);
+
+      String notReallyChained = srs.Forward(_T("SRS1=hash=hop.test@example.com"), _T("hop2.test"), TestTime);
+
+      AssertTrue_(notReallyChained.StartsWith(_T("SRS0=")));
+      AssertTrue_(srs.Reverse(notReallyChained, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(_T("SRS1=hash=hop.test@example.com"), originalAddress);
+
+      // A hash shorter than we would ever write is still chained: other implementations
+      // default to four characters, and their addresses have to keep working.
+      String shortHashFirstHop = String(_T("SRS0=abcd=")) + TestTimestamp + _T("=example.com=user@hop1.test");
+      String shortHashSecondHop = srs.Forward(shortHashFirstHop, _T("hop2.test"), TestTime);
+
+      AssertTrue_(shortHashSecondHop.StartsWith(_T("SRS1=")));
+      AssertTrue_(srs.Reverse(shortHashSecondHop, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(shortHashFirstHop, originalAddress);
+   }
+
+   void
+   SRSTester::TestQuotedLocalParts_()
+   {
+      SRS srs = CreateSRS_();
+
+      // A local part which only holds together inside quotes cannot be embedded in an
+      // address as it is: the result is neither one the next server would accept, nor one
+      // we would accept the bounce for. The message is forwarded unrewritten instead.
+      AssertTrue_(srs.Forward(_T("\"john doe\"@example.com"), _T("forwarder.test"), TestTime).IsEmpty());
+      AssertTrue_(srs.Forward(_T("\"a@b\"@example.com"), _T("forwarder.test"), TestTime).IsEmpty());
+
+      // Nor is an address built around a domain which is not one.
+      AssertTrue_(srs.Forward(_T("user@example.com"), _T("not a domain"), TestTime).IsEmpty());
+
+      // What is rewritten is what the rest of the server accepts as an address, so a
+      // bounce to it comes back through RCPT TO rather than being refused there.
+      String address = srs.Forward(_T("user@example.com"), _T("forwarder.test"), TestTime);
+
+      AssertTrue_(StringParser::IsValidEmailAddress(address));
+   }
+
+   void
+   SRSTester::TestNonAsciiSecret_()
+   {
+      // The secret is hashed as the bytes it is written in. Narrowing it through the code
+      // page of the machine instead loses whatever that code page has no room for, so two
+      // servers sharing a database could end up signing with different keys - and two
+      // different secrets could end up signing with the same one.
+      SRS first(_T("secret-\x3042"), TestMaxAgeDays, TestHashLength);
+      SRS second(_T("secret-\x3044"), TestMaxAgeDays, TestHashLength);
+
+      String firstAddress = first.Forward(_T("user@example.com"), _T("forwarder.test"), TestTime);
+      String secondAddress = second.Forward(_T("user@example.com"), _T("forwarder.test"), TestTime);
+
+      AssertTrue_(firstAddress.Compare(secondAddress) != 0);
+
+      String originalAddress;
+      AssertTrue_(first.Reverse(firstAddress, TestTime, originalAddress) == SRS::ResultSuccess);
+      AssertEqual_(_T("user@example.com"), originalAddress);
+
+      AssertReverse_(second, firstAddress, SRS::ResultInvalidHash);
+
+      // The same secret gives the same address, whichever object it is written into.
+      SRS sameAsFirst(_T("secret-\x3042"), TestMaxAgeDays, TestHashLength);
+
+      AssertEqual_(firstAddress, sameAsFirst.Forward(_T("user@example.com"), _T("forwarder.test"), TestTime));
    }
 
    void

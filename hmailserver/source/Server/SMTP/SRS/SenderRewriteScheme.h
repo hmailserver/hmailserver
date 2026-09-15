@@ -5,6 +5,7 @@
 
 namespace HM
 {
+   class Message;
    class SRS;
 
    // Applies the Sender Rewriting Scheme to the server it is running on: decides when a
@@ -16,26 +17,40 @@ namespace HM
    class SenderRewriteScheme
    {
    public:
+      enum ReverseOutcome
+      {
+         NotAnSrsAddress = 0,
+         Reversed = 1,
+         ReversalFailed = 2,
+      };
+
       static bool GetIsEnabled();
 
-      static String CreateForwardingSender(const String &originalSender, const String &forwardingAddress, const String &targetAddress);
-      // The envelope sender a message forwarded from forwardingAddress to targetAddress
-      // should be sent with. Returns an empty string when the sender should be left as it
-      // is - because SRS is switched off, because the message is not leaving the server,
-      // or because we are the sender's own mail server and it already lists us as a
+      static void ApplyToForwardedMessage(std::shared_ptr<Message> message, const String &forwardingAccount,
+                                          const String &forwardingDomain, const String &targetAddress);
+      // Sets the envelope sender a forwarded message is to be sent with. SRS is used where
+      // it applies; where it deliberately does not, the older ini-file setting
+      // RewriteEnvelopeFromWhenForwarding still does if it is switched on. forwardingAccount
+      // is the account forwarding the message, and is empty when a global rule forwards it:
+      // the server is then doing the forwarding, and the ini-file setting has no account
+      // address to put in the sender.
+
+      static String CreateForwardingSender(const String &originalSender, const String &forwardingDomain, const String &targetAddress);
+      // The envelope sender a message forwarded to targetAddress should be sent with, as an
+      // address in forwardingDomain. Returns an empty string when the sender should be left
+      // as it is - because SRS is switched off, because the message is not leaving the
+      // server, or because we are the sender's own mail server and it already lists us as a
       // permitted sender.
 
-      static bool IsSrsRecipient(const String &recipientAddress);
-      // Whether the address looks like one we have handed out. Only true when SRS is
-      // enabled: with it switched off, such an address is an ordinary address which may
-      // well belong to an account.
-
-      static bool TryReverse(const String &recipientAddress, String &originalSender, String &errorMessage);
-      // Recovers the sender a rewritten address was created for. Fails for an address
-      // which was not created by this server, or which has expired.
+      static ReverseOutcome TryReverse(const String &recipientAddress, String &originalSender, String &errorMessage);
+      // Recovers the sender a rewritten address was created for. NotAnSrsAddress means the
+      // address is an ordinary one, which the rest of the server is to make sense of;
+      // ReversalFailed that it looks like one we have handed out, but was not created by
+      // this server or has expired.
 
    private:
       static std::shared_ptr<SRS> Create_();
       static bool IsLocalDomain_(const String &address);
+      static bool LeavesThisServer_(const String &address, int recursionLevel);
    };
 }

@@ -62,6 +62,11 @@ namespace HM
 
       String recipientAddress = sOriginalRecipient;
 
+      // Kept from the iteration an address which looks like one we have handed out failed
+      // to reverse in, so that the sender is told why rather than merely that the address
+      // is unknown.
+      String srsErrorMessage;
+
       while (true)
       {
          iRecursionLevel ++;
@@ -99,22 +104,6 @@ namespace HM
             {
                sErrMsg = "Domain has been disabled.";
                return DP_RecipientUnknown;
-            }
-
-            // If this is an address we have handed out when forwarding a message, it is
-            // a bounce on its way back to whoever sent that message. Deliver it to them
-            // rather than looking for an account by that name. Reversing the address is
-            // only done if it validates - otherwise anyone could make up an address
-            // which relays mail through us.
-            if (SenderRewriteScheme::IsSrsRecipient(primaryAddressWithoutPlusaddressing))
-            {
-               String originalSender;
-
-               if (!SenderRewriteScheme::TryReverse(primaryAddressWithoutPlusaddressing, originalSender, sErrMsg))
-                  return DP_RecipientUnknown;
-
-               recipientAddress = originalSender;
-               continue;
             }
 
             // Check for an account with this name.
@@ -169,6 +158,43 @@ namespace HM
                return DP_Possible;
             }
 
+            // Nothing in the domain answers to the address. It may be one we have handed
+            // out when forwarding a message, in which case it is a bounce on its way back
+            // to whoever sent that message, and is delivered to them. The lookups above
+            // come first so that an account which happens to be named like a rewritten
+            // address keeps its mail; reversing is only done if the address validates,
+            // since otherwise anyone could make one up and relay mail through us.
+            String originalSender;
+
+            switch (SenderRewriteScheme::TryReverse(primaryAddressWithoutPlusaddressing, originalSender, srsErrorMessage))
+            {
+            case SenderRewriteScheme::Reversed:
+               {
+                  if (!sSender.IsEmpty())
+                  {
+                     // Only a bounce is passed on to the original sender. The address is
+                     // in one of our domains, so without this the security check ahead
+                     // would treat delivery to the external sender as delivery to a local
+                     // recipient, and anyone who came by an address we handed out could
+                     // relay whatever they liked through us for as long as it is valid.
+                     bTreatSecurityAsLocal = false;
+                  }
+
+                  recipientAddress = originalSender;
+                  continue;
+               }
+            case SenderRewriteScheme::ReversalFailed:
+               {
+                  // Not an address this server handed out, or one which has expired. It is
+                  // treated as any other unknown address from here on, so that the domain's
+                  // catch-all account still gets it - but the reason it could not be
+                  // reversed is what the sender is told if nothing else picks it up.
+                  break;
+               }
+            case SenderRewriteScheme::NotAnSrsAddress:
+               break;
+            }
+
             // OK, we are now finished looking through the domain.
          }
 
@@ -217,7 +243,7 @@ namespace HM
             return DP_Possible;
          }
 
-         sErrMsg = CONST_UNKNOWN_USER;
+         sErrMsg = srsErrorMessage.IsEmpty() ? CONST_UNKNOWN_USER : srsErrorMessage;
          return DP_RecipientUnknown;
       }
    }
@@ -246,6 +272,11 @@ namespace HM
       String primaryAddress = pDA->ApplyAliasesOnAddress(recipientAddress);
       String primaryDomain = StringParser::ExtractDomain(primaryAddress);
 
+      // Why an address which looks like one we have handed out could not be reversed, if
+      // it could not. The message was accepted when it arrived, so a bounce which is
+      // dropped here is one the sender was told we would deliver.
+      String srsErrorMessage;
+
       // First check if the domain is remote. If it is, we don't really
       // have to care what type of email this is.
 
@@ -263,21 +294,6 @@ namespace HM
          // First check if this domain is really active.
          if (!pDomain->GetIsActive())
             return;
-
-         // A bounce coming back to an address we have handed out when forwarding a
-         // message. Where it should go is encoded in the address itself.
-         if (SenderRewriteScheme::IsSrsRecipient(primaryAddressWithoutPlusaddressing))
-         {
-            String originalSender;
-            String errorMessage;
-
-            if (!SenderRewriteScheme::TryReverse(primaryAddressWithoutPlusaddressing, originalSender, errorMessage))
-               return;
-
-            CreateMessageRecipientList_(originalSender, sOriginalAddress, lRecurse, pRecipients, recipientOK);
-
-            return;
-         }
 
          // Check if there exists a account with this address.
          std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(primaryAddress);
@@ -336,6 +352,24 @@ namespace HM
             return;
          }
 
+         // A bounce coming back to an address we have handed out when forwarding a
+         // message. Where it should go is encoded in the address itself. As when the
+         // message was accepted, the lookups above come first, and an address which does
+         // not reverse is left to the catch-all account.
+         String originalSender;
+
+         switch (SenderRewriteScheme::TryReverse(primaryAddressWithoutPlusaddressing, originalSender, srsErrorMessage))
+         {
+         case SenderRewriteScheme::Reversed:
+            {
+               CreateMessageRecipientList_(originalSender, sOriginalAddress, lRecurse, pRecipients, recipientOK);
+
+               return;
+            }
+         case SenderRewriteScheme::ReversalFailed:
+         case SenderRewriteScheme::NotAnSrsAddress:
+            break;
+         }
       }
       
       // Check for routes. This happens under two circumstances:
@@ -364,7 +398,10 @@ namespace HM
          }
 
          if (!bIsLocalDomain || pDomain->GetPostmaster().IsEmpty())
+         {
+            ReportUndeliverableSrsBounce_(recipientAddress, srsErrorMessage);
             return;
+         }
       }
 
       if (bIsLocalDomain)
@@ -379,6 +416,8 @@ namespace HM
 
             return;
          }
+
+         ReportUndeliverableSrsBounce_(recipientAddress, srsErrorMessage);
       }
       else
       {
@@ -396,6 +435,21 @@ namespace HM
 
          AddRecipient_(pRecipients, NewRecipient);
       }
+   }
+
+   void
+   RecipientParser::ReportUndeliverableSrsBounce_(const String &recipientAddress, const String &errorMessage)
+   {
+      if (errorMessage.IsEmpty())
+         return;
+
+      // The address was accepted when the message arrived, so the secret has been rotated
+      // or the address has expired since. Nothing is left to deliver the message to, and a
+      // bounce which disappears without a word leaves no trace of a message the sender was
+      // told we had taken on.
+      ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5733, "RecipientParser::CreateMessageRecipientList_",
+         Formatter::Format("The SRS address {0} could not be reversed, and the message sent to it could not be delivered. {1}",
+            recipientAddress, errorMessage));
    }
 
    RecipientParser::DeliveryPossibility 

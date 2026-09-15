@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 
 namespace RegressionTests.SMTP.SRS
@@ -13,12 +14,17 @@ namespace RegressionTests.SMTP.SRS
       }
 
       [Test]
-      [Description("Clearing the secret rotates it rather than leaving the server without one.")]
-      public void ClearingTheSecretGeneratesANewOne()
+      [Description("Rotating the secret replaces it with a new one, and is what has to be asked for to lose the old one.")]
+      public void TheSecretIsOnlyReplacedWhenRotatingIsAskedFor()
       {
          var originalSecret = Secret;
 
-         _settings.SRSSecret = "";
+         // Every address already handed out stops being reversible when the secret
+         // changes, so clearing it is refused rather than quietly taken as a rotation.
+         Assert.Throws<COMException>(() => _settings.SRSSecret = "");
+         Assert.AreEqual(originalSecret, Secret);
+
+         _settings.RotateSRSSecret();
 
          Assert.IsNotEmpty(Secret);
          Assert.AreNotEqual(originalSecret, Secret);

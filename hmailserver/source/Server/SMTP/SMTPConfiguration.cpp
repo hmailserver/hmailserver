@@ -327,22 +327,23 @@ namespace HM
    void
    SMTPConfiguration::SetSRSSecret(const String &newValue)
    {
-      if (newValue.IsEmpty())
-      {
-         // Clearing the secret rotates it rather than switching SRS off: a server with
-         // SRS enabled and no secret can neither rewrite nor reverse an address. Every
-         // address handed out under the old secret stops being reversible.
-         AnsiString generatedSecret = SRS::GenerateSecret();
-
-         if (generatedSecret.IsEmpty())
-            return;
-
-         GetSettings_()->SetString(PROPERTY_SRS_SECRET, generatedSecret);
-
-         return;
-      }
-
       GetSettings_()->SetString(PROPERTY_SRS_SECRET, newValue);
+   }
+
+   bool
+   SMTPConfiguration::RotateSRSSecret()
+   {
+      // Every address handed out under the old secret stops being reversible, so this is
+      // asked for rather than arrived at: clearing the secret used to do it, which left no
+      // way to tell a deliberate rotation from a mistake.
+      AnsiString generatedSecret = SRS::GenerateSecret();
+
+      if (generatedSecret.IsEmpty())
+         return false;
+
+      GetSettings_()->SetString(PROPERTY_SRS_SECRET, generatedSecret);
+
+      return true;
    }
 
    String
@@ -366,12 +367,8 @@ namespace HM
          return SRS::DefaultMaxAgeDays;
 
       // Clamped the way SRS clamps it, so that what is reported here is what the server
-      // actually goes by. Anything below the minimum of one day has already selected the
-      // default above.
-      if (value > SRS::MaxMaxAgeDays)
-         return SRS::MaxMaxAgeDays;
-
-      return value;
+      // actually goes by.
+      return SRS::ClampMaxAgeDays(value);
    }
 
    void
@@ -388,13 +385,7 @@ namespace HM
       if (value <= 0)
          return SRS::DefaultHashLength;
 
-      if (value < SRS::MinHashLength)
-         return SRS::MinHashLength;
-
-      if (value > SRS::MaxHashLength)
-         return SRS::MaxHashLength;
-
-      return value;
+      return SRS::ClampHashLength(value);
    }
 
    void
@@ -410,13 +401,23 @@ namespace HM
       if (!GetSRSSecret().IsEmpty())
          return;
 
-      SetSRSSecret("");
+      AnsiString generatedSecret = SRS::GenerateSecret();
+
+      if (generatedSecret.IsEmpty())
+         return;
 
       // Two servers sharing a database and starting together both find it empty and both
-      // generate one. The last write is the one the database keeps, so it is read back
-      // here and both servers go on with the same secret rather than one of them signing
-      // addresses the other cannot reverse.
-      GetSettings_()->Refresh();
+      // generate one. The write only takes for the first of them to reach the database,
+      // and both go on with the secret it stored rather than one of them signing addresses
+      // the other cannot reverse.
+      if (GetSettings_()->InitializeStringIfEmpty(PROPERTY_SRS_SECRET, generatedSecret).IsEmpty())
+      {
+         // A database which cannot be written to, or cannot be read back. Nothing can be
+         // rewritten or reversed without a secret, and the alternative to saying so here is
+         // an error for every message the server handles from now on.
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5734, "SMTPConfiguration::EnsureSRSSecretExists_",
+            "Failed to store an SRS secret in the database. SRS addresses can neither be created nor reversed until one is set.");
+      }
    }
 
    void 

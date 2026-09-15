@@ -34,6 +34,10 @@ namespace HM
       const int TimestampMask = (1 << TimestampBits) - 1;
       const int TimestampCycle = 1 << (TimestampBits * TimestampLength);
       const int SecondsPerDay = 60 * 60 * 24;
+
+      // How far ahead of us the clock of the server which created an address may run
+      // before the day it stamped into the address stops being one we recognize.
+      const int ClockSkewTolerance = 60 * 60;
    }
 
    const int SRS::DefaultMaxAgeDays = 21;
@@ -54,20 +58,16 @@ namespace HM
    const int SRS::MaxAddressLength = 254;
    const int SRS::SecretLength = 32;
 
-   SRS::SRS(const AnsiString &secret, int maxAgeDays, int hashLength) :
-      secret_(secret),
-      max_age_days_(maxAgeDays),
-      hash_length_(hashLength)
+   SRS::SRS(const String &secret, int maxAgeDays, int hashLength) :
+      max_age_days_(ClampMaxAgeDays(maxAgeDays)),
+      hash_length_(ClampHashLength(hashLength))
    {
-      if (max_age_days_ < MinMaxAgeDays)
-         max_age_days_ = MinMaxAgeDays;
-      else if (max_age_days_ > MaxMaxAgeDays)
-         max_age_days_ = MaxMaxAgeDays;
-
-      if (hash_length_ < MinHashLength)
-         hash_length_ = MinHashLength;
-      else if (hash_length_ > MaxHashLength)
-         hash_length_ = MaxHashLength;
+      // The secret goes into the hash as the bytes it is written in rather than as
+      // whatever the code page of the machine happens to make of it. Two servers sharing
+      // a database must arrive at the same key from the same secret, whichever code page
+      // each of them runs under.
+      if (!ToUTF8_(secret, secret_))
+         secret_ = "";
    }
 
    SRS::~SRS()
@@ -98,42 +98,45 @@ namespace HM
       int version = 0;
       String payload;
 
-      if (ParseTag_(senderLocalPart, version, payload))
+      if (ParseTag_(senderLocalPart, version, payload) && version == 0 && IsChainableSrs0Payload_(payload))
       {
-         if (version == 0)
-         {
-            // The sender has been rewritten once already, by whoever forwarded it to us.
-            // That server becomes the first hop of the address we create.
-            localPart = BuildSrs1_(senderDomain, payload);
-         }
-         else
-         {
-            // It has been rewritten at least twice. The first hop is the one to bounce
-            // back to, so it is kept as it is and only the hash is replaced with ours.
-            String hash;
-            String firstHop;
-            String srs0Payload;
-
-            if (!SplitSrs1Payload_(payload, hash, firstHop, srs0Payload))
-               return "";
-
-            localPart = BuildSrs1_(firstHop, srs0Payload);
-         }
+         // The sender has been rewritten once already, by whoever forwarded it to us.
+         // That server becomes the first hop of the address we create.
+         localPart = BuildSrs1_(senderDomain, payload);
       }
-      else
+      else if (version == 1)
       {
-         localPart = BuildSrs0_(senderLocalPart, senderDomain, now);
+         // It has been rewritten at least twice. The first hop is the one to bounce
+         // back to, so it is kept as it is and only the hash is replaced with ours.
+         String hash;
+         String firstHop;
+         String srs0Payload;
+
+         if (SplitSrs1Payload_(payload, hash, firstHop, srs0Payload) && IsChainableSrs0Payload_(srs0Payload))
+            localPart = BuildSrs1_(firstHop, srs0Payload);
       }
 
       if (localPart.IsEmpty())
-         return "";
+      {
+         // Either the sender was never rewritten, or the tag is all it has in common with
+         // an address one of us created - a mailing list posting as srs0-bounces@ is not
+         // a rewritten sender, and chaining it would yield an address which reverses to
+         // one that never existed, losing its bounces. It is rewritten as any other
+         // sender is instead.
+         localPart = BuildSrs0_(senderLocalPart, senderDomain, now);
+
+         if (localPart.IsEmpty())
+            return "";
+      }
 
       String result = localPart + _T("@") + forwardingDomain;
 
-      if (result.GetLength() > MaxAddressLength)
+      if (!StringParser::IsValidEmailAddress(result))
       {
-         // Rewriting it would produce an address the next server may well refuse, and
-         // one we could not store. Better to forward with the sender we were given.
+         // The rewrite would produce an address the next server may well refuse, and one
+         // our own RCPT TO validation would refuse the bounce for: too long, or built
+         // around a local part which only an address in quotes may hold. Better to
+         // forward with the sender we were given.
          return "";
       }
 
@@ -195,9 +198,21 @@ namespace HM
       if (!ValidateHash_(firstHop + srs0Payload, hash))
          return ResultInvalidHash;
 
-      // The timestamp in the address belongs to the first hop, which is the server that
-      // created it and the only one which can tell whether it is still valid. Ours is
-      // the hash, and that is what we check.
+      // The embedded SRS0 payload was signed by us when we created the address, so its
+      // timestamp is as much ours to go by as the one in an SRS0 address. Without this an
+      // SRS1 address never expires, and a single forward triggered by an attacker yields
+      // an address which relays mail to a domain of their choosing for good.
+      String embeddedHash;
+      String embeddedTimestamp;
+      String embeddedDomain;
+      String embeddedLocalPart;
+
+      if (!SplitSrs0Payload_(srs0Payload, embeddedHash, embeddedTimestamp, embeddedDomain, embeddedLocalPart))
+         return ResultMalformed;
+
+      if (!ValidateTimestamp_(embeddedTimestamp, now, max_age_days_))
+         return ResultExpired;
+
       originalAddress = String(_T("SRS0")) + srs0Payload + _T("@") + firstHop;
 
       return ResultSuccess;
@@ -255,6 +270,30 @@ namespace HM
       }
 
       return "Unknown result.";
+   }
+
+   int
+   SRS::ClampMaxAgeDays(int maxAgeDays)
+   {
+      if (maxAgeDays < MinMaxAgeDays)
+         return MinMaxAgeDays;
+
+      if (maxAgeDays > MaxMaxAgeDays)
+         return MaxMaxAgeDays;
+
+      return maxAgeDays;
+   }
+
+   int
+   SRS::ClampHashLength(int hashLength)
+   {
+      if (hashLength < MinHashLength)
+         return MinHashLength;
+
+      if (hashLength > MaxHashLength)
+         return MaxHashLength;
+
+      return hashLength;
    }
 
    String
@@ -478,6 +517,25 @@ namespace HM
    }
 
    bool
+   SRS::IsChainableSrs0Payload_(const String &payload)
+   {
+      // Whether the payload really holds the fields an SRS0 address carries. How long the
+      // hash is, is not part of it: other implementations write one as short as four
+      // characters, and an address one of them created must still chain.
+      String hash;
+      String timestamp;
+      String domain;
+      String localPart;
+
+      if (!SplitSrs0Payload_(payload, hash, timestamp, domain, localPart))
+         return false;
+
+      int day = 0;
+
+      return ParseTimestamp_(timestamp, day);
+   }
+
+   bool
    SRS::ToUTF8_(const String &input, AnsiString &output)
    {
       output = "";
@@ -516,12 +574,12 @@ namespace HM
    }
 
    bool
-   SRS::ValidateTimestamp_(const String &timestamp, time_t now, int maxAgeDays)
+   SRS::ParseTimestamp_(const String &timestamp, int &day)
    {
       if (timestamp.GetLength() != TimestampLength)
          return false;
 
-      int then = 0;
+      day = 0;
 
       for (int i = 0; i < TimestampLength; i++)
       {
@@ -544,10 +602,26 @@ namespace HM
          if (index < 0)
             return false;
 
-         then = (then << TimestampBits) | index;
+         day = (day << TimestampBits) | index;
       }
 
-      int today = (int) ((now / SecondsPerDay) % TimestampCycle);
+      return true;
+   }
+
+   bool
+   SRS::ValidateTimestamp_(const String &timestamp, time_t now, int maxAgeDays)
+   {
+      int then = 0;
+
+      if (!ParseTimestamp_(timestamp, then))
+         return false;
+
+      // A server whose clock runs a little ahead of ours stamps an address with tomorrow's
+      // day in the last moments of today. Our own clock is moved forward by the tolerance
+      // to cover that, rather than accepting any address which looks a day old less than
+      // the whole cycle: modulo the cycle, one day in the future and TimestampCycle - 1
+      // days in the past are the same timestamp, and the latter must not be let through.
+      int today = (int) (((now + ClockSkewTolerance) / SecondsPerDay) % TimestampCycle);
 
       // The day counter wraps, so the age is calculated modulo the cycle: a timestamp
       // which looks like it lies far in the future is really one from before the wrap.
@@ -555,11 +629,6 @@ namespace HM
 
       if (age < 0)
          age += TimestampCycle;
-
-      // Except by a single day, which is the clock difference between us and the server
-      // that created the address rather than an address from almost three years ago.
-      if (age == TimestampCycle - 1)
-         return true;
 
       return age <= maxAgeDays;
    }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -234,6 +235,109 @@ namespace RegressionTests.SMTP.SRS
             // forwarded the way it was before SRS existed.
             Assert.AreEqual(forwarder.Address,
                GetSenderOfForwardedMessage(server, localSender.Address, forwarder.Address));
+         }
+      }
+
+      [Test]
+      [Description("A forward to a local alias whose target is external is rewritten.")]
+      public void ForwardingToALocalAliasPointingOutwardsRewritesTheSender()
+      {
+         EnableSrs();
+
+         // The alias is in one of our domains, but the message does not stop there: it is
+         // handed on to an address outside, where the SPF check the rewrite exists for is
+         // waiting for it.
+         SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "outward@example.test", ForwardTarget);
+
+         AddForwardingAccount("forwarder@example.test", "outward@example.test");
+
+         using (var server = StartExternalServer(1, ForwardTarget))
+         {
+            Assert.AreEqual(SrsAddress.Create(Secret, ExternalSender, _domain.Name),
+               GetSenderOfForwardedMessage(server, ExternalSender, "forwarder@example.test"));
+         }
+      }
+
+      [Test]
+      [Description("A forward to a local distribution list with an external member is rewritten.")]
+      public void ForwardingToALocalListWithAnExternalMemberRewritesTheSender()
+      {
+         EnableSrs();
+
+         var recipient = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient@example.test", "test");
+
+         SingletonProvider<TestSetup>.Instance.AddDistributionList(_domain, "list@example.test",
+            new List<string> {recipient.Address, ForwardTarget});
+
+         AddForwardingAccount("forwarder@example.test", "list@example.test");
+
+         using (var server = StartExternalServer(1, ForwardTarget))
+         {
+            // One of the members is outside, and a message has a single envelope sender,
+            // so the one the message leaves with is the rewritten one.
+            Assert.AreEqual(SrsAddress.Create(Secret, ExternalSender, _domain.Name),
+               GetSenderOfForwardedMessage(server, ExternalSender, "forwarder@example.test"));
+         }
+      }
+
+      [Test]
+      [Description("A forward to a local alias which stays on the server does not rewrite the sender.")]
+      public void ForwardingToALocalAliasPointingInwardsDoesNotRewriteTheSender()
+      {
+         EnableSrs();
+
+         var recipient = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient@example.test", "test");
+
+         SingletonProvider<TestSetup>.Instance.AddAlias(_domain, "inward@example.test", recipient.Address);
+
+         AddForwardingAccount("forwarder@example.test", "inward@example.test");
+
+         SmtpClientSimulator.StaticSend(ExternalSender, "forwarder@example.test", "Forwarded message", "This is the body");
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(recipient.Address, "test");
+
+         Assert.IsTrue(message.Contains("Return-Path: <" + ExternalSender + ">"), message);
+      }
+
+      [Test]
+      [Description("A message forwarded by a global rule is rewritten in the same way as one forwarded by an account rule.")]
+      public void GlobalRuleForwardingRewritesTheSender()
+      {
+         EnableSrs();
+
+         var recipient = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "globaltarget@example.test", "test");
+
+         // A global rule forwards on behalf of the server rather than of an account, so
+         // there is no forwarding account to take a domain from. The message was addressed
+         // to one of ours, and that is the domain the rewritten address is created in.
+         var rule = _application.Rules.Add();
+         rule.Name = "Forward";
+         rule.Active = true;
+
+         // Global rules run for every message in the queue, the forwarded copy included.
+         // The copy is addressed to the target rather than to the account the message
+         // arrived for, so matching on the envelope recipients keeps it from being
+         // forwarded over and over.
+         var criteria = rule.Criterias.Add();
+         criteria.UsePredefined = true;
+         criteria.PredefinedField = eRulePredefinedField.eFTRecipientList;
+         criteria.MatchType = eRuleMatchType.eMTContains;
+         criteria.MatchValue = recipient.Address;
+         criteria.Save();
+
+         var action = rule.Actions.Add();
+         action.Type = eRuleActionType.eRAForwardEmail;
+         action.To = ForwardTarget;
+         action.Save();
+
+         rule.Save();
+
+         using (var server = StartExternalServer(1, ForwardTarget))
+         {
+            Assert.AreEqual(SrsAddress.Create(Secret, ExternalSender, _domain.Name),
+               GetSenderOfForwardedMessage(server, ExternalSender, recipient.Address));
          }
       }
 
