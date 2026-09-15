@@ -20,6 +20,10 @@
 #include "../../Common/BO/Message.h"
 #include "../../Common/Cache/CacheContainer.h"
 
+// DistributionListRecipients is a Collection over this, and instantiating the
+// template needs the whole type rather than the forward declaration it carries.
+#include "../../Common/Persistence/PersistentDistributionListRecipient.h"
+
 #include <atomic>
 
 #ifdef _DEBUG
