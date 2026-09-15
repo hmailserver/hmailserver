@@ -32,10 +32,20 @@ namespace HM
       IMAPResult ExecuteCommand(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<IMAPCommandArgument> pArgument) {return IMAPResult();}
       IMAPResult DoForMails(std::shared_ptr<IMAPConnection> pConnection, const String &sMailNos, const std::shared_ptr<IMAPCommandArgument> pArgument);
 
+      // Translates a message set into this session's messages, as (sequence number, entry).
+      // Returns false if the set is malformed.
+      static bool ResolveTargets(std::shared_ptr<IMAPFolderView> view, const String &sMailNos, bool isUID, std::vector<std::pair<int, IMAPViewEntry>> &targets);
+
+      // A response code for the tagged OK, followed by a space, or empty if there is none.
+      virtual String GetResponseCode() const { return String(); }
+
    protected:
 
       bool GetIsUID();
       virtual IMAPResult DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pMessage, const std::shared_ptr<IMAPCommandArgument> pArgument) = 0;
+
+      // Called when DoAction fails. Override to undo the actions already taken.
+      virtual void RollBack(std::shared_ptr<IMAPConnection> pConnection) {}
 
       // Override and return true if DoAction updates the message. Such commands are given the
       // objects the collection holds rather than copies of them.
@@ -45,8 +55,8 @@ namespace HM
 
    private:
 
-      // Translates a message set into this session's messages, as (sequence number, entry).
-      std::vector<std::pair<int, IMAPViewEntry>> ResolveTargets_(std::shared_ptr<IMAPFolderView> view, const String &sMailNos);
+      // Parses a number or *, which is given as highest.
+      static bool ParseNumber_(const String &value, unsigned int highest, unsigned int &number);
 
       bool is_uid_;
      

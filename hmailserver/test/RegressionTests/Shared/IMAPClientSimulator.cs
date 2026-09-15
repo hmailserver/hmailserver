@@ -527,6 +527,24 @@ namespace RegressionTests.Shared
          return result.StartsWith("*");
       }
 
+      /// <summary>
+      ///    Appends a message and returns the full server response, including the tagged line.
+      /// </summary>
+      public string Append(string folderName, string messageData)
+      {
+         return SendSingleCommandWithLiteral("A40 APPEND \"" + folderName + "\" {" + messageData.Length + "}", messageData);
+      }
+
+      public string UidCopy(string uidSet, string destinationFolder)
+      {
+         return SendSingleCommand("A41 UID COPY " + uidSet + " \"" + destinationFolder + "\"");
+      }
+
+      public string UidExpunge(string uidSet)
+      {
+         return SendSingleCommand("A42 UID EXPUNGE " + uidSet);
+      }
+
       public string GetCapabilities()
       {
          // Capability

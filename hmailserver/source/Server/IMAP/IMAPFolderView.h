@@ -53,6 +53,9 @@ namespace HM
 
       int GetMessageCount() const;
 
+      // The UID of the last message in the view, or 0 if the view is empty.
+      unsigned int GetHighestUID() const;
+
       bool GetEntryBySequence(int sequence, IMAPViewEntry &entry) const;
       bool GetEntryByUID(unsigned int uid, int &sequence, IMAPViewEntry &entry) const;
       bool GetSequenceByMessageID(__int64 message_id, int &sequence) const;

@@ -207,6 +207,7 @@
     <Compile Include="IMAP\MessageIndexing.cs" />
     <Compile Include="IMAP\MessageUids.cs" />
     <Compile Include="IMAP\SessionMessageNumbering.cs" />
+    <Compile Include="IMAP\UidPlus.cs" />
     <Compile Include="MIME\Parameters.cs" />
     <Compile Include="Security\Basics.cs" />
     <Compile Include="Shared\TestFixtureBase.cs" />

@@ -19,6 +19,7 @@
 #include "Utilities.h"
 #include "Parsing/AddresslistParser.h"
 #include "../../IMAP/IMAPSimpleCommandParser.h"
+#include "../../IMAP/IMAPCommandRangeActionTester.h"
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"
 #include "../../SMTP/SPF/Conformance/SPFConformanceTester.h"
@@ -53,7 +54,7 @@ namespace HM
       // which catches an exception and reports it, and terminating there takes
       // the server down and fails everything after it instead of saying what
       // went wrong.
-      void ReportSPFFailures_(const AnsiString &what, const std::vector<AnsiString> &failures)
+      void ReportFailures_(const AnsiString &what, const std::vector<AnsiString> &failures)
       {
          if (failures.empty())
             return;
@@ -142,19 +143,19 @@ namespace HM
       // says much less than one which lists them all.
       OutputDebugString(_T("hMailServer: Testing the SPF record grammar\n"));
       SPFRecordTester spfRecordTester;
-      ReportSPFFailures_("the SPF record grammar", spfRecordTester.Run());
+      ReportFailures_("the SPF record grammar", spfRecordTester.Run());
 
       OutputDebugString(_T("hMailServer: Testing SPF macro expansion\n"));
       SPFMacroExpanderTester spfMacroExpanderTester;
-      ReportSPFFailures_("SPF macro expansion", spfMacroExpanderTester.Run());
+      ReportFailures_("SPF macro expansion", spfMacroExpanderTester.Run());
 
       OutputDebugString(_T("hMailServer: Testing SPF evaluation\n"));
       SPFEvaluatorTester spfEvaluatorTester;
-      ReportSPFFailures_("SPF evaluation", spfEvaluatorTester.Run());
+      ReportFailures_("SPF evaluation", spfEvaluatorTester.Run());
 
       OutputDebugString(_T("hMailServer: Testing SPF conformance\n"));
       SPFConformance::SPFConformanceTester spfConformanceTester;
-      ReportSPFFailures_("the RFC 7208 conformance suite", spfConformanceTester.Run());
+      ReportFailures_("the RFC 7208 conformance suite", spfConformanceTester.Run());
 
       OutputDebugString(_T("hMailServer: Testing SRS\n"));
       SRSTester srsTester;
@@ -228,6 +229,10 @@ namespace HM
       IMAPSimpleCommandParserTester *pTest = new IMAPSimpleCommandParserTester();
       pTest->Test();
       delete pTest;
+
+      OutputDebugString(_T("hMailServer: Testing IMAP message sets\n"));
+      IMAPCommandRangeActionTester rangeActionTester;
+      ReportFailures_("IMAP message sets", rangeActionTester.Run());
 
       
 

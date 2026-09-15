@@ -119,7 +119,7 @@ namespace HM
       {
 
          String sTemp;
-         sTemp.Format(_T("UIDVALIDITY %d"), pTheFolder->GetCreationTime().ToInt());
+         sTemp.Format(_T("UIDVALIDITY %u"), pTheFolder->GetUIDValidity());
 
          if (bAddSpace)
             sResponse += " ";

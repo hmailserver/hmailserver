@@ -51,7 +51,10 @@ namespace HM
       // The message numbers are resolved against this session's view, so they mean the same
       // messages they meant when the client was told about them, regardless of what other
       // sessions have done to the folder since.
-      auto targets = ResolveTargets_(view, sMailNos);
+      std::vector<std::pair<int, IMAPViewEntry>> targets;
+
+      if (!ResolveTargets(view, sMailNos, is_uid_, targets))
+         return IMAPResult(IMAPResult::ResultBad, "Incorrect message set.");
 
       if (targets.empty())
          return IMAPResult();
@@ -106,7 +109,10 @@ namespace HM
          IMAPResult result = DoAction(pConnection, target.first, (*iter).second, pArgument);
 
          if (result.GetResult() != IMAPResult::ResultOK)
+         {
+            RollBack(pConnection);
             return result;
+         }
       }
 
       if (any_missing && policy == MissingMessagePolicy::ReportAfterActing)
@@ -115,61 +121,76 @@ namespace HM
       return IMAPResult();
    }
 
-   std::vector<std::pair<int, IMAPViewEntry>>
-   IMAPCommandRangeAction::ResolveTargets_(std::shared_ptr<IMAPFolderView> view, const String &sMailNos)
+   bool
+   IMAPCommandRangeAction::ParseNumber_(const String &value, unsigned int highest, unsigned int &number)
    {
-      std::vector<std::pair<int, IMAPViewEntry>> targets;
-
-      std::vector<String> sSplitted = StringParser::SplitString(sMailNos, ",");
-
-      for (String sCur : sSplitted)
+      if (value == _T("*"))
       {
-         long lColonPos = sCur.Find(_T(":"));
-
-         String sFirstPart = lColonPos >= 0 ? sCur.Mid(0, lColonPos) : sCur;
-         String sSecondPart = lColonPos >= 0 ? sCur.Mid(lColonPos + 1) : sCur;
-
-         bool endIsWildcard = sSecondPart == _T("*");
-
-         if (is_uid_)
-         {
-            unsigned int startUID = _ttoi(sFirstPart);
-            unsigned int endUID = endIsWildcard ? UINT_MAX : _ttoi(sSecondPart);
-
-            if (lColonPos >= 0)
-            {
-               for (const auto &entry : view->GetEntriesByUIDRange(startUID, endUID))
-                  targets.push_back(entry);
-            }
-            else
-            {
-               int sequence = 0;
-               IMAPViewEntry entry;
-
-               if (view->GetEntryByUID(startUID, sequence, entry))
-                  targets.push_back(std::make_pair(sequence, entry));
-            }
-         }
-         else
-         {
-            int startIndex = _ttoi(sFirstPart);
-            int endIndex = endIsWildcard ? -1 : _ttoi(sSecondPart);
-
-            if (lColonPos >= 0)
-            {
-               for (const auto &entry : view->GetEntriesBySequenceRange(startIndex, endIndex))
-                  targets.push_back(entry);
-            }
-            else
-            {
-               IMAPViewEntry entry;
-
-               if (view->GetEntryBySequence(startIndex, entry))
-                  targets.push_back(std::make_pair(startIndex, entry));
-            }
-         }
+         number = highest;
+         return true;
       }
 
-      return targets;
+      if (value.IsEmpty() || value.GetLength() > 10 || !StringParser::ValidateString(value, "0123456789"))
+         return false;
+
+      __int64 parsed = _ttoi64(value);
+
+      if (parsed > UINT_MAX)
+         return false;
+
+      number = (unsigned int) parsed;
+      return true;
+   }
+
+   bool
+   IMAPCommandRangeAction::ResolveTargets(std::shared_ptr<IMAPFolderView> view, const String &sMailNos, bool isUID, std::vector<std::pair<int, IMAPViewEntry>> &targets)
+   {
+      targets.clear();
+
+      // * is the highest number in use (RFC 3501 9).
+      unsigned int highest = isUID ? view->GetHighestUID() : (unsigned int) view->GetMessageCount();
+
+      // Parse the whole set first, so that a malformed set resolves to nothing.
+      std::vector<std::pair<unsigned int, unsigned int>> ranges;
+
+      int start = 0;
+
+      while (true)
+      {
+         int comma = sMailNos.Find(_T(","), start);
+         String part = comma >= 0 ? sMailNos.Mid(start, comma - start) : sMailNos.Mid(start);
+
+         int colon = part.Find(_T(":"));
+         String first_part = colon >= 0 ? part.Mid(0, colon) : part;
+         String last_part = colon >= 0 ? part.Mid(colon + 1) : part;
+
+         unsigned int first = 0;
+         unsigned int last = 0;
+
+         if (!ParseNumber_(first_part, highest, first) || !ParseNumber_(last_part, highest, last))
+            return false;
+
+         // A range may be given in either order.
+         if (first > last)
+            std::swap(first, last);
+
+         ranges.push_back(std::make_pair(first, last));
+
+         if (comma < 0)
+            break;
+
+         start = comma + 1;
+      }
+
+      for (const auto &range : ranges)
+      {
+         auto entries = isUID ?
+            view->GetEntriesByUIDRange(range.first, range.second) :
+            view->GetEntriesBySequenceRange((int) std::min<unsigned int>(range.first, INT_MAX), (int) std::min<unsigned int>(range.second, INT_MAX));
+
+         targets.insert(targets.end(), entries.begin(), entries.end());
+      }
+
+      return true;
    }
 }
