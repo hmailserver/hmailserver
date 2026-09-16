@@ -310,6 +310,7 @@ EXIT 0
     <ClCompile Include="..\Common\Mime\MimeCode.cpp" />
     <ClCompile Include="..\Common\Mime\MimeTester.cpp" />
     <ClCompile Include="..\Common\Mime\MimeType.cpp" />
+    <ClCompile Include="..\Common\Mime\SevenBitConverter.cpp" />
     <ClCompile Include="..\Common\Persistence\Maintenance\Maintenance.cpp" />
     <ClCompile Include="..\Common\Persistence\NameChanger.cpp" />
     <ClCompile Include="..\Common\Persistence\PersistentAccount.cpp" />
@@ -835,6 +836,7 @@ EXIT 0
     <ClInclude Include="..\Common\Mime\MimeChar.h" />
     <ClInclude Include="..\Common\Mime\MimeCode.h" />
     <ClInclude Include="..\Common\Mime\MimeTester.h" />
+    <ClInclude Include="..\Common\Mime\SevenBitConverter.h" />
     <ClInclude Include="..\Common\Persistence\Maintenance\Maintenance.h" />
     <ClInclude Include="..\Common\Persistence\NameChanger.h" />
     <ClInclude Include="..\Common\Persistence\PersistenceMode.h" />

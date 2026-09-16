@@ -5,6 +5,7 @@
 #include "MimeTester.h"
 #include "Mime.h"
 #include "MimeCode.h"
+#include "SevenBitConverter.h"
 #include "../BO/Message.h"
 #include "../BO/MessageData.h"
 #include "../Persistence/PersistentMessage.h"
@@ -544,6 +545,306 @@ namespace HM
          // so only "UTF-8" was captured and "hello.dll" would be absent.
          return val.Find("hello.dll") >= 0;
       }
+
+      // Loads one body part from an in-memory buffer, the way the multipart cases above do.
+      std::shared_ptr<MimeBody> LoadBody(const char *text)
+      {
+         std::shared_ptr<MimeBody> body = std::shared_ptr<MimeBody>(new MimeBody);
+
+         size_t index = 0;
+         bool part_loaded = false;
+         body->Load(text, strlen(text), index, part_loaded);
+
+         return body;
+      }
+
+      AnsiString QPDecode(const AnsiString &input)
+      {
+         MimeCodeQP coder;
+         coder.SetInput(input, input.GetLength(), false);
+         AnsiString output;
+         coder.GetOutput(output);
+         return output;
+      }
+
+      AnsiString Base64Decode(const AnsiString &input)
+      {
+         MimeCodeBase64 coder;
+         coder.SetInput(input, input.GetLength(), false);
+         AnsiString output;
+         coder.GetOutput(output);
+         return output;
+      }
+
+      bool TestContainsEightBitOctets()
+      {
+         if (SevenBitConverter::ContainsEightBitOctets(""))
+            return false;
+
+         if (SevenBitConverter::ContainsEightBitOctets("plain ascii\r\n"))
+            return false;
+
+         // 0x7F is the last 7-bit octet, so it does not count as 8-bit.
+         if (SevenBitConverter::ContainsEightBitOctets("\x7f"))
+            return false;
+
+         if (!SevenBitConverter::ContainsEightBitOctets("\x80"))
+            return false;
+
+         if (!SevenBitConverter::ContainsEightBitOctets("\xff"))
+            return false;
+
+         // An octet in the middle of otherwise 7-bit content is still found.
+         if (!SevenBitConverter::ContainsEightBitOctets("before\xc3\xa4" "after"))
+            return false;
+
+         // A NUL does not end the scan: the content is counted, not treated as a C string.
+         AnsiString withNul("a\0\xc3", 3);
+         if (!SevenBitConverter::ContainsEightBitOctets(withNul))
+            return false;
+
+         return true;
+      }
+
+      bool TestSevenBitConverterLeavesSevenBitTextAlone()
+      {
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Content-Type: text/plain; charset=\"utf-8\"\r\n"
+            "Content-Transfer-Encoding: 8bit\r\n"
+            "\r\n"
+            "nothing here is above 0x7f\r\n");
+
+         // Nothing to do, so the part must be reported as unchanged and left as it was.
+         if (SevenBitConverter::Convert(*body))
+            return false;
+
+         return AnsiString(body->GetTransferEncoding()) == "8bit";
+      }
+
+      bool TestSevenBitConverterEncodesEightBitTextAsQuotedPrintable()
+      {
+         const char *original = "H\xc3\xa4" "ll\xc3\xb6 - 8-bit octets here\r\n";
+
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Content-Type: text/plain; charset=\"utf-8\"\r\n"
+            "Content-Transfer-Encoding: 8bit\r\n"
+            "\r\n"
+            "H\xc3\xa4" "ll\xc3\xb6 - 8-bit octets here\r\n");
+
+         if (!SevenBitConverter::Convert(*body))
+            return false;
+
+         if (AnsiString(body->GetTransferEncoding()) != "quoted-printable")
+            return false;
+
+         // The point of the exercise: what is signed and sent must be free of 8-bit octets,
+         // so that no hop further down the line has cause to rewrite it.
+         if (SevenBitConverter::ContainsEightBitOctets(body->GetContent()))
+            return false;
+
+         // And it must still decode to exactly the bytes it started as.
+         return QPDecode(body->GetContent()) == AnsiString(original);
+      }
+
+      bool TestSevenBitConverterEncodesEightBitBinaryAsBase64()
+      {
+         // Kept as its own array so that the expected bytes cannot drift from the ones fed
+         // to the parser, and so that the length is taken rather than counted by hand.
+         static const char bodyBytes[] = "\x01\xfe\xff binary\r\n";
+         const size_t bodyLength = sizeof(bodyBytes) - 1;
+
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Content-Type: application/octet-stream\r\n"
+            "Content-Transfer-Encoding: binary\r\n"
+            "\r\n"
+            "\x01\xfe\xff binary\r\n");
+
+         if (!SevenBitConverter::Convert(*body))
+            return false;
+
+         // Quoted-printable would bloat content that is mostly non-ASCII, so it goes out
+         // as base64 instead.
+         if (AnsiString(body->GetTransferEncoding()) != "base64")
+            return false;
+
+         if (SevenBitConverter::ContainsEightBitOctets(body->GetContent()))
+            return false;
+
+         return Base64Decode(body->GetContent()) == AnsiString(bodyBytes, bodyLength);
+      }
+
+      bool TestSevenBitConverterConvertsPartsOfMultipart()
+      {
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Content-Type: multipart/mixed; boundary=\"boundary42\"\r\n"
+            "Content-Transfer-Encoding: 7bit\r\n"
+            "\r\n"
+            "This is a multi-part message in MIME format.\r\n"
+            "--boundary42\r\n"
+            "Content-Type: text/plain; charset=\"utf-8\"\r\n"
+            "Content-Transfer-Encoding: 8bit\r\n"
+            "\r\n"
+            "\xc3\xa4" "ight bit\r\n"
+            "--boundary42\r\n"
+            "Content-Type: text/plain\r\n"
+            "Content-Transfer-Encoding: 7bit\r\n"
+            "\r\n"
+            "seven bit\r\n"
+            "--boundary42--\r\n");
+
+         if (body->GetPartCount() != 2)
+            return false;
+
+         if (!SevenBitConverter::Convert(*body))
+            return false;
+
+         // The multipart body itself is never encoded: doing so would bury the boundaries
+         // its own Content-Type announces.
+         if (AnsiString(body->GetTransferEncoding()) != "7bit")
+            return false;
+
+         std::shared_ptr<MimeBody> eightBitPart = body->FindFirstPart();
+         std::shared_ptr<MimeBody> sevenBitPart = body->FindNextPart();
+
+         if (!eightBitPart || !sevenBitPart)
+            return false;
+
+         if (AnsiString(eightBitPart->GetTransferEncoding()) != "quoted-printable")
+            return false;
+
+         if (SevenBitConverter::ContainsEightBitOctets(eightBitPart->GetContent()))
+            return false;
+
+         // The part that needed nothing is left exactly as it was.
+         if (AnsiString(sevenBitPart->GetTransferEncoding()) != "7bit")
+            return false;
+
+         if (AnsiString(sevenBitPart->GetContent()).Find("seven bit") < 0)
+            return false;
+
+         // What matters in the end is the message as it is written back out, since that is
+         // what gets hashed and sent. Re-serializing must carry the converted part with it.
+         AnsiString serialized;
+         body->Store(serialized);
+
+         if (SevenBitConverter::ContainsEightBitOctets(serialized))
+            return false;
+
+         return serialized.Find("Content-Transfer-Encoding: quoted-printable") >= 0;
+      }
+
+      bool TestSevenBitConverterConvertsBareMultipartPart()
+      {
+         // The part declares no headers of its own. RFC 2045 section 5.2 gives it the
+         // default of text/plain, 7bit - it is still MIME content, because the multipart
+         // around it is, so quoted-printable there is read back correctly.
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "MIME-Version: 1.0\r\n"
+            "Content-Type: multipart/mixed; boundary=\"boundary42\"\r\n"
+            "\r\n"
+            "--boundary42\r\n"
+            "\r\n"
+            "\xc3\xa4" "ight bit\r\n"
+            "--boundary42--\r\n");
+
+         if (body->GetPartCount() != 1)
+            return false;
+
+         if (!SevenBitConverter::Convert(*body))
+            return false;
+
+         std::shared_ptr<MimeBody> part = body->FindFirstPart();
+         if (!part)
+            return false;
+
+         if (AnsiString(part->GetTransferEncoding()) != "quoted-printable")
+            return false;
+
+         return !SevenBitConverter::ContainsEightBitOctets(part->GetContent());
+      }
+
+      bool TestSevenBitConverterLeavesMessageRfc822Alone()
+      {
+         // RFC 2045 section 6.4 allows message/* only the identity encodings, so this part
+         // cannot be re-encoded. Descending into what it carries is left for a later change;
+         // until then it must be left alone rather than mangled.
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Content-Type: message/rfc822\r\n"
+            "Content-Transfer-Encoding: 8bit\r\n"
+            "\r\n"
+            "Subject: inner\r\n"
+            "\r\n"
+            "\xc3\xa4" "ight bit\r\n");
+
+         if (SevenBitConverter::Convert(*body))
+            return false;
+
+         return AnsiString(body->GetTransferEncoding()) == "8bit";
+      }
+
+      bool TestSevenBitConverterLeavesNonMimeBodyAlone()
+      {
+         // No Content-Type and no Content-Transfer-Encoding: nothing marks this body as
+         // MIME, so quoted-printable would reach the reader as literal "=C3=A4" text.
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Subject: no mime headers at all\r\n"
+            "\r\n"
+            "\xc3\xa4" "ight bit\r\n");
+
+         if (SevenBitConverter::Convert(*body))
+            return false;
+
+         return SevenBitConverter::ContainsEightBitOctets(body->GetContent());
+      }
+
+      bool TestSevenBitConverterConvertsPartWithContentTransferEncodingOnly()
+      {
+         // No Content-Type, but Content-Transfer-Encoding marks the body as MIME content,
+         // and the media type then defaults to text/plain.
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Content-Transfer-Encoding: 8bit\r\n"
+            "\r\n"
+            "\xc3\xa4" "ight bit\r\n");
+
+         if (!SevenBitConverter::Convert(*body))
+            return false;
+
+         if (AnsiString(body->GetTransferEncoding()) != "quoted-printable")
+            return false;
+
+         return !SevenBitConverter::ContainsEightBitOctets(body->GetContent());
+      }
+
+      bool TestSevenBitConverterLeavesDeclaredBase64Alone()
+      {
+         // A part declaring base64 that still holds 8-bit octets is malformed. Its content
+         // is not the raw bytes, so re-encoding it would change what it decodes to.
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Content-Type: application/octet-stream\r\n"
+            "Content-Transfer-Encoding: base64\r\n"
+            "\r\n"
+            "aGVsbG8=\xc3\xa4\r\n");
+
+         if (SevenBitConverter::Convert(*body))
+            return false;
+
+         return AnsiString(body->GetTransferEncoding()) == "base64";
+      }
+
+      bool TestSevenBitConverterTreatsAbsentEncodingAsIdentity()
+      {
+         // RFC 2045 section 6.1: an absent Content-Transfer-Encoding means 7bit, so the
+         // content is the raw octets and an 8-bit body here is convertible.
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Content-Type: text/plain; charset=\"utf-8\"\r\n"
+            "\r\n"
+            "\xc3\xa4" "ight bit\r\n");
+
+         if (!SevenBitConverter::Convert(*body))
+            return false;
+
+         return AnsiString(body->GetTransferEncoding()) == "quoted-printable";
+      }
    }
 
    MimeTester::MimeTester(void)
@@ -647,6 +948,39 @@ namespace HM
          throw;
 
       if (!TestRfc2231ApostropheInUnquotedValue())
+         throw;
+
+      if (!TestContainsEightBitOctets())
+         throw;
+
+      if (!TestSevenBitConverterLeavesSevenBitTextAlone())
+         throw;
+
+      if (!TestSevenBitConverterEncodesEightBitTextAsQuotedPrintable())
+         throw;
+
+      if (!TestSevenBitConverterEncodesEightBitBinaryAsBase64())
+         throw;
+
+      if (!TestSevenBitConverterConvertsPartsOfMultipart())
+         throw;
+
+      if (!TestSevenBitConverterConvertsBareMultipartPart())
+         throw;
+
+      if (!TestSevenBitConverterLeavesMessageRfc822Alone())
+         throw;
+
+      if (!TestSevenBitConverterLeavesNonMimeBodyAlone())
+         throw;
+
+      if (!TestSevenBitConverterConvertsPartWithContentTransferEncodingOnly())
+         throw;
+
+      if (!TestSevenBitConverterLeavesDeclaredBase64Alone())
+         throw;
+
+      if (!TestSevenBitConverterTreatsAbsentEncodingAsIdentity())
          throw;
 
    }
