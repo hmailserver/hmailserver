@@ -6,6 +6,7 @@
 #include "SevenBitConverter.h"
 
 #include "Mime.h"
+#include "MimeChar.h"
 #include "MimeCode.h"
 
 #ifdef _DEBUG
@@ -22,7 +23,7 @@ namespace HM
       // implicitly to const char*, which leaves buffer[i] ambiguous.
       for (char octet : buffer)
       {
-         if ((unsigned char) octet > 0x7F)
+         if (CMimeChar::IsNonAscii((unsigned char) octet))
             return true;
       }
 
@@ -36,46 +37,48 @@ namespace HM
       // headers. Everything below a multipart is MIME by construction, so the parts do not
       // have to say so again - RFC 2045 section 5.2 gives a part that declares nothing the
       // default of text/plain, 7bit, and quoted-printable is readable there.
-      bool isMimeContent = body.FieldExists(CMimeConst::MimeVersion()) ||
-                           body.FieldExists(CMimeConst::ContentType()) ||
-                           body.FieldExists(CMimeConst::TransferEncoding());
+      if (!body.FieldExists(CMimeConst::MimeVersion()) &&
+          !body.FieldExists(CMimeConst::ContentType()) &&
+          !body.FieldExists(CMimeConst::TransferEncoding()))
+      {
+         return false;
+      }
 
-      return Convert_(body, isMimeContent);
+      return Convert_(body);
    }
 
    bool
-   SevenBitConverter::Convert_(MimeBody &body, bool isMimeContent)
+   SevenBitConverter::Convert_(MimeBody &body)
    {
       // A multipart body carries no content of its own that may be encoded: text_ holds
       // its preamble, which readers ignore. Only its parts are converted, and that holds
       // whether or not any were parsed out of it - encoding an unparsed multipart body
       // would put its boundaries out of reach of every reader.
-      if (body.GetMediaType() == MimeHeader::MEDIA_MULTIPART)
+      if (body.IsMultiPart())
       {
+         if (IsSignedOrEncrypted_(body))
+            return false;
+
          bool changed = false;
 
          for (std::shared_ptr<MimeBody> part = body.FindFirstPart(); part; part = body.FindNextPart())
          {
-            if (Convert_(*part, true))
+            if (Convert_(*part))
                changed = true;
          }
 
          return changed;
       }
 
-      return ConvertPart_(body, isMimeContent);
+      return ConvertPart_(body);
    }
 
    bool
-   SevenBitConverter::ConvertPart_(MimeBody &body, bool isMimeContent)
+   SevenBitConverter::ConvertPart_(MimeBody &body)
    {
       // RFC 2045 section 6.4: message/* may carry only an identity encoding, so this part
       // cannot be re-encoded. Converting what it encapsulates is left for a later change.
-      if (body.GetMediaType() == MimeHeader::MEDIA_MESSAGE)
-         return false;
-
-      // Not MIME content. See the note in the header on why this is left alone.
-      if (!isMimeContent)
+      if (body.IsMessage())
          return false;
 
       const AnsiString &content = body.GetContent();
@@ -90,30 +93,35 @@ namespace HM
       if (!HasIdentityEncoding_(body))
          return false;
 
+      // Quoted-printable keeps text readable; everything else goes out as base64. Both
+      // are folded at 76 columns, which also takes care of the lines an 8-bit body may
+      // carry past the 998 octets RFC 5322 section 2.1.1 allows.
+      MimeCodeQP qpCoder;
+      qpCoder.AddLineBreak(true);
+
+      MimeCodeBase64 base64Coder;
+
+      const bool isText = body.IsText();
+      MimeCodeBase &coder = isText ? static_cast<MimeCodeBase &>(qpCoder) : static_cast<MimeCodeBase &>(base64Coder);
+
+      coder.SetInput(content, content.GetLength(), true);
+
       AnsiString encoded;
+      coder.GetOutput(encoded);
 
-      if (body.GetMediaType() == MimeHeader::MEDIA_TEXT)
-      {
-         // Quoted-printable keeps text readable, and folds the long lines an 8-bit body
-         // may carry past the 998 octets RFC 5322 section 2.1.1 allows.
-         MimeCodeQP coder;
-         coder.SetInput(content, content.GetLength(), true);
-         coder.GetOutput(encoded);
-
-         body.SetRawText(encoded);
-         body.SetTransferEncoding(CMimeConst::EncodingQP());
-      }
-      else
-      {
-         MimeCodeBase64 coder;
-         coder.SetInput(content, content.GetLength(), true);
-         coder.GetOutput(encoded);
-
-         body.SetRawText(encoded);
-         body.SetTransferEncoding(CMimeConst::EncodingBase64());
-      }
+      body.SetRawText(encoded);
+      body.SetTransferEncoding(isText ? CMimeConst::EncodingQP() : CMimeConst::EncodingBase64());
 
       return true;
+   }
+
+   bool
+   SevenBitConverter::IsSignedOrEncrypted_(const MimeBody &body)
+   {
+      AnsiString subType = body.GetSubType();
+
+      return subType.CompareNoCase("signed") == 0 ||
+             subType.CompareNoCase("encrypted") == 0;
    }
 
    bool

@@ -117,7 +117,7 @@ namespace HM
       MimeHeader mimeHeader;
       mimeHeader.Load(header.c_str(), header.GetLength(), false);
 
-      if (HasSignatureForDomain_(mimeHeader, domain))
+      if (HasSignatureForDomain(mimeHeader, domain))
       {
          LOG_DEBUG("Skipping DKIM signing: message already carries a DKIM-Signature for domain " + String(domain));
          return true;
@@ -790,7 +790,7 @@ namespace HM
    }
 
    bool
-   DKIM::HasSignatureForDomain_(MimeHeader &mimeHeader, const AnsiString &domain)
+   DKIM::HasSignatureForDomain(MimeHeader &mimeHeader, const AnsiString &domain)
    {
       std::vector<std::pair<AnsiString, AnsiString>> signatures = GetSignatureFields(mimeHeader);
       for (const auto &sig : signatures)

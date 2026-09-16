@@ -845,6 +845,149 @@ namespace HM
 
          return AnsiString(body->GetTransferEncoding()) == "quoted-printable";
       }
+
+      // Length of the longest line, the CRLF not counted.
+      size_t LongestLineLength(const AnsiString &text)
+      {
+         size_t longest = 0;
+         size_t current = 0;
+
+         for (char ch : text)
+         {
+            if (ch == '\r' || ch == '\n')
+            {
+               if (current > longest)
+                  longest = current;
+
+               current = 0;
+            }
+            else
+            {
+               current++;
+            }
+         }
+
+         return current > longest ? current : longest;
+      }
+
+      bool TestSevenBitConverterFoldsLongQuotedPrintableLines()
+      {
+         // A 400-octet line is legal as received, but quoted-printable triples every 8-bit
+         // octet in it. Left unfolded it would pass the 998 octets a line may hold, and the
+         // next hop would fold it itself - rewriting the very bytes that were signed.
+         AnsiString longLine;
+         for (int i = 0; i < 200; i++)
+            longLine += "\xc3\xa4";
+         longLine += "\r\n";
+
+         AnsiString message =
+            "Content-Type: text/plain; charset=\"utf-8\"\r\n"
+            "Content-Transfer-Encoding: 8bit\r\n"
+            "\r\n";
+         message += longLine;
+
+         std::shared_ptr<MimeBody> body = LoadBody(message);
+
+         if (!SevenBitConverter::Convert(*body))
+            return false;
+
+         if (LongestLineLength(body->GetContent()) > 76)
+            return false;
+
+         return QPDecode(body->GetContent()) == longLine;
+      }
+
+      bool TestSevenBitConverterLeavesMultipartSignedAlone()
+      {
+         // RFC 1847: the signature is taken over the exact bytes of the signed part, so
+         // re-encoding it would break the author's signature to protect ours.
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Content-Type: multipart/signed; protocol=\"application/pgp-signature\"; boundary=\"boundary42\"\r\n"
+            "\r\n"
+            "--boundary42\r\n"
+            "Content-Type: text/plain; charset=\"utf-8\"\r\n"
+            "Content-Transfer-Encoding: 8bit\r\n"
+            "\r\n"
+            "\xc3\xa4" "ight bit\r\n"
+            "--boundary42\r\n"
+            "Content-Type: application/pgp-signature\r\n"
+            "\r\n"
+            "-----BEGIN PGP SIGNATURE-----\r\n"
+            "-----END PGP SIGNATURE-----\r\n"
+            "--boundary42--\r\n");
+
+         if (body->GetPartCount() != 2)
+            return false;
+
+         if (SevenBitConverter::Convert(*body))
+            return false;
+
+         std::shared_ptr<MimeBody> signedPart = body->FindFirstPart();
+         if (!signedPart)
+            return false;
+
+         return AnsiString(signedPart->GetTransferEncoding()) == "8bit";
+      }
+
+      bool TestSevenBitConverterConvertsNestedMultipart()
+      {
+         std::shared_ptr<MimeBody> body = LoadBody(
+            "Content-Type: multipart/mixed; boundary=\"outer\"\r\n"
+            "\r\n"
+            "--outer\r\n"
+            "Content-Type: multipart/alternative; boundary=\"inner\"\r\n"
+            "\r\n"
+            "--inner\r\n"
+            "Content-Type: text/plain; charset=\"utf-8\"\r\n"
+            "Content-Transfer-Encoding: 8bit\r\n"
+            "\r\n"
+            "\xc3\xa4" "ight bit\r\n"
+            "--inner--\r\n"
+            "--outer\r\n"
+            "Content-Type: text/plain\r\n"
+            "\r\n"
+            "seven bit\r\n"
+            "--outer--\r\n");
+
+         if (body->GetPartCount() != 2)
+            return false;
+
+         if (!SevenBitConverter::Convert(*body))
+            return false;
+
+         std::shared_ptr<MimeBody> inner = body->FindFirstPart();
+         if (!inner || inner->GetPartCount() != 1)
+            return false;
+
+         std::shared_ptr<MimeBody> innerPart = inner->FindFirstPart();
+         if (!innerPart)
+            return false;
+
+         if (AnsiString(innerPart->GetTransferEncoding()) != "quoted-printable")
+            return false;
+
+         AnsiString serialized;
+         body->Store(serialized);
+
+         return !SevenBitConverter::ContainsEightBitOctets(serialized);
+      }
+
+      // Fails the run naming the check, rather than terminating on a bare throw: the
+      // regression suite reaches these tests through the COM API, which reports an
+      // exception but cannot survive a terminate. See ReportSPFFailures_ in ClassTester.cpp.
+      void Require_(bool passed, const char *testName)
+      {
+         if (passed)
+            return;
+
+         String message = _T("hMailServer: FAILED: ");
+         message += String(testName);
+         message += _T("\n");
+
+         OutputDebugString(message);
+
+         throw std::logic_error(std::string("MimeTester: ") + testName + " failed.");
+      }
    }
 
    MimeTester::MimeTester(void)
@@ -858,130 +1001,50 @@ namespace HM
    void
    MimeTester::Test()
    {
-     if (!TestFindStringEdgeCases())
-         throw;
-
-      if (!TestMultipartWithoutFinalCrlf())
-         throw;
-
-      if (!TestMultipartWithFinalCrlf())
-         throw;
-
-      if (!TestMultipartWithoutClosingBoundary())
-         throw;
-
-      if (!TestMultipartWithClosingBoundaryMissingSeparator())
-         throw;
-
-      if (!TestMultipartWithPartBoundaryMissingCrlf())
-         throw;
-
-      if (!TestQPEncodeEmpty())
-         throw;
-
-      if (!TestQPEncodeSinglePrintableChar())
-         throw;
-
-      if (!TestQPEncodeEqualsSign())
-         throw;
-
-      if (!TestQPEncodeNonAscii())
-         throw;
-
-      if (!TestQPEncodeCRLF())
-         throw;
-
-      if (!TestQPEncodeBareLF())
-         throw;
-
-      if (!TestQPEncodeTrailingSpace())
-         throw;
-
-      if (!TestQPEncodeTrailingTab())
-         throw;
-
-      if (!TestQPEncodeSpaceBeforeHardBreak())
-         throw;
-
-      if (!TestQPEncodeTabBeforeHardBreak())
-         throw;
-
-      if (!TestQPEncodeSmtpDotQuoted())
-         throw;
-
-      if (!TestQPEncodeDotNotQuotedMidLine())
-         throw;
-
-      if (!TestQPEncodeDotAtEndOfInputNotQuoted())
-         throw;
-
-      if (!TestQPEncode75CharsNoSoftBreak())
-         throw;
-
-      if (!TestQPEncode76CharsTriggersSoftBreak())
-         throw;
-
-      if (!TestQPEncodeNoTrailingWhitespaceBeforeSoftBreakHighCostNextChar())
-         throw;
-
-      if (!TestQPEncodeNoTrailingWhitespaceBeforeSoftBreak())
-         throw;
-      if (!TestGetParameterWithQuotedSemicolon())
-         throw;
-
-      if (!TestGetParameterNeighboringParamUnaffectedByQuotedSemicolon())
-         throw;
-
-      if (!TestRemoveParameterRemovesSimpleParam())
-         throw;
-
-      if (!TestRemoveParameterRemovesRfc2231Continuations())
-         throw;
-
-      if (!TestSetFileNameReplacesRfc2231ContinuationFilename())
-         throw;
-
-      if (!TestSetFileNameReplacesEncodedFilenameVariant())
-         throw;
-
-      if (!TestSetFileNameReplacesContentTypeNameVariant())
-         throw;
-
-      if (!TestRfc2231ApostropheInUnquotedValue())
-         throw;
-
-      if (!TestContainsEightBitOctets())
-         throw;
-
-      if (!TestSevenBitConverterLeavesSevenBitTextAlone())
-         throw;
-
-      if (!TestSevenBitConverterEncodesEightBitTextAsQuotedPrintable())
-         throw;
-
-      if (!TestSevenBitConverterEncodesEightBitBinaryAsBase64())
-         throw;
-
-      if (!TestSevenBitConverterConvertsPartsOfMultipart())
-         throw;
-
-      if (!TestSevenBitConverterConvertsBareMultipartPart())
-         throw;
-
-      if (!TestSevenBitConverterLeavesMessageRfc822Alone())
-         throw;
-
-      if (!TestSevenBitConverterLeavesNonMimeBodyAlone())
-         throw;
-
-      if (!TestSevenBitConverterConvertsPartWithContentTransferEncodingOnly())
-         throw;
-
-      if (!TestSevenBitConverterLeavesDeclaredBase64Alone())
-         throw;
-
-      if (!TestSevenBitConverterTreatsAbsentEncodingAsIdentity())
-         throw;
-
+      Require_(TestFindStringEdgeCases(), "TestFindStringEdgeCases");
+      Require_(TestMultipartWithoutFinalCrlf(), "TestMultipartWithoutFinalCrlf");
+      Require_(TestMultipartWithFinalCrlf(), "TestMultipartWithFinalCrlf");
+      Require_(TestMultipartWithoutClosingBoundary(), "TestMultipartWithoutClosingBoundary");
+      Require_(TestMultipartWithClosingBoundaryMissingSeparator(), "TestMultipartWithClosingBoundaryMissingSeparator");
+      Require_(TestMultipartWithPartBoundaryMissingCrlf(), "TestMultipartWithPartBoundaryMissingCrlf");
+      Require_(TestQPEncodeEmpty(), "TestQPEncodeEmpty");
+      Require_(TestQPEncodeSinglePrintableChar(), "TestQPEncodeSinglePrintableChar");
+      Require_(TestQPEncodeEqualsSign(), "TestQPEncodeEqualsSign");
+      Require_(TestQPEncodeNonAscii(), "TestQPEncodeNonAscii");
+      Require_(TestQPEncodeCRLF(), "TestQPEncodeCRLF");
+      Require_(TestQPEncodeBareLF(), "TestQPEncodeBareLF");
+      Require_(TestQPEncodeTrailingSpace(), "TestQPEncodeTrailingSpace");
+      Require_(TestQPEncodeTrailingTab(), "TestQPEncodeTrailingTab");
+      Require_(TestQPEncodeSpaceBeforeHardBreak(), "TestQPEncodeSpaceBeforeHardBreak");
+      Require_(TestQPEncodeTabBeforeHardBreak(), "TestQPEncodeTabBeforeHardBreak");
+      Require_(TestQPEncodeSmtpDotQuoted(), "TestQPEncodeSmtpDotQuoted");
+      Require_(TestQPEncodeDotNotQuotedMidLine(), "TestQPEncodeDotNotQuotedMidLine");
+      Require_(TestQPEncodeDotAtEndOfInputNotQuoted(), "TestQPEncodeDotAtEndOfInputNotQuoted");
+      Require_(TestQPEncode75CharsNoSoftBreak(), "TestQPEncode75CharsNoSoftBreak");
+      Require_(TestQPEncode76CharsTriggersSoftBreak(), "TestQPEncode76CharsTriggersSoftBreak");
+      Require_(TestQPEncodeNoTrailingWhitespaceBeforeSoftBreakHighCostNextChar(), "TestQPEncodeNoTrailingWhitespaceBeforeSoftBreakHighCostNextChar");
+      Require_(TestQPEncodeNoTrailingWhitespaceBeforeSoftBreak(), "TestQPEncodeNoTrailingWhitespaceBeforeSoftBreak");
+      Require_(TestGetParameterWithQuotedSemicolon(), "TestGetParameterWithQuotedSemicolon");
+      Require_(TestGetParameterNeighboringParamUnaffectedByQuotedSemicolon(), "TestGetParameterNeighboringParamUnaffectedByQuotedSemicolon");
+      Require_(TestRemoveParameterRemovesSimpleParam(), "TestRemoveParameterRemovesSimpleParam");
+      Require_(TestRemoveParameterRemovesRfc2231Continuations(), "TestRemoveParameterRemovesRfc2231Continuations");
+      Require_(TestSetFileNameReplacesRfc2231ContinuationFilename(), "TestSetFileNameReplacesRfc2231ContinuationFilename");
+      Require_(TestSetFileNameReplacesEncodedFilenameVariant(), "TestSetFileNameReplacesEncodedFilenameVariant");
+      Require_(TestSetFileNameReplacesContentTypeNameVariant(), "TestSetFileNameReplacesContentTypeNameVariant");
+      Require_(TestRfc2231ApostropheInUnquotedValue(), "TestRfc2231ApostropheInUnquotedValue");
+      Require_(TestContainsEightBitOctets(), "TestContainsEightBitOctets");
+      Require_(TestSevenBitConverterLeavesSevenBitTextAlone(), "TestSevenBitConverterLeavesSevenBitTextAlone");
+      Require_(TestSevenBitConverterEncodesEightBitTextAsQuotedPrintable(), "TestSevenBitConverterEncodesEightBitTextAsQuotedPrintable");
+      Require_(TestSevenBitConverterEncodesEightBitBinaryAsBase64(), "TestSevenBitConverterEncodesEightBitBinaryAsBase64");
+      Require_(TestSevenBitConverterConvertsPartsOfMultipart(), "TestSevenBitConverterConvertsPartsOfMultipart");
+      Require_(TestSevenBitConverterConvertsBareMultipartPart(), "TestSevenBitConverterConvertsBareMultipartPart");
+      Require_(TestSevenBitConverterLeavesMessageRfc822Alone(), "TestSevenBitConverterLeavesMessageRfc822Alone");
+      Require_(TestSevenBitConverterLeavesNonMimeBodyAlone(), "TestSevenBitConverterLeavesNonMimeBodyAlone");
+      Require_(TestSevenBitConverterConvertsPartWithContentTransferEncodingOnly(), "TestSevenBitConverterConvertsPartWithContentTransferEncodingOnly");
+      Require_(TestSevenBitConverterLeavesDeclaredBase64Alone(), "TestSevenBitConverterLeavesDeclaredBase64Alone");
+      Require_(TestSevenBitConverterTreatsAbsentEncodingAsIdentity(), "TestSevenBitConverterTreatsAbsentEncodingAsIdentity");
+      Require_(TestSevenBitConverterFoldsLongQuotedPrintableLines(), "TestSevenBitConverterFoldsLongQuotedPrintableLines");
+      Require_(TestSevenBitConverterLeavesMultipartSignedAlone(), "TestSevenBitConverterLeavesMultipartSignedAlone");
+      Require_(TestSevenBitConverterConvertsNestedMultipart(), "TestSevenBitConverterConvertsNestedMultipart");
    }
 }

@@ -52,6 +52,10 @@ namespace HM
       // d= domain and result of each signature, which DMARC needs for alignment.
       Result Verify(const String &messageFile, std::vector<std::pair<AnsiString, Result> > &signatureResults);
 
+      // True if the header already carries a DKIM-Signature whose d= is this domain. Sign
+      // leaves such a message alone, and so must anything done only in order to sign it.
+      static bool HasSignatureForDomain(MimeHeader &mimeHeader, const AnsiString &domain);
+
    private:
 
       bool ValidateHeaderContents_(const DKIMParameters &signatureParams);
@@ -66,10 +70,9 @@ namespace HM
       String BuildSignatureHeader_(const String &tagA, const String &tagD, const String &tagS, const String &tagC, const String &tagQ, const String &fieldList, const String &bodyHash, const String &signatureString);
       std::shared_ptr<Canonicalization> CreateCanonicalization_(Canonicalization::CanonicalizeMethod method);
       AnsiString SignHash_(AnsiString &privateKey, AnsiString &canonicalizedHeader, HashCreator::HashType keySize);
-      bool HasSignatureForDomain_(MimeHeader &mimeHeader, const AnsiString &domain);
       static std::vector<AnsiString> recommendedHeaderFields_;
 
-      std::vector<std::pair<AnsiString, AnsiString> > GetSignatureFields(MimeHeader &mimeHeader);
+      static std::vector<std::pair<AnsiString, AnsiString> > GetSignatureFields(MimeHeader &mimeHeader);
    };
 
 }

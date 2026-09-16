@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using hMailServer;
@@ -533,7 +534,9 @@ namespace RegressionTests.AntiSpam.DKIM
                    "re-encoded into a 7-bit content-transfer-encoding before it is DKIM-signed. " +
                    "Signing the 8-bit form produces a signature that breaks as soon as a hop further " +
                    "down the line downgrades the body to quoted-printable, since that rewrites the " +
-                   "bytes the body hash was taken over. See RFC 6376 section 5.3, and issue #335.")]
+                   "bytes the body hash was taken over. See RFC 6376 section 5.3, and issue #335. " +
+                   "The quoted-printable must also be folded: unfolded, a long 8-bit line grows past " +
+                   "the 998 octets a line may hold, and the next hop folds it itself.")]
       public void WhenSigningEnabled_EightBitBodyShouldBeConvertedToSevenBitBeforeSigning()
       {
          _domain.DKIMPrivateKeyFile = GetPrivateKeyFile();
@@ -554,7 +557,8 @@ namespace RegressionTests.AntiSpam.DKIM
             "Content-Type: text/plain; charset=\"utf-8\"\r\n" +
             "Content-Transfer-Encoding: 8bit\r\n" +
             "\r\n" +
-            "H\u00e4ll\u00f6 - this body carries 8-bit octets: \u00c5\u00c4\u00d6\r\n";
+            "H\u00e4ll\u00f6 - this body carries 8-bit octets: \u00c5\u00c4\u00d6\r\n" +
+            new string('\u00e4', 200) + "\r\n";
 
          SmtpClientSimulator.StaticSendRaw("sender@example.test", account.Address, rawMessage);
 
@@ -563,7 +567,7 @@ namespace RegressionTests.AntiSpam.DKIM
          // Read the stored message as bytes rather than through IMAP or POP3: the client
          // simulators decode what they read as ASCII, which would replace the very octets this
          // test is about with question marks.
-         var deliveredBytes = File.ReadAllBytes(GetSingleMessageFile(account));
+         var deliveredBytes = File.ReadAllBytes(account.IMAPFolders.get_ItemByName("Inbox").Messages[0].Filename);
          var deliveredText = Encoding.ASCII.GetString(deliveredBytes);
 
          Assert.IsTrue(deliveredText.ToLower().Contains("dkim-signature"),
@@ -580,24 +584,12 @@ namespace RegressionTests.AntiSpam.DKIM
             "The delivered message still declares Content-Transfer-Encoding: 8bit.\r\n" + deliveredText);
          Assert.IsTrue(Regex.IsMatch(deliveredText, @"(?im)^Content-Transfer-Encoding:\s*quoted-printable\s*$"),
             "Expected the 8-bit text body to have been re-encoded as quoted-printable.\r\n" + deliveredText);
-      }
 
-      /// <summary>
-      /// Returns the path of the one message file stored below the account's directory.
-      /// </summary>
-      private static string GetSingleMessageFile(Account account)
-      {
-         var settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
-
-         var domainName = account.Address.Substring(account.Address.IndexOf("@") + 1);
-         var mailbox = account.Address.Substring(0, account.Address.IndexOf("@"));
-
-         var userDirectory = Path.Combine(Path.Combine(settings.Directories.DataDirectory, domainName), mailbox);
-
-         var files = Directory.GetFiles(userDirectory, "*.eml", SearchOption.AllDirectories);
-         Assert.AreEqual(1, files.Length, "Expected exactly one message file below " + userDirectory);
-
-         return files[0];
+         var deliveredBody = deliveredText.Substring(deliveredText.IndexOf("\r\n\r\n") + 4);
+         var longestBodyLine = deliveredBody.Split(new[] { "\r\n" }, StringSplitOptions.None).Max(line => line.Length);
+         Assert.LessOrEqual(longestBodyLine, 76,
+            "The quoted-printable body was not folded at 76 columns. A hop further down the line " +
+            "would fold it itself and invalidate the signature.\r\n" + deliveredText);
       }
    }
 }

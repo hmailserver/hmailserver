@@ -99,7 +99,7 @@ namespace HM
       // RFC 6376 section 5.3: convert the message to a 7-bit form before signing it. Signed
       // as 8-bit, the signature breaks at the first hop that downgrades the body to
       // quoted-printable, because that rewrite changes the bytes the body hash covers.
-      if (ConvertToSevenBit_(message, fileName, mimeHeader))
+      if (ConvertToSevenBit_(message, fileName, mimeHeader, domain))
       {
          // The message on disk changed, and its Content-Transfer-Encoding with it. The
          // header is signed, so the signature has to be taken over the new one.
@@ -118,12 +118,13 @@ namespace HM
    }
 
    bool
-   DKIMSigner::ConvertToSevenBit_(std::shared_ptr<Message> message, const String &fileName, MimeHeader &mimeHeader)
+   DKIMSigner::ConvertToSevenBit_(std::shared_ptr<Message> message, const String &fileName, MimeHeader &mimeHeader, const AnsiString &domain)
    {
-      // A message that already carries a signature is not ours to rewrite. Re-encoding the
-      // body would invalidate whoever signed it - the original author of a message being
-      // forwarded, or this server on an earlier pass over the same message.
-      if (mimeHeader.FieldExists("DKIM-Signature"))
+      // The same rule DKIM::Sign applies: a message already signed for this domain is not
+      // signed again, so there is nothing to convert it for. A signature for some other
+      // domain does not hold the conversion back - the downgrade that would break ours
+      // breaks that one just the same, converted or not.
+      if (DKIM::HasSignatureForDomain(mimeHeader, domain))
          return false;
 
       // DKIM::Sign leaves a message above this size unsigned, so converting one would be a
@@ -136,23 +137,42 @@ namespace HM
       if (!SevenBitConverter::ContainsEightBitOctets(PersistentMessage::LoadBody(fileName)))
          return false;
 
+      // A load cut short by an exception still returns true, holding whatever was parsed
+      // before it. Writing that back would drop the rest of the message.
       MimeBody mimeBody;
-      if (!mimeBody.LoadFromFile(fileName))
+      if (!mimeBody.LoadFromFile(fileName) || !mimeBody.WasLoadedFromFile())
          return false;
 
       if (!SevenBitConverter::Convert(mimeBody))
          return false;
 
-      if (!mimeBody.SaveAllToFile(fileName))
+      AnsiString converted;
+      mimeBody.Store(converted);
+
+      // Encoding grows the content, and DKIM::Sign measures the file again before signing.
+      // A message the conversion pushes past the limit would be rewritten and then left
+      // unsigned anyway, so it is better off signed as it is.
+      if (converted.size() > (size_t) DKIM::MaxFileSize)
       {
-         // The write failed part of the way through, so what is on disk is no longer what
-         // was read. Report it, and still have the caller read the header back: whatever the
-         // file now holds is what will be signed and sent, and the signature has to match it.
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5313, "DKIMSigner::ConvertToSevenBit_",
-            "Failed to write the message back after converting it to a 7-bit content-transfer-encoding.");
+         LOG_DEBUG("Message was not converted to 7-bit before DKIM signing since the converted message would exceed the max DKIM size of 50MB.");
+         return false;
       }
 
-      message->SetSize(FileUtilities::FileSize(fileName));
+      // Written beside the message and moved over it, as TraceHeaderWriter does, so that a
+      // failed write leaves the original in place to be signed as it was received.
+      String tempFile = fileName + ".tmp";
+
+      if (!FileUtilities::WriteToFile(tempFile, converted) || !FileUtilities::Move(tempFile, fileName))
+      {
+         FileUtilities::DeleteFile(tempFile);
+
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5313, "DKIMSigner::ConvertToSevenBit_",
+            "Failed to write the message back after converting it to a 7-bit content-transfer-encoding. The message is signed as it was received.");
+
+         return false;
+      }
+
+      message->SetSize((int) converted.size());
 
       LOG_DEBUG("Converted message to a 7-bit content-transfer-encoding before DKIM signing.");
 

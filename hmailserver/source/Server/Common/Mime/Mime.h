@@ -473,6 +473,9 @@ namespace HM
       void RemoveAttachment(std::shared_ptr<MimeBody> pAttachment);
       int LoadFromFile(const AnsiString &pszFilename);
       bool SaveAllToFile(const AnsiString &pszFilename);
+      // True once LoadFromFile has parsed the file without an exception. A load one cut
+      // short leaves it false, and the partial tree it left must not be written back.
+      bool WasLoadedFromFile() const { return !source_file_.IsEmpty(); }
 
       String GetCleanContentType() const;
       bool IsAnyChildModified() const;
