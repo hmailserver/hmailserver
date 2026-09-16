@@ -15,7 +15,9 @@
 #include "../../Cache/CacheContainer.h"
 #include "../../Util/Hashing/HashCreator.h"
 #include "../../Mime/Mime.h"
+#include "../../Mime/SevenBitConverter.h"
 #include "../../Persistence/PersistentMessage.h"
+#include "../../Util/FileUtilities.h"
 #include "../../Util/Parsing/AddresslistParser.h"
 
 #ifdef _DEBUG
@@ -94,6 +96,16 @@ namespace HM
          return;
       }
 
+      // RFC 6376 section 5.3: convert the message to a 7-bit form before signing it. Signed
+      // as 8-bit, the signature breaks at the first hop that downgrades the body to
+      // quoted-printable, because that rewrite changes the bytes the body hash covers.
+      if (ConvertToSevenBit_(message, fileName, mimeHeader))
+      {
+         // The message on disk changed, and its Content-Transfer-Encoding with it. The
+         // header is signed, so the signature has to be taken over the new one.
+         header = PersistentMessage::LoadHeader(fileName);
+      }
+
       Canonicalization::CanonicalizeMethod headerMethod = (Canonicalization::CanonicalizeMethod) pDomain->GetDKIMHeaderCanonicalizationMethod();
       Canonicalization::CanonicalizeMethod bodyMethod = (Canonicalization::CanonicalizeMethod) pDomain->GetDKIMBodyCanonicalizationMethod();
       HashCreator::HashType algorithm = (HashCreator::HashType) pDomain->GetDKIMSigningAlgorithm();
@@ -103,5 +115,47 @@ namespace HM
       {
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5306, "DKIMSigner::Sign", "Message signing using DKIM failed.");
       }
+   }
+
+   bool
+   DKIMSigner::ConvertToSevenBit_(std::shared_ptr<Message> message, const String &fileName, MimeHeader &mimeHeader)
+   {
+      // A message that already carries a signature is not ours to rewrite. Re-encoding the
+      // body would invalidate whoever signed it - the original author of a message being
+      // forwarded, or this server on an earlier pass over the same message.
+      if (mimeHeader.FieldExists("DKIM-Signature"))
+         return false;
+
+      // DKIM::Sign leaves a message above this size unsigned, so converting one would be a
+      // rewrite of the largest messages there are in exchange for nothing.
+      if (FileUtilities::FileSize(fileName) > DKIM::MaxFileSize)
+         return false;
+
+      // A body holding no 8-bit octets cannot need converting. Checking that first keeps
+      // the message from being parsed at all in the case nearly every message falls into.
+      if (!SevenBitConverter::ContainsEightBitOctets(PersistentMessage::LoadBody(fileName)))
+         return false;
+
+      MimeBody mimeBody;
+      if (!mimeBody.LoadFromFile(fileName))
+         return false;
+
+      if (!SevenBitConverter::Convert(mimeBody))
+         return false;
+
+      if (!mimeBody.SaveAllToFile(fileName))
+      {
+         // The write failed part of the way through, so what is on disk is no longer what
+         // was read. Report it, and still have the caller read the header back: whatever the
+         // file now holds is what will be signed and sent, and the signature has to match it.
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5313, "DKIMSigner::ConvertToSevenBit_",
+            "Failed to write the message back after converting it to a 7-bit content-transfer-encoding.");
+      }
+
+      message->SetSize(FileUtilities::FileSize(fileName));
+
+      LOG_DEBUG("Converted message to a 7-bit content-transfer-encoding before DKIM signing.");
+
+      return true;
    }
 }
