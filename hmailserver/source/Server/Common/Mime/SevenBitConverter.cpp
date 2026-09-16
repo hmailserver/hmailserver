@@ -18,9 +18,11 @@ namespace HM
    bool
    SevenBitConverter::ContainsEightBitOctets(const AnsiString &buffer)
    {
-      for (size_t i = 0; i < buffer.size(); i++)
+      // Iterated rather than indexed: AnsiString both inherits operator[] and converts
+      // implicitly to const char*, which leaves buffer[i] ambiguous.
+      for (char octet : buffer)
       {
-         if ((unsigned char) buffer[i] > 0x7F)
+         if ((unsigned char) octet > 0x7F)
             return true;
       }
 
