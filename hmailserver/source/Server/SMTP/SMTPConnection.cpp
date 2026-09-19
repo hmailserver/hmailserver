@@ -271,10 +271,12 @@ namespace HM
                StringParser::Base64Decode(sBase64Encoded, sAuthentication);
 
                // Extract the username from the decoded string.
-               int iSecondTab = sAuthentication.Find(_T("\t"), 1);
-               if (iSecondTab > 0)
+               String authzid;
+               String username;
+               String password;
+
+               if (ParsePlainAuthentication_(sAuthentication, authzid, username, password))
                {
-                  String username = sAuthentication.Mid(1, iSecondTab - 1);
                   //sLogData = "AUTH PLAIN " + username + " ***";
                   String usernameBase64Encoded;
                   StringParser::Base64Encode(username, usernameBase64Encoded);
@@ -293,10 +295,12 @@ namespace HM
             StringParser::Base64Decode(sClientData, sAuthentication);
 
             // Extract the username from the decoded string.
-            int iSecondTab = sAuthentication.Find(_T("\t"), 1);
-            if (iSecondTab > 0)
+            String authzid;
+            String username;
+            String password;
+
+            if (ParsePlainAuthentication_(sAuthentication, authzid, username, password))
             {
-               String username = sAuthentication.Mid(1, iSecondTab - 1);
                //sLogData = username + " ***";
                String usernameBase64Encoded;
                StringParser::Base64Encode(username, usernameBase64Encoded);
@@ -2177,22 +2181,74 @@ namespace HM
      }
    }
 
+   bool
+   SMTPConnection::ParsePlainAuthentication_(const String &authentication, String &authzid, String &authcid, String &password)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Splits a decoded RFC 4616 PLAIN message, [authzid] NUL authcid NUL passwd,
+   // into its three parts. The null characters have been replaced by tabs by the
+   // base64 decoder. Only the first two tabs are separators; the password may
+   // contain tabs of its own.
+   //---------------------------------------------------------------------------()
+   {
+      int first_tab = authentication.Find(_T("\t"));
+      if (first_tab < 0)
+         return false;
+
+      int second_tab = authentication.Find(_T("\t"), first_tab + 1);
+      if (second_tab < 0)
+         return false;
+
+      authzid = authentication.Mid(0, first_tab);
+      authcid = authentication.Mid(first_tab + 1, second_tab - first_tab - 1);
+      password = authentication.Mid(second_tab + 1);
+
+      return authcid.GetLength() > 0 && password.GetLength() > 0;
+   }
+
+   bool
+   SMTPConnection::AuthorizationIdentityMatches_(const String &authzid, const String &authcid)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Checks whether the authorization identity refers to the same account as the
+   // authentication identity. hMailServer does not support acting as another user
+   // over SMTP, so the two must be the same.
+   //---------------------------------------------------------------------------()
+   {
+      std::shared_ptr<DomainAliases> domain_aliases = ObjectCache::Instance()->GetDomainAliases();
+
+      String authorization_address = DefaultDomain::ApplyDefaultDomain(domain_aliases->ApplyAliasesOnAddress(authzid));
+      String authentication_address = DefaultDomain::ApplyDefaultDomain(domain_aliases->ApplyAliasesOnAddress(authcid));
+
+      return authorization_address.CompareNoCase(authentication_address) == 0;
+   }
+
    void
    SMTPConnection::AuthenticateUsingPLAIN_(const String &sLine)
    {
       String sAuthentication;
       StringParser::Base64Decode(sLine, sAuthentication);
 
-      // Extract the username and password from the decoded string.
-      int iSecondTab = sAuthentication.Find(_T("\t"),1);
-      if (iSecondTab < 0)
+      String authzid;
+      String authcid;
+      String password;
+
+      if (!ParsePlainAuthentication_(sAuthentication, authzid, authcid, password))
       {
          RestartAuthentication_();
          return;
       }
 
-      username_ = sAuthentication.Mid(1, iSecondTab-1);
-      password_ = sAuthentication.Mid(iSecondTab+1);
+      // An authorization identity is only accepted if it identifies the user who
+      // is authenticating.
+      if (authzid.GetLength() > 0 && !AuthorizationIdentityMatches_(authzid, authcid))
+      {
+         RestartAuthentication_();
+         return;
+      }
+
+      username_ = authcid;
+      password_ = password;
 
       // Authenticate the user.
       Authenticate_();      

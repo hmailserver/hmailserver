@@ -138,6 +138,12 @@ namespace HM
       void AuthenticateUsingPLAIN_(const String &sLine);
       // Authenticates using a PLAIN line.
 
+      static bool ParsePlainAuthentication_(const String &authentication, String &authzid, String &authcid, String &password);
+      // Splits a decoded RFC 4616 PLAIN message into its three parts.
+
+      static bool AuthorizationIdentityMatches_(const String &authzid, const String &authcid);
+      // Checks whether the authorization identity refers to the authenticating user.
+
       void Authenticate_();
       // validates the username and password.
 
