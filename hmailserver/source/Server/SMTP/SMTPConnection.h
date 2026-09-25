@@ -141,6 +141,9 @@ namespace HM
       static bool ParsePlainAuthentication_(const String &authentication, String &authzid, String &authcid, String &password);
       // Splits a decoded RFC 4616 PLAIN message into its three parts.
 
+      static String MaskPlainAuthentication_(const String &base64_encoded);
+      // Returns a PLAIN message in a form which is safe to log.
+
       static bool AuthorizationIdentityMatches_(const String &authzid, const String &authcid);
       // Checks whether the authorization identity refers to the authenticating user.
 
