@@ -2,7 +2,8 @@
 #
 # The steps mirror the TeamCity job this replaces: stamp the version into the sources, build
 # the server, build the administration tools, and compile hMailServer64.iss with Inno Setup
-# into a setup executable.
+# into a setup executable. When a manual run on master asks for it, SignPath signs
+# hMailServer's own binaries before they are packed, and then the installer itself.
 #
 # The installer is then handed to tests.yml, which installs it on a runner of its own and
 # runs the regression tests against it, before the publish job releases it under its
@@ -42,6 +43,14 @@ on:
         description: 'Build number. Defaults to the run number of this workflow.'
         required: false
         default: ''
+      signing:
+        description: 'SignPath signing policy. Signing is only allowed on master.'
+        type: choice
+        options:
+          - none
+          - test-signing
+          - release-signing
+        default: none
 
 # Read-only token. Nothing here writes to the repository; checkout is the only consumer.
 permissions:
@@ -77,6 +86,11 @@ env:
   BUILD_NUMBER_OFFSET: 2869
   # No build may be numbered at or below the last TeamCity build. See the check that uses it.
   BUILD_NUMBER_FLOOR: 2869
+  # Code signing through SignPath, requested with the signing input of a manual run.
+  SIGNPATH_ORGANIZATION_ID: 4e2f3324-9b85-4dba-8e7c-5e799e7e7ba7
+  SIGNPATH_PROJECT: hmailserver
+  # How long to wait for each signing request. release-signing waits for manual approval.
+  SIGNPATH_TIMEOUT_SECONDS: 3600
 
 jobs:
   build:
@@ -89,7 +103,17 @@ jobs:
       matrix:
         image: [windows-2025-vs2026]
     runs-on: ${{ matrix.image }}
-    timeout-minutes: 90
+    # A signed build also waits for up to two SignPath approvals.
+    timeout-minutes: ${{ inputs.signing && inputs.signing != 'none' && 210 || 90 }}
+    # The SignPath API token lives in the signing environment, which only master may use, so
+    # asking for signing on another branch fails the job. Unsigned runs use no environment.
+    environment: ${{ inputs.signing && inputs.signing != 'none' && 'signing' || '' }}
+    # actions: read lets SignPath fetch the unsigned artifacts from this run.
+    permissions:
+      contents: read
+      actions: read
+    env:
+      SIGNING_POLICY: ${{ inputs.signing || 'none' }}
     defaults:
       run:
         shell: pwsh
@@ -520,6 +544,69 @@ jobs:
           & $msbuild @arguments
           if ($LASTEXITCODE -ne 0) { throw "Building hMailServer Tools.sln failed with exit code $LASTEXITCODE" }
 
+      # Signed here, before Inno Setup packs them: SignPath cannot open an Inno Setup
+      # installer, so it can only sign what goes into it beforehand.
+      - name: Stage hMailServer's own binaries for signing
+        if: env.SIGNING_POLICY != 'none'
+        run: |
+          # Must match the "binaries" artifact configuration in SignPath. Third-party DLLs
+          # are not signed with our certificate.
+          $files = @(
+              'hmailserver\source\Server\hMailServer\x64\Release\hMailServer.exe',
+              'hmailserver\source\Server\hMailServer\x64\Release\hMailServer.Minidump.exe',
+              'hmailserver\source\Tools\Administrator\bin\x64\Release\hMailAdmin.exe',
+              'hmailserver\source\Tools\Administrator\bin\x64\Release\Interop.hMailServer.dll',
+              'hmailserver\source\Tools\Shared\bin\x64\Release\Shared.dll',
+              'hmailserver\source\Tools\DBSetup\Bin\x64\Release\DBSetup.exe',
+              'hmailserver\source\Tools\DBSetupQuick\bin\x64\Release\DBSetupQuick.exe',
+              'hmailserver\source\Tools\DBUpdater\Bin\x64\Release\DBUpdater.exe',
+              'hmailserver\source\Tools\DataDirectorySynchronizer\Bin\x64\Release\DataDirectorySynchronizer.exe'
+          )
+
+          $stage = Join-Path $env:RUNNER_TEMP 'unsigned-binaries\Bin'
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+          foreach ($file in $files) {
+              if (-not (Test-Path $file)) { throw "$file was not built." }
+              Copy-Item $file $stage
+          }
+
+          # Read back when the signed files replace the ones the installer script packs.
+          $files | Set-Content (Join-Path $env:RUNNER_TEMP 'signed-files.txt')
+
+      - name: Upload the binaries for signing
+        id: upload-binaries
+        if: env.SIGNING_POLICY != 'none'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: binaries-unsigned
+          path: ${{ runner.temp }}/unsigned-binaries/
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Sign the binaries
+        if: env.SIGNING_POLICY != 'none'
+        uses: SignPath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3.0
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ env.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.SIGNPATH_PROJECT }}
+          signing-policy-slug: ${{ env.SIGNING_POLICY }}
+          wait-for-completion-timeout-in-seconds: ${{ env.SIGNPATH_TIMEOUT_SECONDS }}
+          artifact-configuration-slug: binaries
+          github-artifact-id: ${{ steps.upload-binaries.outputs.artifact-id }}
+          output-artifact-directory: ${{ runner.temp }}/signed-binaries
+
+      - name: Put the signed binaries in place
+        if: env.SIGNING_POLICY != 'none'
+        run: |
+          $signed = Join-Path $env:RUNNER_TEMP 'signed-binaries\Bin'
+          foreach ($file in Get-Content (Join-Path $env:RUNNER_TEMP 'signed-files.txt')) {
+              $source = Join-Path $signed (Split-Path $file -Leaf)
+              # SignerCertificate rather than Status: a test certificate is not trusted here.
+              if (-not (Get-AuthenticodeSignature $source).SignerCertificate) { throw "$source came back unsigned." }
+              Copy-Item $source $file -Force
+          }
+
       - name: Collect the debug symbols
         env:
           OPENSSL_DIR: ${{ steps.versions.outputs.openssl_dir }}
@@ -672,6 +759,39 @@ jobs:
           $setup = Get-ChildItem 'hmailserver\installation\Output\*.exe' -ErrorAction SilentlyContinue
           if (-not $setup) { throw "ISCC.exe produced no setup executable." }
           $setup | Select-Object Name, Length | Format-Table -AutoSize | Out-String
+
+      # Signed before the tests, so they run against the installer that is published.
+      - name: Upload the installer for signing
+        id: upload-installer
+        if: env.SIGNING_POLICY != 'none'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: installer-unsigned
+          path: hmailserver/installation/Output/*.exe
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Sign the installer
+        if: env.SIGNING_POLICY != 'none'
+        uses: SignPath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3.0
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ env.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ env.SIGNPATH_PROJECT }}
+          signing-policy-slug: ${{ env.SIGNING_POLICY }}
+          wait-for-completion-timeout-in-seconds: ${{ env.SIGNPATH_TIMEOUT_SECONDS }}
+          artifact-configuration-slug: installer
+          github-artifact-id: ${{ steps.upload-installer.outputs.artifact-id }}
+          output-artifact-directory: ${{ runner.temp }}/signed-installer
+
+      - name: Put the signed installer in place
+        if: env.SIGNING_POLICY != 'none'
+        run: |
+          foreach ($setup in Get-ChildItem 'hmailserver\installation\Output\*.exe') {
+              $source = Join-Path $env:RUNNER_TEMP "signed-installer\$($setup.Name)"
+              if (-not (Get-AuthenticodeSignature $source).SignerCertificate) { throw "$source came back unsigned." }
+              Copy-Item $source $setup.FullName -Force
+          }
 
       # Under a name that says it has not been tested yet. The regression tests run
       # against this artifact in the next job, and only if they pass does the publish job
