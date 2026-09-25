@@ -1,0 +1,36 @@
+// Version information. The version is stamped into Version.h by build\Set-Version.ps1.
+
+#include <winver.h>
+#include "../Common/Application/Version.h"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION HMAILSERVER_VERSION_NUMERIC
+ PRODUCTVERSION HMAILSERVER_VERSION_NUMERIC
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "hMailServer.com"
+            VALUE "FileDescription", "hMailServer minidump writer"
+            VALUE "FileVersion", HMAILSERVER_VERSION
+            VALUE "InternalName", "hMailServer.Minidump.exe"
+            VALUE "OriginalFilename", "hMailServer.Minidump.exe"
+            VALUE "ProductName", "hMailServer"
+            VALUE "ProductVersion", HMAILSERVER_PRODUCT_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END

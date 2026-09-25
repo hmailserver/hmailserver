@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Generates Interop.hMailServer.dll from the type library the server build writes, rather than
+  through a COMReference, so the interop carries hMailServer's product name and version like the
+  other signed files. Imported by the shipped tools. Build hMailServer.sln first.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <HMailServerTypeLibrary>$(MSBuildThisFileDirectory)..\Server\hMailServer\x64\$(Configuration)\hMailServer.tlb</HMailServerTypeLibrary>
+    <HMailServerVersionHeader>$(MSBuildThisFileDirectory)..\Server\Common\Application\Version.h</HMailServerVersionHeader>
+    <HMailServerInterop>$(IntermediateOutputPath)Interop.hMailServer.dll</HMailServerInterop>
+    <HMailServerTlbImp>$(TargetFrameworkSDKToolsDirectory)TlbImp.exe</HMailServerTlbImp>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Interop.hMailServer">
+      <HintPath>$(HMailServerInterop)</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="GenerateHMailServerInterop"
+          BeforeTargets="ResolveAssemblyReferences"
+          Inputs="$(HMailServerTypeLibrary);$(HMailServerVersionHeader)"
+          Outputs="$(HMailServerInterop)">
+    <Error Condition="!Exists('$(HMailServerTypeLibrary)')" Text="$(HMailServerTypeLibrary) was not found. Build hMailServer.sln ($(Configuration)|x64) first." />
+    <Error Condition="!Exists('$(HMailServerTlbImp)')" Text="TlbImp.exe was not found in $(TargetFrameworkSDKToolsDirectory). Install the .NET Framework tools of the Windows SDK." />
+
+    <!-- The product version is stamped into Version.h by build\Set-Version.ps1. -->
+    <PropertyGroup>
+      <HMailServerProductVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(HMailServerVersionHeader)')), '(?&lt;=HMAILSERVER_PRODUCT_VERSION\s+")[^"]+').Value)</HMailServerProductVersion>
+    </PropertyGroup>
+    <Error Condition="'$(HMailServerProductVersion)' == ''" Text="HMAILSERVER_PRODUCT_VERSION was not found in $(HMailServerVersionHeader)." />
+
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <Exec Command="&quot;$(HMailServerTlbImp)&quot; &quot;$(HMailServerTypeLibrary)&quot; /out:&quot;$(HMailServerInterop)&quot; /namespace:hMailServer /product:hMailServer /productversion:$(HMailServerProductVersion) /company:hMailServer.com /nologo /silent" />
+
+    <ItemGroup>
+      <FileWrites Include="$(HMailServerInterop)" />
+    </ItemGroup>
+  </Target>
+</Project>
