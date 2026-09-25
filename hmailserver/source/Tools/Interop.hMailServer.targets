@@ -33,7 +33,7 @@
     <Error Condition="'$(HMailServerProductVersion)' == ''" Text="HMAILSERVER_PRODUCT_VERSION was not found in $(HMailServerVersionHeader)." />
 
     <MakeDir Directories="$(IntermediateOutputPath)" />
-    <Exec Command="&quot;$(HMailServerTlbImp)&quot; &quot;$(HMailServerTypeLibrary)&quot; /out:&quot;$(HMailServerInterop)&quot; /namespace:hMailServer /product:hMailServer /productversion:$(HMailServerProductVersion) /company:hMailServer.com /nologo /silent" />
+    <Exec Command="&quot;$(HMailServerTlbImp)&quot; &quot;$(HMailServerTypeLibrary)&quot; /out:&quot;$(HMailServerInterop)&quot; /namespace:hMailServer /product:hMailServer /productversion:$(HMailServerProductVersion) /asmversion:$(HMailServerProductVersion) /company:hMailServer.com /nologo /silent" />
 
     <ItemGroup>
       <FileWrites Include="$(HMailServerInterop)" />

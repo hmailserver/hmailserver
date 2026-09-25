@@ -22,7 +22,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "hMailServer.com"
             VALUE "FileDescription", "hMailServer minidump writer"
-            VALUE "FileVersion", HMAILSERVER_VERSION
+            VALUE "FileVersion", HMAILSERVER_PRODUCT_VERSION
             VALUE "InternalName", "hMailServer.Minidump.exe"
             VALUE "OriginalFilename", "hMailServer.Minidump.exe"
             VALUE "ProductName", "hMailServer"
