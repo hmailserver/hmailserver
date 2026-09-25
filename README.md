@@ -7,6 +7,22 @@ This page describes how to compile and run hMailServer in debug.
 
 For other information about hMailServer, please go to http://www.hmailserver.com
 
+Code signing policy
+===================
+
+Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+
+Only binaries built from this repository are signed. They are built and signed by GitHub Actions, and every signing request is approved by hand.
+
+**Team roles**
+
+   * Committers and reviewers: [Members](https://github.com/orgs/hmailserver/people)
+   * Approvers: [Owners](https://github.com/orgs/hmailserver/people?query=role%3Aowner)
+
+**Privacy**
+
+hMailServer does not send any information to the hMailServer project or to other third parties. It only connects to other systems as part of what the administrator configures it to do, such as delivering email, looking up DNS records, checking DNS blacklists and fetching email from external accounts.
+
 Building hMailServer
 ====================
 
