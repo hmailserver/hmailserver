@@ -254,64 +254,58 @@ namespace HM
    {
       if (Logger::Instance()->GetLogSMTP())
       {
-
          String sLogData = sClientData;
 
-         String sRegex = "^(?>AUTH PLAIN )((?:[A-Z\\d+/]{4})*(?:[A-Z\\d+/]{3}=|[A-Z\\d+/]{2}==)?)$";
-         boost::wregex expression(sRegex, boost::wregex::icase);
-         boost::wsmatch matches;
-         // AUTH PLAIN command and both user name and password in line. 
-         if (current_state_ == HEADER && boost::regex_match(sLogData, matches, expression))
+         if (current_state_ == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
          {
-            if (matches.size() > 0)
-            {
-               // Both user name and password in line.
-               String sAuthentication;
-               String sBase64Encoded = matches[1];
-               StringParser::Base64Decode(sBase64Encoded, sAuthentication);
-
-               // Extract the username from the decoded string.
-               int iSecondTab = sAuthentication.Find(_T("\t"), 1);
-               if (iSecondTab > 0)
-               {
-                  String username = sAuthentication.Mid(1, iSecondTab - 1);
-                  //sLogData = "AUTH PLAIN " + username + " ***";
-                  String usernameBase64Encoded;
-                  StringParser::Base64Encode(username, usernameBase64Encoded);
-                  sLogData = "AUTH PLAIN " + usernameBase64Encoded + " ***";
-               }
-               else
-               {
-                  sLogData = "AUTH PLAIN ***";
-               }
-            }
-         }
-         else if (current_state_ == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
-         {
-            // Both user name and password in line.
-            String sAuthentication;
-            StringParser::Base64Decode(sClientData, sAuthentication);
-
-            // Extract the username from the decoded string.
-            int iSecondTab = sAuthentication.Find(_T("\t"), 1);
-            if (iSecondTab > 0)
-            {
-               String username = sAuthentication.Mid(1, iSecondTab - 1);
-               //sLogData = username + " ***";
-               String usernameBase64Encoded;
-               StringParser::Base64Encode(username, usernameBase64Encoded);
-               sLogData = usernameBase64Encoded + " ***";
-            }
-            else 
-            {
-               sLogData = "***";
-            }
+            sLogData = MaskPlainAuthentication_(sClientData);
          }
          else if (current_state_ == SMTPUPASSWORD)
          {
             sLogData = "***";
-         }         
-         
+         }
+         else
+         {
+            // Mask credentials regardless of state, since the client may send them
+            // when the server does not expect them, e.g. before EHLO.
+            String command = sClientData;
+            command.Trim();
+
+            int first_space = command.Find(_T(" "));
+            String first_word = first_space < 0 ? command : command.Mid(0, first_space);
+            first_word.MakeUpper();
+
+            eSMTPCommandTypes command_type = GetCommandType_(first_word);
+
+            if (command_type == SMTP_COMMAND_AUTH && first_space > 0)
+            {
+               // AUTH mechanism [initial-response]
+               String arguments = command.Mid(first_space + 1).Trim();
+               int second_space = arguments.Find(_T(" "));
+
+               if (second_space > 0)
+               {
+                  String mechanism = arguments.Mid(0, second_space);
+                  mechanism.MakeUpper();
+
+                  String initial_response = arguments.Mid(second_space + 1).Trim();
+
+                  // The initial response of AUTH LOGIN is the user name only.
+                  if (mechanism == _T("PLAIN"))
+                     sLogData = "AUTH PLAIN " + MaskPlainAuthentication_(initial_response);
+                  else if (mechanism != _T("LOGIN"))
+                     sLogData = "AUTH " + mechanism + " ***";
+               }
+            }
+            else if (command_type == SMTP_COMMAND_UNKNOWN)
+            {
+               // A lone base64 string is most likely credentials, sent when not expected.
+               boost::wregex base64_expression(_T("^[A-Za-z\\d+/]+={0,2}$"));
+               if (boost::regex_match(command, base64_expression))
+                  sLogData = "***";
+            }
+         }
+
          // Append
          sLogData = "RECEIVED: " + sLogData;
 
@@ -2177,22 +2171,97 @@ namespace HM
      }
    }
 
+   bool
+   SMTPConnection::ParsePlainAuthentication_(const String &authentication, String &authzid, String &authcid, String &password)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Splits a decoded RFC 4616 PLAIN message, [authzid] NUL authcid NUL passwd,
+   // into its three parts. The null characters have been replaced by tabs by the
+   // base64 decoder. Only the first two tabs are separators; the password may
+   // contain tabs of its own.
+   //---------------------------------------------------------------------------()
+   {
+      int first_tab = authentication.Find(_T("\t"));
+      if (first_tab < 0)
+         return false;
+
+      int second_tab = authentication.Find(_T("\t"), first_tab + 1);
+      if (second_tab < 0)
+         return false;
+
+      authzid = authentication.Mid(0, first_tab);
+      authcid = authentication.Mid(first_tab + 1, second_tab - first_tab - 1);
+      password = authentication.Mid(second_tab + 1);
+
+      return authcid.GetLength() > 0 && password.GetLength() > 0;
+   }
+
+   String
+   SMTPConnection::MaskPlainAuthentication_(const String &base64_encoded)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Returns a base64 encoded PLAIN message in a form which is safe to log: the
+   // authentication identity, base64 encoded, followed by a mask.
+   //---------------------------------------------------------------------------()
+   {
+      String authentication;
+      StringParser::Base64Decode(base64_encoded, authentication);
+
+      String authzid;
+      String authcid;
+      String password;
+
+      if (!ParsePlainAuthentication_(authentication, authzid, authcid, password))
+         return "***";
+
+      String authcid_base64_encoded;
+      StringParser::Base64Encode(authcid, authcid_base64_encoded);
+      return authcid_base64_encoded + " ***";
+   }
+
+   bool
+   SMTPConnection::AuthorizationIdentityMatches_(const String &authzid, const String &authcid)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Checks whether the authorization identity refers to the same account as the
+   // authentication identity. hMailServer does not support acting as another user
+   // over SMTP, so the two must be the same.
+   //---------------------------------------------------------------------------()
+   {
+      std::shared_ptr<DomainAliases> domain_aliases = ObjectCache::Instance()->GetDomainAliases();
+
+      String authorization_address = DefaultDomain::ApplyDefaultDomain(domain_aliases->ApplyAliasesOnAddress(authzid));
+      String authentication_address = DefaultDomain::ApplyDefaultDomain(domain_aliases->ApplyAliasesOnAddress(authcid));
+
+      return authorization_address.CompareNoCase(authentication_address) == 0;
+   }
+
    void
    SMTPConnection::AuthenticateUsingPLAIN_(const String &sLine)
    {
       String sAuthentication;
       StringParser::Base64Decode(sLine, sAuthentication);
 
-      // Extract the username and password from the decoded string.
-      int iSecondTab = sAuthentication.Find(_T("\t"),1);
-      if (iSecondTab < 0)
+      String authzid;
+      String authcid;
+      String password;
+
+      if (!ParsePlainAuthentication_(sAuthentication, authzid, authcid, password))
       {
          RestartAuthentication_();
          return;
       }
 
-      username_ = sAuthentication.Mid(1, iSecondTab-1);
-      password_ = sAuthentication.Mid(iSecondTab+1);
+      // An authorization identity is only accepted if it identifies the user who
+      // is authenticating.
+      if (authzid.GetLength() > 0 && !AuthorizationIdentityMatches_(authzid, authcid))
+      {
+         RestartAuthentication_();
+         return;
+      }
+
+      username_ = authcid;
+      password_ = password;
 
       // Authenticate the user.
       Authenticate_();      

@@ -289,5 +289,135 @@ namespace RegressionTests.Security
 
          EnsureNoPassword(false);
       }
+
+      [Test]
+      [Description("The authentication identity is logged, not the authorization identity.")]
+      public void TestSMTPServerAuthPlainWithAuthorizationIdentity()
+      {
+         _settings.AllowSMTPAuthPlain = true;
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+         sock.Send("AUTH PLAIN\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("334"));
+
+         var str = GetUsername() + "\0" + GetUsername() + "\0" + GetPassword();
+
+         sock.Send(EncodeBase64(str) + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("535"));
+
+         Assert.IsTrue(LogHandler.DefaultLogContains("RECEIVED: " + EncodeBase64(GetUsername()) + " ***"));
+         EnsureNoPassword();
+      }
+
+      [Test]
+      [Description("The authentication identity is logged, not the authorization identity.")]
+      public void TestSMTPServerAuthPlainSingleLineWithAuthorizationIdentity()
+      {
+         _settings.AllowSMTPAuthPlain = true;
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+
+         var str = GetUsername() + "\0" + GetUsername() + "\0" + GetPassword();
+
+         sock.Send("AUTH PLAIN " + EncodeBase64(str) + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("535"));
+
+         Assert.IsTrue(LogHandler.DefaultLogContains("RECEIVED: AUTH PLAIN " + EncodeBase64(GetUsername()) + " ***"));
+         EnsureNoPassword();
+      }
+
+      [Test]
+      [Description("Issue 654: AUTH PLAIN with credentials, sent before EHLO.")]
+      public void TestSMTPServerAuthPlainSingleLineBeforeEhlo()
+      {
+         _settings.AllowSMTPAuthPlain = true;
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+
+         var credentials = EncodeBase64("\0" + GetUsername() + "\0" + GetPassword());
+         sock.Send("AUTH PLAIN " + credentials + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503"));
+
+         EnsureCredentialsNotLogged(sock, credentials);
+      }
+
+      [Test]
+      [Description("Issue 654: AUTH PLAIN with credentials, followed by a trailing space.")]
+      public void TestSMTPServerAuthPlainSingleLineWithTrailingSpace()
+      {
+         _settings.AllowSMTPAuthPlain = true;
+
+         var sock = ConnectAndSayHello();
+
+         var credentials = EncodeBase64("\0" + GetUsername() + "\0" + GetPassword());
+         sock.Send("AUTH PLAIN " + credentials + " \r\n");
+         sock.Receive();
+
+         EnsureCredentialsNotLogged(sock, credentials);
+      }
+
+      [Test]
+      [Description("Issue 654: AUTH PLAIN with credentials which lack base64 padding.")]
+      public void TestSMTPServerAuthPlainSingleLineWithoutPadding()
+      {
+         _settings.AllowSMTPAuthPlain = true;
+
+         var sock = ConnectAndSayHello();
+
+         var credentials = EncodeBase64(GetUsername() + "\0" + GetUsername() + "\0" + GetPassword()).TrimEnd('=');
+         sock.Send("AUTH PLAIN " + credentials + "\r\n");
+         sock.Receive();
+
+         EnsureCredentialsNotLogged(sock, credentials);
+      }
+
+      [Test]
+      [Description("Issue 654: Client sends AUTH PLAIN credentials although AUTH PLAIN is disabled.")]
+      public void TestSMTPServerAuthPlainDisabled()
+      {
+         _settings.AllowSMTPAuthPlain = false;
+
+         var sock = ConnectAndSayHello();
+         sock.Send("AUTH PLAIN\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("504"));
+
+         var credentials = EncodeBase64("\0" + GetUsername() + "\0" + GetPassword());
+         sock.Send(credentials + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503"));
+
+         EnsureCredentialsNotLogged(sock, credentials);
+      }
+
+      private TcpConnection ConnectAndSayHello()
+      {
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+         return sock;
+      }
+
+      private void EnsureCredentialsNotLogged(TcpConnection sock, string credentials)
+      {
+         // Wait until the commands sent so far have been logged.
+         sock.Send("NOOP\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+         Assert.IsTrue(LogHandler.DefaultLogContains("RECEIVED: NOOP"));
+
+         var log = LogHandler.ReadCurrentDefaultLog();
+         Assert.IsFalse(log.Contains(credentials), log);
+         Assert.IsFalse(log.Contains(GetPassword()), log);
+      }
    }
 }
