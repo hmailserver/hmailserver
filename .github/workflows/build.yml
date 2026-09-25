@@ -523,10 +523,9 @@ jobs:
 
       - name: Copy the runtime DLLs and register the type library
         run: |
-          # hMailAdmin has a COM reference to the hMailServer type library, so the tools
-          # solution only compiles once hMailServer.exe has registered it - and the server
-          # only starts for the registration with its DLLs beside it. post-build.ps1 does
-          # both, exactly as the project's post-build event does on a developer machine.
+          # The tools build their interop from hMailServer.tlb directly, so this is no longer
+          # needed to compile them. It still does what the project's post-build event does on
+          # a developer machine: copy the DLLs beside hMailServer.exe and register it.
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\post-build.ps1 -Configuration Release -NoServiceStart
           if ($LASTEXITCODE -ne 0) { throw "post-build.ps1 failed with exit code $LASTEXITCODE" }
 
@@ -595,6 +594,9 @@ jobs:
           signing-policy-slug: ${{ env.SIGNING_POLICY }}
           wait-for-completion-timeout-in-seconds: ${{ env.SIGNPATH_TIMEOUT_SECONDS }}
           artifact-configuration-slug: binaries
+          # Checked against the product version of every signed file.
+          parameters: |
+            version: "${{ steps.product.outputs.version }}.${{ steps.product.outputs.build }}"
           github-artifact-id: ${{ steps.upload-binaries.outputs.artifact-id }}
           output-artifact-directory: ${{ runner.temp }}/signed-binaries
 
@@ -783,6 +785,8 @@ jobs:
           signing-policy-slug: ${{ env.SIGNING_POLICY }}
           wait-for-completion-timeout-in-seconds: ${{ env.SIGNPATH_TIMEOUT_SECONDS }}
           artifact-configuration-slug: installer
+          parameters: |
+            version: "${{ steps.product.outputs.version }}.${{ steps.product.outputs.build }}"
           github-artifact-id: ${{ steps.upload-installer.outputs.artifact-id }}
           output-artifact-directory: ${{ runner.temp }}/signed-installer
 

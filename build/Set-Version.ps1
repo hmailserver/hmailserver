@@ -8,7 +8,7 @@
     that rewrite, and has to run before the server is compiled, since Version.h is compiled
     into hMailServer.exe.
 
-    Three files are written:
+    These files are written:
 
         Server\Common\Application\Version.h   the version the server reports and the
                                               numeric version in its resources
@@ -16,6 +16,10 @@
                                               anything else (it is generated, not committed)
         installation\section_setup_64.iss     the version Inno Setup stamps into the
                                               installer, and the installer's file name
+        Tools\*\Properties\AssemblyInfo.cs    the product version of the shipped tools
+
+    Every signed file gets the same product version, <Version>.<Build>. SignPath checks it
+    against the version the build passes with the signing request.
 
     The CI build workflow calls this with the version and build number it derives for the
     run. A developer building locally does not need it: the placeholder compiles fine, and
@@ -76,6 +80,7 @@ foreach ($file in @($versionFile, $setupFile)) {
 
 # The resource compiler wants the version as a comma-separated list of four numbers.
 $numericVersion = ($Version -replace '\.', ',') + ",$Build"
+$productVersion = "$Version.$Build"
 
 Write-Host "Writing the C++ version info to $versionFile"
 Write-TextFile $versionFile @"
@@ -83,8 +88,24 @@ Write-TextFile $versionFile @"
 #define HMAILSERVER_VERSION "$Version"
 #define HMAILSERVER_VERSION_NUMERIC $numericVersion
 #define HMAILSERVER_BUILD $Build
+#define HMAILSERVER_PRODUCT_VERSION "$productVersion"
 
 "@
+
+foreach ($tool in @('Administrator', 'DBSetup', 'DBSetupQuick', 'DBUpdater', 'DataDirectorySynchronizer', 'Shared')) {
+    $assemblyInfo = Join-Path $RepoRoot "hmailserver\source\Tools\$tool\Properties\AssemblyInfo.cs"
+    Write-Host "Writing the product version to $assemblyInfo"
+
+    $content = [System.IO.File]::ReadAllText($assemblyInfo)
+    $pattern = '\[assembly: AssemblyInformationalVersion\("[^"]*"\)\]'
+    if ($content -notmatch $pattern) {
+        throw "$assemblyInfo has no AssemblyInformationalVersion to write."
+    }
+
+    # The files are committed with a BOM, which the encoding keeps.
+    $content = $content -replace $pattern, "[assembly: AssemblyInformationalVersion(""$productVersion"")]"
+    [System.IO.File]::WriteAllText($assemblyInfo, $content, (New-Object System.Text.UTF8Encoding($true)))
+}
 
 Write-Host "Writing the PHP version info to $phpFile"
 Write-TextFile $phpFile @"
@@ -97,8 +118,8 @@ Write-Host "Writing the install version and output name to $setupFile"
 $settings = [ordered]@{
     "OutputBaseFilename" = "hMailServer-$Version-B$Build-x64"
     "AppVerName"         = "hMailServer $Version-B$Build-x64"
-    "AppVersion"         = "$Version.$Build"
-    "VersionInfoVersion" = "$Version.$Build"
+    "AppVersion"         = $productVersion
+    "VersionInfoVersion" = $productVersion
 }
 
 $setup = Get-Content -LiteralPath $setupFile

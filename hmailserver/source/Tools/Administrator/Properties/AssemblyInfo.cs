@@ -11,9 +11,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Administrator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Halvar Information")]
-[assembly: AssemblyProduct("Administrator")]
-[assembly: AssemblyCopyright("Copyright © Halvar Information 2008")]
+[assembly: AssemblyCompany("hMailServer.com")]
+[assembly: AssemblyProduct("hMailServer")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -34,3 +33,5 @@ using System.Runtime.InteropServices;
 //
 [assembly: AssemblyVersion("5.0.0.0")]
 [assembly: AssemblyFileVersion("5.0.0.0")]
+// The product version. Stamped by build\Set-Version.ps1.
+[assembly: AssemblyInformationalVersion("1.0.0.0")]
