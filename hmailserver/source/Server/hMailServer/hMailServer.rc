@@ -74,7 +74,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "hMailServer.com"
             VALUE "FileDescription", "hMailServer"
-            VALUE "FileVersion", HMAILSERVER_VERSION
+            VALUE "FileVersion", HMAILSERVER_PRODUCT_VERSION
             VALUE "InternalName", "hMailServer.exe"
             VALUE "OriginalFilename", "hMailServer.exe"
             VALUE "ProductName", "hMailServer"

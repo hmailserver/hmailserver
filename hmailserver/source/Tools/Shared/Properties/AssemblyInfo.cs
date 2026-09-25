@@ -33,5 +33,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-// The product version. Stamped by build\Set-Version.ps1.
+// The file and product version are stamped by build\Set-Version.ps1.
 [assembly: AssemblyInformationalVersion("1.0.0.0")]

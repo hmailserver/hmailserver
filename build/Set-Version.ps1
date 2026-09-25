@@ -16,7 +16,7 @@
                                               anything else (it is generated, not committed)
         installation\section_setup_64.iss     the version Inno Setup stamps into the
                                               installer, and the installer's file name
-        Tools\*\Properties\AssemblyInfo.cs    the product version of the shipped tools
+        Tools\*\Properties\AssemblyInfo.cs    the product and file version of the shipped tools
 
     Every signed file gets the same product version, <Version>.<Build>. SignPath checks it
     against the version the build passes with the signing request.
@@ -94,16 +94,19 @@ Write-TextFile $versionFile @"
 
 foreach ($tool in @('Administrator', 'DBSetup', 'DBSetupQuick', 'DBUpdater', 'DataDirectorySynchronizer', 'Shared')) {
     $assemblyInfo = Join-Path $RepoRoot "hmailserver\source\Tools\$tool\Properties\AssemblyInfo.cs"
-    Write-Host "Writing the product version to $assemblyInfo"
+    Write-Host "Writing the product and file version to $assemblyInfo"
 
+    # AssemblyVersion is left alone: it is the assembly's identity, not its release.
     $content = [System.IO.File]::ReadAllText($assemblyInfo)
-    $pattern = '\[assembly: AssemblyInformationalVersion\("[^"]*"\)\]'
-    if ($content -notmatch $pattern) {
-        throw "$assemblyInfo has no AssemblyInformationalVersion to write."
+    foreach ($attribute in @('AssemblyInformationalVersion', 'AssemblyFileVersion')) {
+        $pattern = "\[assembly: $attribute\(""[^""]*""\)\]"
+        if ($content -notmatch $pattern) {
+            throw "$assemblyInfo has no $attribute to write."
+        }
+        $content = $content -replace $pattern, "[assembly: $attribute(""$productVersion"")]"
     }
 
     # The files are committed with a BOM, which the encoding keeps.
-    $content = $content -replace $pattern, "[assembly: AssemblyInformationalVersion(""$productVersion"")]"
     [System.IO.File]::WriteAllText($assemblyInfo, $content, (New-Object System.Text.UTF8Encoding($true)))
 }
 
