@@ -28,6 +28,10 @@ The IMAP protocol has an extension called IMAP IDLE. The IMAP IDLE extension let
 
 hMailServer supports the IMAP SORT extension. This extension can dramatically improve performance when working with large IMAP folders. Read [more here](?page=details_imap_sort).
 
+## Saving and replacing messages
+
+hMailServer supports the IMAP UIDPLUS extension. When a client saves or copies a message, hMailServer tells the client which ID the new message got. The client can then delete exactly the messages it means to, such as an old version of a draft, without removing other messages that are marked as deleted. The extension is always enabled. If the user may add messages to a folder but not read it, the ID is not reported.
+
 ## Folder separators
 
 By default, hMailServer uses . (dot) as the folder separator. This can be changed to a different character under Settings -> Protocols -> IMAP -> Advanced. Whichever character is selected as the separator cannot also be used in an IMAP folder name.

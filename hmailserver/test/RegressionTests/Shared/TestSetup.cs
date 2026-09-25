@@ -132,6 +132,15 @@ namespace RegressionTests.Shared
          if (_settings.IMAPACLEnabled != true)
             _settings.IMAPACLEnabled = true;
 
+         if (!_settings.IMAPIdleEnabled)
+            _settings.IMAPIdleEnabled = true;
+
+         if (!_settings.IMAPQuotaEnabled)
+            _settings.IMAPQuotaEnabled = true;
+
+         if (!_settings.IMAPSortEnabled)
+            _settings.IMAPSortEnabled = true;
+
          if (_settings.CreateDefaultSpecialUseFoldersEnabled)
             _settings.CreateDefaultSpecialUseFoldersEnabled = false;
 

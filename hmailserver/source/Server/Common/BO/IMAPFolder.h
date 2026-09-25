@@ -57,6 +57,9 @@ namespace HM
       const DateTime &GetCreationTime() const { return create_time_;} 
       void SetCreationTime(const DateTime &currentUID) {create_time_ = currentUID;}
 
+      // The IMAP UIDVALIDITY value. Every response that reports it must use this.
+      unsigned int GetUIDValidity() const { return create_time_.ToInt(); }
+
 
       bool GetIsSubscribed() const { return folder_is_subscribed_;} 
       void SetIsSubscribed(bool bNewVal) { folder_is_subscribed_ = bNewVal;}
