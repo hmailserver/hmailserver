@@ -345,6 +345,7 @@ EXIT 0
     <ClCompile Include="..\Common\Persistence\PersistentTCPIPPort.cpp" />
     <ClCompile Include="..\Common\Persistence\PersistentWhiteListAddress.cpp" />
     <ClCompile Include="..\Common\Persistence\PreSaveLimitationsCheck.cpp" />
+    <ClCompile Include="..\Common\Persistence\UIDValidityGenerator.cpp" />
     <ClCompile Include="..\Common\Scripting\ClientInfo.cpp" />
     <ClCompile Include="..\Common\Scripting\Events.cpp" />
     <ClCompile Include="..\Common\Scripting\Result.cpp" />
@@ -872,6 +873,7 @@ EXIT 0
     <ClInclude Include="..\Common\Persistence\PersistentTCPIPPort.h" />
     <ClInclude Include="..\Common\Persistence\PersistentWhiteListAddress.h" />
     <ClInclude Include="..\Common\Persistence\PreSaveLimitationsCheck.h" />
+    <ClInclude Include="..\Common\Persistence\UIDValidityGenerator.h" />
     <ClInclude Include="..\Common\Scripting\ClientInfo.h" />
     <ClInclude Include="..\Common\Scripting\Events.h" />
     <ClInclude Include="..\Common\Scripting\Result.h" />

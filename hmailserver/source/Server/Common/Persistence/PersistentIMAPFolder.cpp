@@ -5,6 +5,7 @@
 
 #include "PersistentIMAPFolder.h"
 #include "PersistentACLPermission.h"
+#include "UIDValidityGenerator.h"
 
 #include "../BO/ACLPermissions.h"
 #include "../BO/IMAPFolders.h"
@@ -160,9 +161,8 @@ namespace HM
          oStatement.SetStatementType(SQLStatement::STInsert);
          oStatement.SetIdentityColumn("folderid");
 
-         DateTime creationTime = pFolder->GetCreationTime();
          if (pFolder->GetCreationTime().GetStatus() == DateTime::invalid)
-            pFolder->SetCreationTime(DateTime::GetCurrentTime());
+            pFolder->SetCreationTime(UIDValidityGenerator::GetNewCreationTime());
 
          // This column is always updated by GetUniqueMessageID below
          // but we still need to create it.
@@ -195,7 +195,7 @@ namespace HM
       return true;
    }
 
-   __int64 
+   __int64
    PersistentIMAPFolder::GetUserInboxFolder(__int64 accountID)
    {
       SQLCommand command("SELECT folderid FROM hm_imapfolders WHERE folderaccountid = @FOLDERACCOUNTID and folderparentid = -1 and foldername = 'INBOX'");
