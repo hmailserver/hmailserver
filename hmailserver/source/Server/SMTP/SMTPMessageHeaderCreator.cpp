@@ -164,6 +164,17 @@ namespace HM
       if (is_authenticated_)
          esmtp_additions += "A";
 
+      String envelope_from;
+      if (!message_->GetFromAddress().IsEmpty())
+         envelope_from.Format(_T(" (envelope-from <%s>)"), message_->GetFromAddress().c_str());
+
+      // Only name a single recipient. Listing several would reveal Bcc recipients.
+      const auto &recipients = message_->GetRecipients()->GetVector();
+
+      String envelope_to;
+      if (recipients.size() == 1)
+         envelope_to.Format(_T(" for <%s>"), recipients.front()->GetOriginalAddress().c_str());
+
       String cipher_line;
 
       if (is_tls_)
@@ -171,14 +182,16 @@ namespace HM
 
       String sResult;
       sResult.Format(_T("Received: from %s (%s [%s])\r\n")
-         _T("\tby %s with ESMTP%s\r\n")
+         _T("\tby %s%s with ESMTP%s%s\r\n")
          _T("%s")
          _T("\t; %s\r\n"),
          remote_hostname.c_str(),
          ptr_record_host.c_str(),
          overriden_received_ip.c_str(),
          local_computer_name.c_str(),
+         envelope_from.c_str(),
          esmtp_additions.c_str(),
+         envelope_to.c_str(),
          cipher_line.c_str(),
          Time::GetCurrentMimeDate().c_str());
 
