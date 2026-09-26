@@ -15,6 +15,7 @@
 #include "../Common/BO/Messages.h"
 #include "IMAPFolderView.h"
 #include "IMAPNotificationClient.h"
+#include "../Common/Util/FileUtilities.h"
 
 
 #include "MessagesContainer.h"
@@ -141,6 +142,18 @@ namespace HM
    }
 
    IMAPResult
+   IMAPCopy::SourceMessageGone_(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<Message> pOldMessage)
+   {
+      pConnection->GetCurrentFolderView()->MarkVanished(pOldMessage->GetID());
+
+      // UID COPY ignores messages that no longer exist (RFC 3501 6.4.8).
+      if (GetIsUID())
+         return IMAPResult();
+
+      return IMAPResult(IMAPResult::ResultNo, "[EXPUNGEISSUED] Some of the messages no longer exist.");
+   }
+
+   IMAPResult
    IMAPCopy::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pOldMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
    {
       if (!pOldMessage || !destination_folder_)
@@ -155,30 +168,21 @@ namespace HM
             return IMAPResult(IMAPResult::ResultNo, "[OVERQUOTA] Your quota has been exceeded.");
       }
 
-      // The file is copied under the source collection's lock, so another session can't
-      // expunge the message and delete its file half-way through.
-      std::shared_ptr<Message> pNewMessage;
-      auto source_messages = pConnection->GetCurrentFolder()->GetMessages();
+      // A missing file means the message was deleted since the set was resolved, by another
+      // session or outside IMAP.
+      if (!FileUtilities::Exists(PersistentMessage::GetFileName(pAccount, pOldMessage)))
+         return SourceMessageGone_(pConnection, pOldMessage);
 
-      bool source_exists = source_messages->RunIfExists(pOldMessage->GetID(), [&]()
-         {
-            pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder);
-         });
-
-      if (!source_exists)
-      {
-         // Expunged by another session since the set was resolved.
-         pConnection->GetCurrentFolderView()->MarkVanished(pOldMessage->GetID());
-
-         // UID COPY ignores messages that no longer exist (RFC 3501 6.4.8).
-         if (GetIsUID())
-            return IMAPResult();
-
-         return IMAPResult(IMAPResult::ResultNo, "[EXPUNGEISSUED] Some of the messages no longer exist.");
-      }
+      std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder);
 
       if (!pNewMessage)
+      {
+         // The file may have been deleted after the check above.
+         if (!pConnection->GetCurrentFolder()->GetMessages()->GetCopyByDBID(pOldMessage->GetID()))
+            return SourceMessageGone_(pConnection, pOldMessage);
+
          return IMAPResult(IMAPResult::ResultNo, "Failed to copy message.");
+      }
 
       // Flags the user lacks the right to set are left unset (RFC 4314 4).
       if (!can_write_seen_)

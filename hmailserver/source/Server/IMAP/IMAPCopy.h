@@ -39,6 +39,9 @@ namespace HM
 
       static String FormatUIDSet_(const std::vector<unsigned int> &uids);
 
+      // For a source message deleted during the COPY. UID COPY skips it, COPY fails.
+      IMAPResult SourceMessageGone_(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<Message> pOldMessage);
+
       std::shared_ptr<IMAPFolder> destination_folder_;
       bool destination_readable_ = false;
 

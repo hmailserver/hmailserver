@@ -221,23 +221,6 @@ namespace HM
       return DeleteMessages(filter);
    }
 
-   bool
-   Messages::RunIfExists(__int64 message_id, const std::function<void()> &action)
-   {
-      boost::lock_guard<boost::recursive_mutex> guard(_mutex);
-
-      for (std::shared_ptr<Message> message : vecObjects)
-      {
-         if (message->GetID() != message_id)
-            continue;
-
-         action();
-         return true;
-      }
-
-      return false;
-   }
-
 
    bool
    Messages::Refresh(bool update_recent_flags)

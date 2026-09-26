@@ -41,10 +41,6 @@ namespace HM
       std::vector<__int64> DeleteMessages(const std::function<bool(std::shared_ptr<Message>)> &filter);
       std::vector<__int64> DeleteMessagesById(const std::set<__int64> &message_ids);
 
-      // Runs the action while holding the collection lock, if the message is still in the
-      // collection. Deletes take the same lock, so the message and its file stay during the action.
-      bool RunIfExists(__int64 message_id, const std::function<void()> &action);
-
       // Returns false if the messages could not be loaded.
       bool Refresh(bool update_recent_flags);
 
