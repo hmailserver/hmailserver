@@ -139,7 +139,8 @@ namespace HM
 
       __int64 parsed = _ttoi64(value);
 
-      if (parsed > UINT_MAX)
+      // Sequence numbers and UIDs are nz-number (RFC 3501 9).
+      if (parsed == 0 || parsed > UINT_MAX)
          return false;
 
       number = (unsigned int) parsed;

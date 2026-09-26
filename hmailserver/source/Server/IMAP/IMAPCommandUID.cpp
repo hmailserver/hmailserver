@@ -90,6 +90,10 @@ namespace HM
          if (pParser->WordCount() != 3)
             return IMAPResult(IMAPResult::ResultBad, "Command requires 1 parameter.");
 
+         // The parser strips parentheses, but a sequence set is never parenthesized.
+         if (pParser->Word(2)->Paranthezied() || pParser->Word(2)->Clammerized())
+            return IMAPResult(IMAPResult::ResultBad, "Incorrect message set.");
+
          auto pCommand = std::make_shared<IMAPCommandEXPUNGE>(pParser->Word(2)->Value());
          return pCommand->ExecuteCommand(pConnection, pArgument);
       }

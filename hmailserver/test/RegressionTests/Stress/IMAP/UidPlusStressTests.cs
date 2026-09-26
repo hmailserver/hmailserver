@@ -716,8 +716,9 @@ namespace RegressionTests.Stress.IMAP
       }
 
       /// <summary>
-      ///    The server's rules as implemented: 0 is accepted, ranges may be reversed, * is the highest
-      ///    UID or the message count. Returns null for a malformed set. Keeps set order and duplicates.
+      ///    The server's rules as implemented: 0 is rejected, ranges may be reversed, * is the highest
+      ///    UID or the message count. Returns null for a malformed set. Keeps set order, and a message
+      ///    named more than once only where it first appears.
       /// </summary>
       private static List<long> ModelResolve(string set, bool isUid, List<long> uids)
       {
@@ -748,7 +749,7 @@ namespace RegressionTests.Stress.IMAP
                   result.Add(uids[(int) sequence - 1]);
          }
 
-         return result;
+         return result.Distinct().ToList();
       }
 
       private static bool ModelNumber(string value, long highest, out long number)
@@ -765,7 +766,7 @@ namespace RegressionTests.Stress.IMAP
             return false;
 
          number = long.Parse(value);
-         return number <= uint.MaxValue;
+         return number > 0 && number <= uint.MaxValue;
       }
 
       private static string Trim(string text)
