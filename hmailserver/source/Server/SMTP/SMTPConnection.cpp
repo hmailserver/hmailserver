@@ -88,7 +88,9 @@ namespace HM
       type_(SPNone),
       pending_disconnect_(false),
       isAuthenticated_(false),
-      start_tls_used_(false)
+      start_tls_used_(false),
+      auth_command_received_(false),
+      auth_login_username_next_(false)
    {
 
       smtpconf_ = Configuration::Instance()->GetSMTPConfiguration();
@@ -256,9 +258,13 @@ namespace HM
       {
          String sLogData = sClientData;
 
-         if (current_state_ == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
+         if (current_state_ == SMTPUSERNAME)
          {
-            sLogData = MaskPlainAuthentication_(sClientData);
+            // The AUTH LOGIN user name is logged as is.
+            if (requestedAuthenticationType_ == AUTH_PLAIN)
+               sLogData = MaskPlainAuthentication_(sClientData);
+
+            auth_login_username_next_ = false;
          }
          else if (current_state_ == SMTPUPASSWORD)
          {
@@ -277,17 +283,19 @@ namespace HM
 
             eSMTPCommandTypes command_type = GetCommandType_(first_word);
 
-            if (command_type == SMTP_COMMAND_AUTH && first_space > 0)
+            if (command_type == SMTP_COMMAND_AUTH)
             {
                // AUTH mechanism [initial-response]
-               String arguments = command.Mid(first_space + 1).Trim();
+               String arguments;
+               if (first_space > 0)
+                  arguments = command.Mid(first_space + 1).Trim();
+
                int second_space = arguments.Find(_T(" "));
+               String mechanism = second_space < 0 ? arguments : arguments.Mid(0, second_space);
+               mechanism.MakeUpper();
 
                if (second_space > 0)
                {
-                  String mechanism = arguments.Mid(0, second_space);
-                  mechanism.MakeUpper();
-
                   String initial_response = arguments.Mid(second_space + 1).Trim();
 
                   // The initial response of AUTH LOGIN is the user name only.
@@ -296,14 +304,24 @@ namespace HM
                   else if (mechanism != _T("LOGIN"))
                      sLogData = "AUTH " + mechanism + " ***";
                }
+
+               auth_login_username_next_ = mechanism == _T("LOGIN") && second_space < 0;
             }
-            else if (command_type == SMTP_COMMAND_UNKNOWN)
+            else if (command_type == SMTP_COMMAND_UNKNOWN && auth_command_received_)
             {
-               // A lone base64 string is most likely credentials, sent when not expected.
-               boost::wregex base64_expression(_T("^[A-Za-z\\d+/]+={0,2}$"));
-               if (boost::regex_match(command, base64_expression))
+               // Most likely credentials, sent although the AUTH command was refused.
+               // Only the AUTH LOGIN user name is logged as is.
+               if (!auth_login_username_next_)
                   sLogData = "***";
+
+               auth_login_username_next_ = false;
             }
+
+            auth_command_received_ = command_type == SMTP_COMMAND_AUTH ||
+                                     (auth_command_received_ && command_type == SMTP_COMMAND_UNKNOWN);
+
+            if (!auth_command_received_)
+               auth_login_username_next_ = false;
          }
 
          // Append
