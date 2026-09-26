@@ -18,9 +18,6 @@ namespace HM
       // A value higher than any given out in the account before. 0 if it can't be stored.
       static unsigned int GetNext(__int64 account_id);
 
-      // Makes values given out later higher than this one. For folders restored from a backup.
-      static void Reserve(__int64 account_id, unsigned int uid_validity);
-
       // Removes the account's counter.
       static bool DeleteAccount(__int64 account_id);
 

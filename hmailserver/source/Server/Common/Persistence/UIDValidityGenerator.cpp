@@ -39,21 +39,6 @@ namespace HM
       return (unsigned int) value;
    }
 
-   void
-   UIDValidityGenerator::Reserve(__int64 account_id, unsigned int uid_validity)
-   {
-      boost::lock_guard<boost::mutex> guard(mutex_);
-
-      __int64 value = 0;
-      bool exists = false;
-
-      if (!GetCounter_(account_id, value, exists))
-         return;
-
-      if (uid_validity > value)
-         SetCounter_(account_id, uid_validity, exists);
-   }
-
    bool
    UIDValidityGenerator::DeleteAccount(__int64 account_id)
    {

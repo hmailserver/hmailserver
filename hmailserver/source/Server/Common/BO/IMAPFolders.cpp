@@ -264,7 +264,7 @@ namespace HM
       }
    }
   
-   void
+   bool
    IMAPFolders::CreatePath(std::shared_ptr<IMAPFolders> pParentContainer,
                            const std::vector<String> &vecFolderPath, 
                            bool bAutoSubscribe)
@@ -304,7 +304,8 @@ namespace HM
          pFolder->SetFolderName(sTopLevel);
          pFolder->SetIsSubscribed(bAutoSubscribe);
 
-         PersistentIMAPFolder::SaveObject(pFolder);
+         if (!PersistentIMAPFolder::SaveObject(pFolder))
+            return false;
 
          // Add the folder to the collection.
          pParentContainer->AddItem(pFolder);
@@ -316,6 +317,8 @@ namespace HM
          pParentFolder = pFolder;
 
       }
+
+      return true;
    }
 
    bool

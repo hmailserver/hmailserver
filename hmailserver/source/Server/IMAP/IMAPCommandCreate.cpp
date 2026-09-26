@@ -107,7 +107,8 @@ namespace HM
 
       bool bSubscribeToFolder = bIsPublicFolder;
 
-      pParentFolderContainer->CreatePath(pParentFolderContainer, vecFolderPath, bSubscribeToFolder);
+      if (!pParentFolderContainer->CreatePath(pParentFolderContainer, vecFolderPath, bSubscribeToFolder))
+         return IMAPResult(IMAPResult::ResultNo, "CREATE The folder could not be saved.");
 
       if (!sSpecialUse.IsEmpty())
       {

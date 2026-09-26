@@ -164,12 +164,13 @@ namespace HM
          if (pFolder->GetCreationTime().GetStatus() == DateTime::invalid)
             pFolder->SetCreationTime(DateTime::GetCurrentTime());
 
-         // A folder restored from a backup keeps its UIDVALIDITY. If no value can be stored,
-         // 0 makes the folder use its creation time.
-         if (pFolder->GetStoredUIDValidity() != 0)
-            UIDValidityGenerator::Reserve(pFolder->GetAccountID(), pFolder->GetStoredUIDValidity());
-         else
-            pFolder->SetStoredUIDValidity(UIDValidityGenerator::GetNext(pFolder->GetAccountID()));
+         // Falling back to the creation time could give a lower UIDVALIDITY than one already
+         // handed out, so the folder isn't created without one.
+         unsigned int uid_validity = UIDValidityGenerator::GetNext(pFolder->GetAccountID());
+         if (uid_validity == 0)
+            return false;
+
+         pFolder->SetStoredUIDValidity(uid_validity);
 
          // This column is always updated by GetUniqueMessageID below
          // but we still need to create it.
@@ -199,8 +200,7 @@ namespace HM
       if (bRetVal && bNewObject)
          pFolder->SetID((int) iDBID);
 
-
-      return true;
+      return bRetVal;
    }
 
    __int64

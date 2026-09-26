@@ -49,15 +49,6 @@ namespace HM
       __int64 third = UIDValidityGenerator::GetNext(account);
       Check_(third == second + 1, "Other accounts don't move the counter", third);
 
-      // A restored folder's value moves the counter up, but never down.
-      UIDValidityGenerator::Reserve(account, (unsigned int) third + 100);
-      __int64 afterReserve = UIDValidityGenerator::GetNext(account);
-      Check_(afterReserve == third + 101, "Reserve moves the counter up", afterReserve);
-
-      UIDValidityGenerator::Reserve(account, (unsigned int) first);
-      __int64 afterLowReserve = UIDValidityGenerator::GetNext(account);
-      Check_(afterLowReserve == afterReserve + 1, "Reserve never moves the counter down", afterLowReserve);
-
       // Without a counter, it starts over from the current time.
       UIDValidityGenerator::DeleteAccount(account);
       __int64 afterDelete = UIDValidityGenerator::GetNext(account);

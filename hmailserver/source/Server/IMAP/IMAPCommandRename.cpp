@@ -67,7 +67,8 @@ namespace HM
          std::vector<String> vecNewFolderParent = vecNewPath;
          vecNewFolderParent.erase(vecNewFolderParent.end()-1);
 
-         pConnection->GetAccountFolders()->CreatePath(pConnection->GetAccountFolders(), vecNewFolderParent, false);
+         if (!pConnection->GetAccountFolders()->CreatePath(pConnection->GetAccountFolders(), vecNewFolderParent, false))
+            return IMAPResult(IMAPResult::ResultNo, "RENAME The new parent folder could not be created.");
 
          // fetch the newly created folder
          pNewParentFolder  = GetParentFolder(pConnection, vecNewPath);
