@@ -1307,6 +1307,9 @@ namespace RegressionTests.IMAP
       [TestCase("DELETE")]
       [TestCase("RENAME")]
       [TestCase("SETACL")]
+      [TestCase("APPEND")]
+      [TestCase("COPY")]
+      [TestCase("UID EXPUNGE")]
       [Description("An ACL denial is NO [NOPERM] (RFC 5530 3, RFC 4314 4), not BAD.")]
       public void AclDenialIsNoPerm(string command)
       {
@@ -1346,6 +1349,27 @@ namespace RegressionTests.IMAP
                break;
             case "RENAME":
                response = simulator.SendSingleCommand("A10 RENAME \"#Public.Share.Sub\" \"#Public.Share.Renamed\"");
+               break;
+            case "APPEND":
+            case "COPY":
+               permission.set_Permission(eACLPermission.ePermissionInsert, false);
+               permission.Save();
+
+               if (command == "APPEND")
+               {
+                  response = AppendWithFlags(simulator, "#Public.Share", null).Replace("A40 ", "A10 ");
+               }
+               else
+               {
+                  Assert.IsTrue(AppendWithFlags(simulator, "INBOX", null).Contains("A40 OK"));
+                  Assert.IsTrue(simulator.SelectFolder("INBOX"));
+                  response = simulator.SendSingleCommand("A10 UID COPY 1 \"#Public.Share\"");
+               }
+               break;
+            case "UID EXPUNGE":
+               Assert.IsTrue(AppendWithFlags(simulator, "#Public.Share", "(\\Deleted)").Contains("A40 OK"));
+               Assert.IsTrue(simulator.SelectFolder("#Public.Share"));
+               response = simulator.SendSingleCommand("A10 UID EXPUNGE 1:*");
                break;
             default:
                response = simulator.SendSingleCommand("A10 SETACL \"#Public.Share\" " + account.Address + " lrswipkxtea");

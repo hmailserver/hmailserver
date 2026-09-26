@@ -164,6 +164,11 @@ test/
 `RegressionTests/Stress/` holds stress tests: concurrency and malformed input. They are part of
 `RegressionTests.dll` and run when the test runner is asked to include stress tests.
 
+`RegressionTests/Details/` holds detail tests: edge cases and RFC checks that go beyond what the
+regression suite needs. They are `[Explicit]` and in the `Details` category, so no automated run
+includes them. Run them by hand with `--where "cat == Details"`. A bug fix still needs its
+regression test in the normal suite.
+
 `VolumeTests/` is a separate assembly, built by `hMailServer Tests.sln`. Its tests push large
 volumes through the server and take a long time to run, so they are never run automatically. Run
 them by hand when needed:

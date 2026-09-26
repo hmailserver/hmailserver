@@ -210,9 +210,10 @@
     <Compile Include="IMAP\SessionMessageNumbering.cs" />
     <Compile Include="IMAP\UidPlus.cs" />
     <Compile Include="IMAP\UidValidity.cs" />
-    <Compile Include="IMAP\UidPlusTesting\TrackedImapSession.cs" />
-    <Compile Include="IMAP\UidPlusTesting\UidPlusEdgeCaseTests.cs" />
-    <Compile Include="IMAP\UidPlusTesting\UidPlusRfcTests.cs" />
+    <Compile Include="IMAP\UidPlusCompliance.cs" />
+    <Compile Include="Shared\TrackedImapSession.cs" />
+    <Compile Include="Details\IMAP\UidPlusEdgeCaseTests.cs" />
+    <Compile Include="Details\IMAP\UidPlusRfcTests.cs" />
     <Compile Include="MIME\Parameters.cs" />
     <Compile Include="Security\Basics.cs" />
     <Compile Include="Shared\TestFixtureBase.cs" />

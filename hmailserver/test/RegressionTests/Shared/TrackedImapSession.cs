@@ -6,9 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
-using RegressionTests.Shared;
 
-namespace RegressionTests.IMAP.UidPlusTesting
+namespace RegressionTests.Shared
 {
    /// <summary>
    ///    Wraps an IMAP connection and checks every response against the session's message count.

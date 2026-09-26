@@ -10,16 +10,17 @@ using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
-using static RegressionTests.IMAP.UidPlusTesting.UidPlusHelpers;
+using static RegressionTests.Shared.UidPlusHelpers;
 
-namespace RegressionTests.IMAP.UidPlusTesting
+namespace RegressionTests.Details.IMAP
 {
    /// <summary>
-   ///    Temporary (temp/uidplustesting): round 2. Requirements from RFC 4315 and the RFCs it touches
-   ///    (3501, 4314, 5530, 9208), one test per requirement. See README.md for the matrix.
+   ///    Requirements from RFC 4315 and the RFCs it touches (3501, 4314, 5530, 9208), one test per
+   ///    requirement. Explicit, see README.md. The fixed gaps are covered by IMAP.UidPlusCompliance.
    /// </summary>
    [TestFixture]
-   [Category("UidPlusTesting")]
+   [Explicit("Detail test - run manually.")]
+   [Category("Details")]
    public class UidPlusRfcTests : TestFixtureBase
    {
       private Account _account;
@@ -58,70 +59,6 @@ namespace RegressionTests.IMAP.UidPlusTesting
 
          return permission;
       }
-
-      private static List<long> UidSearch(TrackedImapSession session, string criteria)
-      {
-         var response = session.Command("UID SEARCH " + criteria);
-         Assert.IsTrue(TrackedImapSession.IsOk(response), response);
-         var match = Regex.Match(response, @"^\* SEARCH ?(.*)\r$", RegexOptions.Multiline);
-         Assert.IsTrue(match.Success, response);
-         return match.Groups[1].Value.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries).Select(long.Parse).OrderBy(u => u).ToList();
-      }
-
-      private static List<long> UidFetch(TrackedImapSession session, string set)
-      {
-         var response = session.Command("UID FETCH " + set + " (UID)");
-         Assert.IsTrue(TrackedImapSession.IsOk(response), response);
-         return Regex.Matches(response, @"UID (\d+)\)").Cast<Match>().Select(m => long.Parse(m.Groups[1].Value)).Distinct().OrderBy(u => u).ToList();
-      }
-
-      #region RFC 3501 sequence sets: SEARCH must agree with FETCH
-
-      [TestCase("1:*")]
-      [TestCase("2,5")]
-      [TestCase("*", Category = "UidPlusGap")]
-      [TestCase("2,*", Category = "UidPlusGap")]
-      [TestCase("*:4", Category = "UidPlusGap")]
-      [TestCase("4:2", Category = "UidPlusGap")]
-      [TestCase("100:*", Category = "UidPlusGap")]
-      [Description("GAP probe. SEARCH UID still uses IMAPListLookup, not ResolveTargets: * reads as 0, reversed " +
-                   "ranges match nothing and N:* above the highest UID is empty (RFC 3501 9: N:* always includes " +
-                   "the highest). Clients check COPYUID/APPENDUID results with UID SEARCH UID, and 'UID SEARCH " +
-                   "UID <uidnext>:*' is a common way to find new mail. Dovecot agrees with FETCH for all of these.")]
-      public void UidSearchUidAgreesWithUidFetch(string set)
-      {
-         var session = Connect();
-         Append(session, "INBOX", 6);
-         session.Select("INBOX");
-
-         // Gaps between the UIDs.
-         session.Command("UID STORE 3 +FLAGS.SILENT (\\Deleted)");
-         session.Command("UID EXPUNGE 3");
-
-         CollectionAssert.AreEqual(UidFetch(session, set), UidSearch(session, "UID " + set), "UID SEARCH UID " + set);
-
-         session.Disconnect();
-      }
-
-      [TestCase("2:*")]
-      [TestCase("*", Category = "UidPlusGap")]
-      [TestCase("3:1", Category = "UidPlusGap")]
-      [Description("GAP probe. The same for a sequence set given as a SEARCH key.")]
-      public void SearchSequenceSetAgreesWithFetch(string set)
-      {
-         var session = Connect();
-         Append(session, "INBOX", 4);
-         session.Select("INBOX");
-
-         var fetch = session.Command("FETCH " + set + " (UID)");
-         var fetched = Regex.Matches(fetch, @"UID (\d+)").Cast<Match>().Select(m => long.Parse(m.Groups[1].Value)).OrderBy(u => u).ToList();
-
-         CollectionAssert.AreEqual(fetched, UidSearch(session, set), "UID SEARCH " + set);
-
-         session.Disconnect();
-      }
-
-      #endregion
 
       #region RFC 3501 2.3.1.1 / 7.3.1: UIDNEXT and UIDVALIDITY agree with APPENDUID and COPYUID
 
@@ -250,10 +187,8 @@ namespace RegressionTests.IMAP.UidPlusTesting
       #region RFC 4314 4: flags set by APPEND and COPY need the matching right
 
       [Test]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. Without the 't' right (WriteDeleted), APPEND must not set \\Deleted. hMailServer " +
-                   "only checks the 's' right for \\Seen. A draft-replacing client can then plant messages that " +
-                   "an Expunge-capable user removes with the next EXPUNGE.")]
+      [Description("Without the 't' right (WriteDeleted), APPEND must not set \\Deleted. Otherwise a " +
+                   "draft-replacing client could plant messages that an Expunge-capable user removes with the next EXPUNGE.")]
       public void AppendWithoutWriteDeletedRightDoesNotSetDeleted()
       {
          CreatePublicFolder("NoDelete", false);
@@ -269,8 +204,7 @@ namespace RegressionTests.IMAP.UidPlusTesting
       }
 
       [Test]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. The same for COPY of a \\Deleted message.")]
+      [Description("The same for COPY of a \\Deleted message.")]
       public void CopyWithoutWriteDeletedRightDoesNotSetDeleted()
       {
          CreatePublicFolder("NoDelete", false);
@@ -293,36 +227,10 @@ namespace RegressionTests.IMAP.UidPlusTesting
 
       #region RFC 5530 / RFC 9208: response codes on failure
 
-      [Test]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. QUOTA is advertised, so a quota failure should carry [OVERQUOTA] (RFC 9208 5.3, " +
-                   "RFC 5530). Dovecot: 'NO [OVERQUOTA] Quota exceeded'.")]
-      public void QuotaFailuresCarryOverQuota()
-      {
-         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "quota@example.test", Password, 1);
-         var session = new TrackedImapSession(account.Address, Password);
-         Assert.IsTrue(TrackedImapSession.IsOk(session.Command("CREATE \"Target\"")));
-
-         var body = string.Concat(Enumerable.Repeat(new string('x', 98) + "\r\n", 3072));
-         for (var i = 0; i < 2; i++)
-            AssertAppendUid(session.Append("INBOX", CreateMessage(Guid.NewGuid() + "@example.test", body)));
-
-         var append = session.Append("INBOX", CreateMessage("over@example.test", body + body));
-         StringAssert.Contains("NO [OVERQUOTA]", append);
-
-         session.Select("INBOX");
-         var copy = session.Command("COPY 1:2 \"Target\"");
-         StringAssert.Contains("NO [OVERQUOTA]", copy);
-
-         session.Disconnect();
-      }
-
       [TestCase("APPEND")]
       [TestCase("COPY")]
       [TestCase("UID EXPUNGE")]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. An ACL denial is NO [NOPERM] (RFC 5530 3, RFC 4314 4). hMailServer returns BAD, " +
-                   "which tells the client its syntax was wrong.")]
+      [Description("An ACL denial is NO [NOPERM] (RFC 5530 3, RFC 4314 4), not BAD, which would mean a syntax error.")]
       public void AclDenialIsNoPerm(string command)
       {
          var folder = _settings.PublicFolders.Add("Locked");
@@ -363,7 +271,7 @@ namespace RegressionTests.IMAP.UidPlusTesting
 
       [Test]
       [Description("A source message expunged by another session while UID COPY is running must be skipped or " +
-                   "give NO, never BAD. A missing message file makes IMAPCopy::DoAction return BAD today.")]
+                   "give NO, never BAD.")]
       public void UidCopyRacingWithExpungeIsNeverBad()
       {
          var setup = Connect("setup");

@@ -9,16 +9,17 @@ using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
-using static RegressionTests.IMAP.UidPlusTesting.UidPlusHelpers;
+using static RegressionTests.Shared.UidPlusHelpers;
 
-namespace RegressionTests.IMAP.UidPlusTesting
+namespace RegressionTests.Details.IMAP
 {
    /// <summary>
-   ///    Temporary (temp/uidplustesting): edge cases and gap probes for UIDPLUS, RFC 4315.
-   ///    Tests in the "UidPlusGap" category probe suspected gaps and are expected to fail today.
+   ///    Edge cases for UIDPLUS, RFC 4315. Explicit, since they go beyond what the regression
+   ///    suite needs. The fixed gaps are covered by IMAP.UidPlusCompliance.
    /// </summary>
    [TestFixture]
-   [Category("UidPlusTesting")]
+   [Explicit("Detail test - run manually.")]
+   [Category("Details")]
    public class UidPlusEdgeCaseTests : TestFixtureBase
    {
       private Account _account;
@@ -116,10 +117,8 @@ namespace RegressionTests.IMAP.UidPlusTesting
       }
 
       [Test]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. UIDVALIDITY is the creation time in seconds. A folder deleted and re-created " +
-                   "within the same second restarts its UIDs at 1 but keeps the UIDVALIDITY, so a client " +
-                   "caching APPENDUID results maps the new UID 1 to the old message (RFC 3501 2.3.1.1).")]
+      [Description("A folder deleted and re-created, even within the same second, gets a higher UIDVALIDITY " +
+                   "(RFC 3501 2.3.1.1). Otherwise a client caching APPENDUID results maps the new UID 1 to the old message.")]
       public void RecreatedFolderGetsNewUidValidityOrHigherUids()
       {
          var session = Connect();
@@ -242,32 +241,6 @@ namespace RegressionTests.IMAP.UidPlusTesting
          session.Disconnect();
       }
 
-      [TestCase("1,1")]
-      [TestCase("1:2,2:3")]
-      [TestCase("1,1:3,3")]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. A set naming a message twice copies it twice. A message set is a set, so each " +
-                   "message should be copied once, and COPYUID should not list a source UID twice.")]
-      public void CopyWithDuplicatesInSetCopiesEachMessageOnce(string set)
-      {
-         var session = Connect();
-         Assert.IsTrue(TrackedImapSession.IsOk(session.Command("CREATE \"Target\"")));
-         AppendMessages(session, "INBOX", 3);
-         session.Select("INBOX");
-
-         var copy = session.Command("UID COPY " + set + " \"Target\"");
-         Assert.IsTrue(TrackedImapSession.IsOk(copy), copy);
-
-         var copyUid = ParseCopyUid(copy);
-         Assert.IsNotNull(copyUid, copy);
-         CollectionAssert.AllItemsAreUnique(copyUid.Source, copy);
-
-         var expected = copyUid.Source.Count;
-         Assert.AreEqual(expected, GetStatusValue(session.Command("STATUS \"Target\" (MESSAGES)"), "MESSAGES"));
-
-         session.Disconnect();
-      }
-
       [Test]
       [Description("UID COPY skips a message another session expunged (RFC 3501 6.4.8). COPYUID lists only the copies.")]
       public void UidCopySkipsMessageExpungedElsewhere()
@@ -320,27 +293,8 @@ namespace RegressionTests.IMAP.UidPlusTesting
          session.Disconnect();
       }
 
-      [TestCase("1")]
-      [TestCase("999")]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. A COPY to a missing folder should be NO [TRYCREATE] (RFC 3501 6.4.7). Today it's " +
-                   "BAD, and with a set matching no message it is even OK.")]
-      public void CopyToMissingFolderIsNoTryCreate(string set)
-      {
-         var session = Connect();
-         AppendMessages(session, "INBOX", 1);
-         session.Select("INBOX");
-
-         var copy = session.Command("UID COPY " + set + " \"DoesNotExist\"");
-         Assert.IsTrue(TrackedImapSession.IsNo(copy), copy);
-         StringAssert.Contains("[TRYCREATE]", copy);
-
-         session.Disconnect();
-      }
-
       [Test]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. Missing Insert permission should give NO, not BAD. BAD means a syntax error.")]
+      [Description("Missing Insert permission should give NO, not BAD. BAD means a syntax error.")]
       public void CopyWithoutInsertPermissionIsNo()
       {
          var folder = _settings.PublicFolders.Add("ReadOnlyShare");
@@ -360,79 +314,6 @@ namespace RegressionTests.IMAP.UidPlusTesting
          Assert.IsTrue(TrackedImapSession.IsNo(copy), copy);
          StringAssert.DoesNotContain("COPYUID", copy);
 
-         session.Disconnect();
-      }
-
-      [Test]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. A session copying into its own selected folder is never told about the copies: " +
-                   "notifications skip the session that made them, and COPY does not update its view. So the " +
-                   "UIDs COPYUID just reported can't be fetched, and NOOP never reports EXISTS.")]
-      public void CopyIntoSelectedFolderIsReportedToSameSession()
-      {
-         var session = Connect();
-         var ids = AppendMessages(session, "INBOX", 2);
-         session.Select("INBOX");
-
-         var copy = session.Command("UID COPY 1 INBOX");
-         var copyUid = ParseCopyUid(copy);
-         Assert.IsNotNull(copyUid, copy);
-
-         var noop = session.Command("NOOP");
-         Assert.AreEqual(3, session.KnownCount, copy + noop);
-
-         var fetched = FetchMessageIds(session, copyUid.Destination[0].ToString());
-         Assert.IsTrue(fetched.ContainsKey(copyUid.Destination[0]), "COPYUID destination UID can't be fetched.");
-         Assert.AreEqual(ids[0], fetched[copyUid.Destination[0]]);
-
-         session.AssertNoViolations();
-         session.Disconnect();
-      }
-
-      [Test]
-      [Category("UidPlusGap")]
-      [Description("GAP probe, follows from the one above. EXPUNGE takes the unreported copies into the view and " +
-                   "then reports EXPUNGE for sequence numbers the client never saw.")]
-      public void ExpungeAfterCopyIntoSelectedFolderUsesKnownSequenceNumbers()
-      {
-         var session = Connect();
-         AppendMessages(session, "INBOX", 2);
-         session.Select("INBOX");
-
-         session.Command("UID STORE 2 +FLAGS (\\Deleted)");
-
-         // The copy keeps \Deleted.
-         var copy = session.Command("UID COPY 2 INBOX");
-         var copyUid = ParseCopyUid(copy);
-         Assert.IsNotNull(copyUid, copy);
-
-         var expunge = session.Command("EXPUNGE");
-         Assert.IsTrue(TrackedImapSession.IsOk(expunge), expunge);
-
-         session.AssertNoViolations();
-         CollectionAssert.AreEqual(new[] {1L}, UidSearchAll(session));
-
-         session.Disconnect();
-      }
-
-      [Test]
-      [Category("UidPlusGap")]
-      [Description("GAP probe, as above but with UID EXPUNGE of the UID that COPYUID reported.")]
-      public void UidExpungeOfCopyUidInSelectedFolderUsesKnownSequenceNumbers()
-      {
-         var session = Connect();
-         AppendMessages(session, "INBOX", 2);
-         session.Select("INBOX");
-
-         session.Command("UID STORE 2 +FLAGS (\\Deleted)");
-         var copyUid = ParseCopyUid(session.Command("UID COPY 2 INBOX"));
-         Assert.IsNotNull(copyUid);
-         session.Command("UID STORE 2 -FLAGS (\\Deleted)");
-
-         var expunge = session.Command("UID EXPUNGE " + copyUid.Destination[0]);
-         Assert.IsTrue(TrackedImapSession.IsOk(expunge), expunge);
-
-         session.AssertNoViolations();
          session.Disconnect();
       }
 
@@ -669,25 +550,6 @@ namespace RegressionTests.IMAP.UidPlusTesting
          session.Disconnect();
       }
 
-      [TestCase("0")]
-      [TestCase("0:1")]
-      [TestCase("(1)")]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. 0 is not a valid UID (nz-number, RFC 3501 9) and a sequence-set is an atom, " +
-                   "not a quoted string. These should be BAD. Dovecot rejects 0 and (1), but accepts \"1\".")]
-      public void UidExpungeWithInvalidTokenIsBad(string set)
-      {
-         var session = Connect();
-         AppendMessages(session, "INBOX", 2, "\\Deleted");
-         session.Select("INBOX");
-
-         var expunge = session.Command("UID EXPUNGE " + set);
-         Assert.IsTrue(TrackedImapSession.IsBad(expunge), expunge);
-         CollectionAssert.AreEqual(new[] {1L, 2L}, UidSearchAll(session));
-
-         session.Disconnect();
-      }
-
       [TestCase("1,1", new[] {1})]
       [TestCase("2:1", new[] {1, 1})]
       [TestCase("*:1", new[] {1, 1})]
@@ -708,8 +570,7 @@ namespace RegressionTests.IMAP.UidPlusTesting
       }
 
       [Test]
-      [Category("UidPlusGap")]
-      [Description("GAP probe. Missing Expunge permission should give NO, not BAD.")]
+      [Description("Missing Expunge permission should give NO, not BAD.")]
       public void UidExpungeWithoutPermissionIsNo()
       {
          var folder = _settings.PublicFolders.Add("Share");

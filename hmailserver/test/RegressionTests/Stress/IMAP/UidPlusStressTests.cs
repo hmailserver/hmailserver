@@ -11,9 +11,8 @@ using System.Threading;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
-using RegressionTests.IMAP.UidPlusTesting;
 using RegressionTests.Shared;
-using static RegressionTests.IMAP.UidPlusTesting.UidPlusHelpers;
+using static RegressionTests.Shared.UidPlusHelpers;
 
 namespace RegressionTests.Stress.IMAP
 {
