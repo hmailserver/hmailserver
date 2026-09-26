@@ -168,14 +168,24 @@ namespace HM
             return IMAPResult(IMAPResult::ResultNo, "[OVERQUOTA] Your quota has been exceeded.");
       }
 
-      // A missing source file isn't logged as an error: it means the message was deleted since
-      // the set was resolved, by another session or outside IMAP. Other failures are logged.
+      // A missing source file is handled below, since it's expected when the message was deleted
+      // during the COPY. Other failures are logged by the copy.
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder, false);
 
       if (!pNewMessage)
       {
-         if (!FileUtilities::Exists(PersistentMessage::GetFileName(pAccount, pOldMessage)))
-            return SourceMessageGone_(pConnection, pOldMessage);
+         String sFileName = PersistentMessage::GetFileName(pAccount, pOldMessage);
+
+         if (!FileUtilities::Exists(sFileName))
+         {
+            // Deleted since the set was resolved, by another session or outside IMAP.
+            bool exists = true;
+            if (PersistentMessage::GetExists(pOldMessage->GetID(), exists) && !exists)
+               return SourceMessageGone_(pConnection, pOldMessage);
+
+            // The message is still there, but its file is not.
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5026, "IMAPCopy::DoAction", "Message copy failed because message file " + sFileName + " did not exist.");
+         }
 
          return IMAPResult(IMAPResult::ResultNo, "Failed to copy message.");
       }
