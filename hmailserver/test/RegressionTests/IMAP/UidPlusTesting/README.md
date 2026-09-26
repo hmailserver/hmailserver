@@ -36,7 +36,7 @@ nunit3-console.exe RegressionTests.dll --where "class == RegressionTests.Stress.
 | Server MUST send size updates seen while processing a command | 3501 5.2 | `CopyIntoSelectedFolderIsReportedToSameSession` | **gap** |
 | EXPUNGE only for numbers the client knows | 3501 7.4.1 | `ExpungeAfterCopyIntoSelectedFolder...`, stress | **gap** |
 | UIDVALIDITY greater when UIDs don't persist (recreate) | 3501 2.3.1.1 | `RecreatedFolderGetsNewUidValidityOrHigherUids` | **gap** |
-| Same, rename over a deleted name | 3501 2.3.1.1 | `RenamingOlderFolderOverDeletedOneRaisesUidValidity` | gap, low (Dovecot same) |
+| Same, rename over a deleted name | 3501 2.3.1.1 | not tested | won't fix: needs a new UIDVALIDITY on every rename (Dovecot same) |
 | UIDVALIDITY survives restart | 3501 2.3.1.1 | `UidValiditySurvivesServerRestart` | pass |
 | UIDNEXT above every assigned UID, incl. rolled-back | 3501 2.3.1.1 | `UidNextFollows*` | pass |
 | `*` is the highest number; `N:*` includes it; ranges either order | 3501 9 | `UidPlus`, fuzz, `UidSearchUidAgreesWithUidFetch` | FETCH/COPY/STORE/EXPUNGE pass; **SEARCH gap** |

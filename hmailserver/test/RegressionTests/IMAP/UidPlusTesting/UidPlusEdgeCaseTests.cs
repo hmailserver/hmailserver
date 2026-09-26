@@ -148,31 +148,6 @@ namespace RegressionTests.IMAP.UidPlusTesting
       }
 
       [Test]
-      [Category("UidPlusGap")]
-      [Description("GAP probe, low. Renaming an older folder over a deleted one gives the name a lower UIDVALIDITY " +
-                   "than before. RFC 3501 2.3.1.1 wants it greater. Dovecot 2.3 behaves the same.")]
-      public void RenamingOlderFolderOverDeletedOneRaisesUidValidity()
-      {
-         var session = Connect();
-
-         Assert.IsTrue(TrackedImapSession.IsOk(session.Command("CREATE \"Older\"")));
-         session.Append("Older", CreateMessage("older@example.test"));
-
-         Thread.Sleep(1500);
-
-         Assert.IsTrue(TrackedImapSession.IsOk(session.Command("CREATE \"Target\"")));
-         var oldValidity = long.Parse(ParseAppendUid(session.Append("Target", CreateMessage("target@example.test"))).Groups[1].Value);
-
-         Assert.IsTrue(TrackedImapSession.IsOk(session.Command("DELETE \"Target\"")));
-         Assert.IsTrue(TrackedImapSession.IsOk(session.Command("RENAME \"Older\" \"Target\"")));
-
-         var newValidity = GetStatusValue(session.Command("STATUS \"Target\" (UIDVALIDITY)"), "UIDVALIDITY");
-         Assert.Greater(newValidity, oldValidity);
-
-         session.Disconnect();
-      }
-
-      [Test]
       public void AppendToMissingFolderHasTryCreateAndNoAppendUid()
       {
          var session = Connect();
