@@ -155,10 +155,30 @@ namespace HM
             return IMAPResult(IMAPResult::ResultNo, "[OVERQUOTA] Your quota has been exceeded.");
       }
 
-      std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder);
+      // The file is copied under the source collection's lock, so another session can't
+      // expunge the message and delete its file half-way through.
+      std::shared_ptr<Message> pNewMessage;
+      auto source_messages = pConnection->GetCurrentFolder()->GetMessages();
+
+      bool source_exists = source_messages->RunIfExists(pOldMessage->GetID(), [&]()
+         {
+            pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder);
+         });
+
+      if (!source_exists)
+      {
+         // Expunged by another session since the set was resolved.
+         pConnection->GetCurrentFolderView()->MarkVanished(pOldMessage->GetID());
+
+         // UID COPY ignores messages that no longer exist (RFC 3501 6.4.8).
+         if (GetIsUID())
+            return IMAPResult();
+
+         return IMAPResult(IMAPResult::ResultNo, "[EXPUNGEISSUED] Some of the messages no longer exist.");
+      }
 
       if (!pNewMessage)
-         return IMAPResult(IMAPResult::ResultBad, "Failed to copy message");
+         return IMAPResult(IMAPResult::ResultNo, "Failed to copy message.");
 
       // Flags the user lacks the right to set are left unset (RFC 4314 4).
       if (!can_write_seen_)
@@ -178,7 +198,7 @@ namespace HM
       {
          // The file was copied, but no message refers to it.
          PersistentMessage::DeleteFile(pAccount, pNewMessage);
-         return IMAPResult(IMAPResult::ResultBad, "Failed to save copy of message.");
+         return IMAPResult(IMAPResult::ResultNo, "Failed to save copy of message.");
       }
 
       destination_readable_ = pConnection->CheckPermission(pFolder, ACLPermission::PermissionRead);
