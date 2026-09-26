@@ -23,6 +23,10 @@ namespace HM
       // or the destination can't be read.
       virtual String GetResponseCode() const;
 
+      // EXISTS and RECENT if messages were copied into the selected folder, since the delayed
+      // notification is not sent to this session.
+      virtual String GetUntaggedResponse(std::shared_ptr<IMAPConnection> pConnection);
+
    protected:
 
       // Removes the copies already made, so a failed COPY leaves the destination unchanged.

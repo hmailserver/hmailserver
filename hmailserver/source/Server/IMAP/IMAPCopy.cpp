@@ -13,6 +13,8 @@
 #include "../Common/Tracking/ChangeNotification.h"
 #include "../Common/Tracking/NotificationServer.h"
 #include "../Common/BO/Messages.h"
+#include "IMAPFolderView.h"
+#include "IMAPNotificationClient.h"
 
 
 #include "MessagesContainer.h"
@@ -44,6 +46,29 @@ namespace HM
       sResponseCode += _T("] ");
 
       return sResponseCode;
+   }
+
+   String
+   IMAPCopy::GetUntaggedResponse(std::shared_ptr<IMAPConnection> pConnection)
+   {
+      if (copied_message_ids_.empty())
+         return String();
+
+      auto current_folder = pConnection->GetCurrentFolder();
+      if (!current_folder || current_folder->GetID() != destination_folder_->GetID())
+         return String();
+
+      std::shared_ptr<Messages> messages = destination_folder_->GetMessages();
+
+      // The copies are appended at the end, so this session's existing numbering is unaffected.
+      auto view = pConnection->GetCurrentFolderView();
+      if (view)
+         view->AppendNewMessages(messages);
+
+      int message_count = view ? view->GetMessageCount() : messages->GetCount();
+
+      return IMAPNotificationClient::GenerateExistsString(message_count) +
+             IMAPNotificationClient::GenerateRecentString((int) pConnection->GetRecentMessageCount());
    }
 
    String

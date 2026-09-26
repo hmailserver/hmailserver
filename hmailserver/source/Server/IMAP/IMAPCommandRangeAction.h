@@ -39,6 +39,9 @@ namespace HM
       // A response code for the tagged OK, followed by a space, or empty if there is none.
       virtual String GetResponseCode() const { return String(); }
 
+      // Untagged responses to send before the tagged OK, or empty if there are none.
+      virtual String GetUntaggedResponse(std::shared_ptr<IMAPConnection> pConnection) { return String(); }
+
    protected:
 
       bool GetIsUID();

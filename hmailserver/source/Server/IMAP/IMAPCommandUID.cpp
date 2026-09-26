@@ -131,7 +131,7 @@ namespace HM
       IMAPResult result = command_->DoForMails(pConnection, sMailNo, pArgument);
 
       if (result.GetResult() == IMAPResult::ResultOK)
-         pConnection->SendAsciiData(pArgument->Tag() + " OK " + command_->GetResponseCode() + "UID completed\r\n");
+         pConnection->SendAsciiData(command_->GetUntaggedResponse(pConnection) + pArgument->Tag() + " OK " + command_->GetResponseCode() + "UID completed\r\n");
 
       return result;
    }
