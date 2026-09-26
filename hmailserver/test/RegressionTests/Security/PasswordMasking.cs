@@ -398,6 +398,68 @@ namespace RegressionTests.Security
          EnsureCredentialsNotLogged(sock, credentials);
       }
 
+      [Test]
+      [Description("Client sends AUTH LOGIN credentials although the AUTH command was refused.")]
+      public void TestSMTPServerAuthLoginRefused()
+      {
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+
+         // AUTH is refused before EHLO.
+         sock.Send("AUTH LOGIN\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503"));
+
+         sock.Send(EncodeBase64(GetUsername()) + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503"));
+
+         var credentials = EncodeBase64(GetPassword());
+         sock.Send(credentials + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503"));
+
+         EnsureCredentialsNotLogged(sock, credentials);
+
+         // The user name is not secret, so it is logged, as for an accepted AUTH LOGIN.
+         Assert.IsTrue(LogHandler.DefaultLogContains("RECEIVED: " + EncodeBase64(GetUsername())));
+      }
+
+      [Test]
+      [Description("Client sends the AUTH LOGIN password although the AUTH command, with the user name, was refused.")]
+      public void TestSMTPServerAuthLoginWithUsernameRefused()
+      {
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+
+         // AUTH is refused before EHLO.
+         sock.Send("AUTH LOGIN " + EncodeBase64(GetUsername()) + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503"));
+
+         // The user name was on the AUTH line, so the next line is the password.
+         var credentials = EncodeBase64(GetPassword());
+         sock.Send(credentials + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503"));
+
+         EnsureCredentialsNotLogged(sock, credentials);
+      }
+
+      [Test]
+      [Description("An unknown command is logged as is, when no AUTH command precedes it.")]
+      public void TestSMTPServerUnknownCommandIsLogged()
+      {
+         var sock = ConnectAndSayHello();
+
+         sock.Send("XFOO\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503"));
+
+         sock.Send("NOOP\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+         Assert.IsTrue(LogHandler.DefaultLogContains("RECEIVED: NOOP"));
+
+         var log = LogHandler.ReadCurrentDefaultLog();
+         Assert.IsTrue(log.Contains("RECEIVED: XFOO"), log);
+      }
+
       private TcpConnection ConnectAndSayHello()
       {
          var sock = new TcpConnection();

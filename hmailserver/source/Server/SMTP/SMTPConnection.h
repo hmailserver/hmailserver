@@ -239,5 +239,12 @@ namespace HM
 
       RecipientParser recipientParser_;
       bool start_tls_used_;
+
+      bool auth_command_received_;
+      // True from an AUTH command until the next known command. Lines received
+      // in between may hold credentials, even if the AUTH command was refused.
+
+      bool auth_login_username_next_;
+      // True if the next line is the AUTH LOGIN user name, which is not secret.
    };
 }
