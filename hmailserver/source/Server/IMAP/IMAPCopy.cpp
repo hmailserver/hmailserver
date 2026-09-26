@@ -152,7 +152,7 @@ namespace HM
       if (!pFolder->IsPublicFolder())
       {
          if (!pAccount->SpaceAvailable(pOldMessage->GetSize()))
-            return IMAPResult(IMAPResult::ResultNo, "Your quota has been exceeded.");
+            return IMAPResult(IMAPResult::ResultNo, "[OVERQUOTA] Your quota has been exceeded.");
       }
 
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder);
