@@ -57,7 +57,7 @@ namespace HM
          return IMAPResult(IMAPResult::ResultNo, "No folder selected.");
 
       if (!pConnection->CheckPermission(pCurFolder, ACLPermission::PermissionExpunge))
-         return IMAPResult(IMAPResult::ResultBad, "ACL: Expunge permission denied (Required for EXPUNGE command).");
+         return IMAPResult(IMAPResult::ResultNo, "ACL: Expunge permission denied (Required for EXPUNGE command).");
 
       auto view = pConnection->GetCurrentFolderView();
 
