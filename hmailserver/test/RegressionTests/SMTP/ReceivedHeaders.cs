@@ -141,6 +141,24 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
+      [Description("Received header should not include the envelope sender if the client has authenticated.")]
+      public void TestNoEnvelopeFromInReceivedHeaderWhenAuthenticated()
+      {
+         string errorMessage;
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
+            out errorMessage);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         var receivedHeader = GetReceivedHeader(message);
+
+         StringAssert.Contains(" with ESMTPA", receivedHeader);
+         StringAssert.DoesNotContain("envelope-from", receivedHeader);
+         StringAssert.Contains(" for <test@example.test>", receivedHeader);
+      }
+
+      [Test]
       [Description("Received header should include the recipient when STARTTLS is used.")]
       public void TestForInReceivedHeaderWithStartTls()
       {

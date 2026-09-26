@@ -164,8 +164,10 @@ namespace HM
       if (is_authenticated_)
          esmtp_additions += "A";
 
+      // Authenticated senders are known to us, so their envelope sender adds little. The
+      // server receiving the message from us records it instead.
       String envelope_from;
-      if (!message_->GetFromAddress().IsEmpty())
+      if (!message_->GetFromAddress().IsEmpty() && !is_authenticated_)
          envelope_from.Format(_T(" (envelope-from <%s>)"), message_->GetFromAddress().c_str());
 
       // Only name a single recipient. Listing several would reveal Bcc recipients.
