@@ -104,11 +104,11 @@ namespace HM
 
 
    IMAPResult
-   IMAPCopy::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pOldMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCopy::Prepare(std::shared_ptr<IMAPConnection> pConnection, const std::shared_ptr<IMAPCommandArgument> pArgument)
    {
-      if (!pArgument || !pOldMessage)
+      if (!pArgument)
          return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
-      
+
       std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
       pParser->Parse(pArgument);
@@ -125,10 +125,20 @@ namespace HM
          IMAPFolder::UnescapeFolderString(sFolderName);
       }
 
-      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
-      if (!pFolder)
-         return IMAPResult(IMAPResult::ResultBad, "The folder could not be found.");
+      destination_folder_ = pConnection->GetFolderByFullPath(sFolderName);
+      if (!destination_folder_)
+         return IMAPResult(IMAPResult::ResultNo, "[TRYCREATE] The folder could not be found.");
 
+      return IMAPResult();
+   }
+
+   IMAPResult
+   IMAPCopy::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pOldMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
+   {
+      if (!pOldMessage || !destination_folder_)
+         return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
+
+      std::shared_ptr<IMAPFolder> pFolder = destination_folder_;
       std::shared_ptr<const Account> pAccount = pConnection->GetAccount();
 
       if (!pFolder->IsPublicFolder())
@@ -157,7 +167,6 @@ namespace HM
          return IMAPResult(IMAPResult::ResultBad, "Failed to save copy of message.");
       }
 
-      destination_folder_ = pFolder;
       destination_readable_ = pConnection->CheckPermission(pFolder, ACLPermission::PermissionRead);
       source_uids_.push_back(pOldMessage->GetUID());
       destination_uids_.push_back(pNewMessage->GetUID());

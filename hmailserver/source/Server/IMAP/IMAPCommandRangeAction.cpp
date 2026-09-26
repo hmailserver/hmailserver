@@ -56,6 +56,10 @@ namespace HM
       if (!ResolveTargets(view, sMailNos, is_uid_, targets))
          return IMAPResult(IMAPResult::ResultBad, "Incorrect message set.");
 
+      IMAPResult prepare_result = Prepare(pConnection, pArgument);
+      if (prepare_result.GetResult() != IMAPResult::ResultOK)
+         return prepare_result;
+
       if (targets.empty())
          return IMAPResult();
 

@@ -29,6 +29,9 @@ namespace HM
 
    protected:
 
+      // Looks up the destination, so a missing one is reported even if the set matches nothing.
+      virtual IMAPResult Prepare(std::shared_ptr<IMAPConnection> pConnection, const std::shared_ptr<IMAPCommandArgument> pArgument);
+
       // Removes the copies already made, so a failed COPY leaves the destination unchanged.
       virtual void RollBack(std::shared_ptr<IMAPConnection> pConnection);
 
