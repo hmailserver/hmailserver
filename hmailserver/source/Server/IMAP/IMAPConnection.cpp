@@ -732,12 +732,16 @@ namespace HM
       Untagged EXPUNGE responses are not permitted while the server is
       responding to a SORT command, but are permitted during a UID SORT
       command.
+
+      COPY is held back too: its sequence numbers are the client's numbering from before the
+      EXPUNGE, so sending it first would make COPY act on the wrong messages.
       */
 
       bool send_expunge = active_command != IMAP_FETCH &&
                           active_command != IMAP_STORE &&
                           active_command != IMAP_SEARCH &&
-                          active_command != IMAP_SORT;
+                          active_command != IMAP_SORT &&
+                          active_command != IMAP_COPY;
 
       notification_client_->SendCachedNotifications(send_expunge);
    }
