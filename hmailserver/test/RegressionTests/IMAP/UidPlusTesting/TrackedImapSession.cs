@@ -93,8 +93,19 @@ namespace RegressionTests.IMAP.UidPlusTesting
          Assert.IsEmpty(_violations, _name + ":" + Environment.NewLine + string.Join(Environment.NewLine, _violations));
       }
 
+      // RFC 4315 4: nz-number UIDVALIDITY, uid-sets of nz-numbers without *, only in a tagged OK.
+      private static readonly Regex UidPlusCode = new Regex(@"\[(APPENDUID|COPYUID)[^\]]*\]");
+      private static readonly Regex ValidUidPlusLine = new Regex(
+         @"^\S+ OK \[(APPENDUID [1-9]\d* [1-9]\d*|COPYUID [1-9]\d* (?<set>[1-9]\d*(:[1-9]\d*)?(,[1-9]\d*(:[1-9]\d*)?)*) (?<set>[1-9]\d*(:[1-9]\d*)?(,[1-9]\d*(:[1-9]\d*)?)*))\] ");
+
       private void Track(string response, string command)
       {
+         foreach (var line in response.Split('\n'))
+         {
+            if (UidPlusCode.IsMatch(line) && !ValidUidPlusLine.IsMatch(line))
+               _violations.Add(string.Format("{0}: malformed or misplaced UIDPLUS code: {1}", _name, line.Trim()));
+         }
+
          if (KnownCount < 0)
             return;
 
