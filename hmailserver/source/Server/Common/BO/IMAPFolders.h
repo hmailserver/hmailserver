@@ -26,7 +26,8 @@ namespace HM
 
       void RemoveFolder(std::shared_ptr<IMAPFolder> pFolder);
 
-      void CreatePath(std::shared_ptr<IMAPFolders> pParentContainer, const std::vector<String> &vecFolderPath, bool bAutoSubscribe);
+      // False if a folder could not be saved. The folders created before it are kept.
+      bool CreatePath(std::shared_ptr<IMAPFolders> pParentContainer, const std::vector<String> &vecFolderPath, bool bAutoSubscribe);
       
       virtual bool PreSaveObject(std::shared_ptr<IMAPFolder> pObject, XNode *node);
 

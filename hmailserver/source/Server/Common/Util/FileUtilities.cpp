@@ -81,7 +81,7 @@ namespace HM
    }
 
    bool
-   FileUtilities::Copy(const String &sFrom, const String &sTo, bool bCreateMissingDirectories)
+   FileUtilities::Copy(const String &sFrom, const String &sTo, bool bCreateMissingDirectories, bool bReportMissingSource)
    {
       const int iMaxNumberOfTries = 5;
 
@@ -103,13 +103,17 @@ namespace HM
             return true;
          }
 
-         // We failed to delete the file. 
+         // Retrying only helps if the file is locked, not if it's gone.
+         bool source_missing = !Exists(sFrom);
 
-         if (i == iMaxNumberOfTries)
+         if (source_missing && !bReportMissingSource)
+            return false;
+
+         if (i == iMaxNumberOfTries || source_missing)
          {
             // We still couldn't copy the file. Lets give up and report in windows event log and hMailServer application log
             String sErrorMessage;
-            sErrorMessage.Format(_T("Could not copy the file %s to %s. Tried 5 times without success."), sFrom.c_str(), sTo.c_str());
+            sErrorMessage.Format(_T("Could not copy the file %s to %s. Tried %d times without success."), sFrom.c_str(), sTo.c_str(), i);
             ErrorManager::Instance()->ReportError(ErrorManager::High, 5048, "File::Copy", sErrorMessage, error_code);
             return false;
          }

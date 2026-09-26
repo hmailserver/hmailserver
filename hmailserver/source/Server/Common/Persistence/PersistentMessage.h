@@ -26,7 +26,7 @@ namespace HM
       };
 
       static std::shared_ptr<Message> CopyToQueue(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage);
-      static std::shared_ptr<Message> CopyToIMAPFolder(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage, std::shared_ptr<IMAPFolder> destinationFolder);
+      static std::shared_ptr<Message> CopyToIMAPFolder(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage, std::shared_ptr<IMAPFolder> destinationFolder, bool reportMissingSource = true);
       static std::shared_ptr<Message> CopyFromQueueToInbox(std::shared_ptr<Message> sourceMessage, std::shared_ptr<const Account> destinationAccount);
 
       static bool DeleteObject(std::shared_ptr<Message> pMessage);
@@ -42,6 +42,9 @@ namespace HM
       static bool GetMessageID(const String &fileName, __int64 &messageID, bool &isPartialFilename);
       static bool ReadObject(std::shared_ptr<DALRecordset> pRS, std::shared_ptr<Message> pMessage, bool bReadRecipients = true);
       static bool ReadObject(std::shared_ptr<Message> pMessage, __int64 ObjectID);
+
+      // Whether the message is in the database. False if that can't be checked.
+      static bool GetExists(__int64 messageID, bool &exists);
       static bool ReadObject(std::shared_ptr<Message> pMessage, const SQLCommand &command);
 
       static bool SetNextTryTime(__int64 iMessageID, bool bUpdateNoOfTries, long lNoOfMinutes);

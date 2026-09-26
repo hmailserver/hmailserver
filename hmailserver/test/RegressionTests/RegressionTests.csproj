@@ -121,6 +121,7 @@
     <Compile Include="Shared\UtilityServices.cs" />
     <Compile Include="Stress\IMAP\ConcurrentConnectionsStressTests.cs" />
     <Compile Include="Stress\IMAP\NotificationThreadingStressTests.cs" />
+    <Compile Include="Stress\IMAP\UidPlusStressTests.cs" />
     <Compile Include="Stress\Scripting\MemoryUsage.cs" />    
     <Compile Include="TestResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -208,6 +209,11 @@
     <Compile Include="IMAP\MessageUids.cs" />
     <Compile Include="IMAP\SessionMessageNumbering.cs" />
     <Compile Include="IMAP\UidPlus.cs" />
+    <Compile Include="IMAP\UidValidity.cs" />
+    <Compile Include="IMAP\UidPlusCompliance.cs" />
+    <Compile Include="Shared\TrackedImapSession.cs" />
+    <Compile Include="Details\IMAP\UidPlusEdgeCaseTests.cs" />
+    <Compile Include="Details\IMAP\UidPlusRfcTests.cs" />
     <Compile Include="MIME\Parameters.cs" />
     <Compile Include="Security\Basics.cs" />
     <Compile Include="Shared\TestFixtureBase.cs" />

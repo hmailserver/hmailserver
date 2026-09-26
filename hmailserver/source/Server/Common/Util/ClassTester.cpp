@@ -20,6 +20,7 @@
 #include "Parsing/AddresslistParser.h"
 #include "../../IMAP/IMAPSimpleCommandParser.h"
 #include "../../IMAP/IMAPCommandRangeActionTester.h"
+#include "../Persistence/UIDValidityGeneratorTester.h"
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"
 #include "../../SMTP/SPF/Conformance/SPFConformanceTester.h"
@@ -177,7 +178,6 @@ namespace HM
       PasswordHasherTester passwordHasherTester;
       passwordHasherTester.Test();
 
-
       OutputDebugString(_T("hMailServer: Testing RegularExpressionTester\n"));
       RegularExpressionTester *pRegExTest = new RegularExpressionTester();
       pRegExTest->Test();
@@ -187,7 +187,7 @@ namespace HM
       Base64Tester base64Tester;
       base64Tester.Test();
 
-      OutputDebugString(_T("hMailServer: Testing Base64\n"));
+      OutputDebugString(_T("hMailServer: Testing ModifiedUTF7Tester\n"));
       ModifiedUTF7Tester modifiedUTF7Tester;
       modifiedUTF7Tester.Test();
 
@@ -200,7 +200,6 @@ namespace HM
       CharsetTester *pCharsetTester = new CharsetTester;
       pCharsetTester->Test();
       delete pCharsetTester;
-
 
       OutputDebugString(_T("hMailServer: Testing LocalIPAddresses\n"));
       LocalIPAddressesTester *pTest4 = new LocalIPAddressesTester();
@@ -217,9 +216,6 @@ namespace HM
       pTimeT->Test();
       delete pTimeT;
 
-
-
-
       OutputDebugString(_T("hMailServer: Testing BlowFishEncryptorTester\n"));
       BlowFishEncryptorTester *pTest3 = new BlowFishEncryptorTester();
       pTest3->Test();
@@ -234,8 +230,9 @@ namespace HM
       IMAPCommandRangeActionTester rangeActionTester;
       ReportFailures_("IMAP message sets", rangeActionTester.Run());
 
-      
-
+      OutputDebugString(_T("hMailServer: Testing UIDVALIDITY counters\n"));
+      UIDValidityGeneratorTester uidValidityTester;
+      ReportFailures_("UIDVALIDITY counters", uidValidityTester.Run());
    }
 
    void 

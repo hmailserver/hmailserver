@@ -300,8 +300,9 @@ namespace RegressionTests.IMAP
          var sim = new ImapClientSimulator();
          sim.ConnectAndLogon(account.Address, "test");
          sim.SelectFolder("INBOX");
+         // 0 is not a valid sequence number (RFC 3501 9).
          var result = sim.Fetch("0 BODY[1]");
-         Assert.IsTrue(result.StartsWith("A17 OK FETCH completed"));
+         Assert.IsTrue(result.StartsWith("A17 BAD"), result);
          result = sim.Fetch("-1 BODY[1]");
          Assert.IsTrue(result.StartsWith("A17 BAD"));
          result = sim.Fetch("-100 BODY[1]");

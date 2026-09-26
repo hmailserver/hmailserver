@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -320,6 +321,37 @@ namespace RegressionTests.IMAP
          Assert.IsTrue(copy.Contains("A02 OK"), copy);
 
          simulator.Disconnect();
+      }
+
+      [TestCase("UID COPY 1:2")]
+      [TestCase("COPY 1:2")]
+      [Description("A message whose file is missing from disk is still in the folder. COPY fails and " +
+                   "logs the missing file, rather than treating the message as expunged.")]
+      public void CopyOfMessageWithMissingFileFails(string command)
+      {
+         var account = AddAccount();
+         var simulator = ConnectAndLogon(account);
+         Assert.IsTrue(simulator.CreateFolder("Target"));
+         AppendMessages(simulator, "INBOX", 2);
+
+         var inbox = account.IMAPFolders.get_ItemByName("INBOX");
+         File.Delete(inbox.Messages[0].Filename);
+
+         Assert.IsTrue(simulator.SelectFolder("INBOX"));
+
+         var copy = simulator.SendSingleCommand("A01 " + command + " \"Target\"");
+         Assert.IsTrue(copy.Contains("A01 NO"), copy);
+         Assert.IsFalse(copy.Contains("EXPUNGE"), copy);
+         Assert.IsFalse(copy.Contains("COPYUID"), copy);
+
+         Assert.AreEqual(0, GetStatusValue(simulator.Status("Target", "MESSAGES"), "MESSAGES"));
+
+         // The session still sees the message.
+         Assert.AreEqual("1 2", UidSearch(simulator, "ALL"));
+
+         simulator.Disconnect();
+
+         CustomAsserts.AssertReportedError("Message copy failed because message file");
       }
 
       #endregion

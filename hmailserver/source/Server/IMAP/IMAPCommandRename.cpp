@@ -67,7 +67,8 @@ namespace HM
          std::vector<String> vecNewFolderParent = vecNewPath;
          vecNewFolderParent.erase(vecNewFolderParent.end()-1);
 
-         pConnection->GetAccountFolders()->CreatePath(pConnection->GetAccountFolders(), vecNewFolderParent, false);
+         if (!pConnection->GetAccountFolders()->CreatePath(pConnection->GetAccountFolders(), vecNewFolderParent, false))
+            return IMAPResult(IMAPResult::ResultNo, "RENAME The new parent folder could not be created.");
 
          // fetch the newly created folder
          pNewParentFolder  = GetParentFolder(pConnection, vecNewPath);
@@ -180,7 +181,7 @@ namespace HM
 
       // Check if the user has access to rename this folder
       if (!pConnection->CheckPermission(pFolderToRename, ACLPermission::PermissionDeleteMailbox))
-         return IMAPResult(IMAPResult::ResultNo, "ACL DeleteMailbox permission denied (required for RENAME).");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: DeleteMailbox permission denied (required for RENAME).");
          
       String hierarchyDelimiter = Configuration::Instance()->GetIMAPConfiguration()->GetHierarchyDelimiter();
       String sNewFolderName = StringParser::JoinVector(vecNewPath, hierarchyDelimiter);

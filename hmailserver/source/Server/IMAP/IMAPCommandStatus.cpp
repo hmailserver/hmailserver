@@ -41,11 +41,11 @@ namespace HM
 
       // Check if the user has access to read this folder.
       if (!pConnection->CheckPermission(pTheFolder, ACLPermission::PermissionRead))
-         return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied (Required for STATUS command).");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Read permission denied (Required for STATUS command).");
 
       // Check if the user has access to read this folder.
       if (!pConnection->CheckPermission(pTheFolder, ACLPermission::PermissionRead))
-         return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied.");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Read permission denied.");
 
       std::shared_ptr<Messages> pMessages = pTheFolder->GetMessages();
       
