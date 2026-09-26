@@ -59,7 +59,7 @@ namespace HM
 
       // Check that user has permission to do this.
       if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionAdminister))
-         return IMAPResult(IMAPResult::ResultNo, "Permission denied.");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Administer permission denied (Required for SETACL command).");
 
       String sIdentifier = pParser->Word(2)->Value();
       String sAccessRights = pParser->Word(3)->Value();

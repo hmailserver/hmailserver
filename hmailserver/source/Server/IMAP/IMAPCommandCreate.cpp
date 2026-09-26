@@ -146,7 +146,7 @@ namespace HM
          if (pParentFolder)
          {
             if (!pConnection->CheckPermission(pParentFolder, ACLPermission::PermissionCreate))
-               return IMAPResult(IMAPResult::ResultNo, "ACL: Create permission denied (Required for CREATE command).");
+               return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Create permission denied (Required for CREATE command).");
          }     
 
          // Check if the user is trying to create a new root public folder, such as Public folders/Test

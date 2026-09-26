@@ -131,7 +131,7 @@ namespace HM
 
       // A permission failure is NO. BAD is only for syntax errors.
       if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionInsert))
-         return IMAPResult(IMAPResult::ResultNo, "ACL: Insert permission denied (Required for COPY command).");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Insert permission denied (Required for COPY command).");
 
       return IMAPResult();
    }

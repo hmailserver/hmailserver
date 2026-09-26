@@ -152,7 +152,7 @@ namespace HM
       }
 
       if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionInsert))
-         return IMAPResult(IMAPResult::ResultBad, "ACL: Insert permission denied (Required for APPEND command).");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Insert permission denied (Required for APPEND command).");
 
 
 

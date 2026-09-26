@@ -180,7 +180,7 @@ namespace HM
 
       // Check if the user has access to rename this folder
       if (!pConnection->CheckPermission(pFolderToRename, ACLPermission::PermissionDeleteMailbox))
-         return IMAPResult(IMAPResult::ResultNo, "ACL DeleteMailbox permission denied (required for RENAME).");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: DeleteMailbox permission denied (required for RENAME).");
          
       String hierarchyDelimiter = Configuration::Instance()->GetIMAPConfiguration()->GetHierarchyDelimiter();
       String sNewFolderName = StringParser::JoinVector(vecNewPath, hierarchyDelimiter);
