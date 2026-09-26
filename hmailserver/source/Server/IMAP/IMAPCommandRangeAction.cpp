@@ -186,13 +186,20 @@ namespace HM
          start = comma + 1;
       }
 
+      // A message named more than once is acted on once, where it first appears.
+      std::set<__int64> seen_message_ids;
+
       for (const auto &range : ranges)
       {
          auto entries = isUID ?
             view->GetEntriesByUIDRange(range.first, range.second) :
             view->GetEntriesBySequenceRange((int) std::min<unsigned int>(range.first, INT_MAX), (int) std::min<unsigned int>(range.second, INT_MAX));
 
-         targets.insert(targets.end(), entries.begin(), entries.end());
+         for (const auto &entry : entries)
+         {
+            if (seen_message_ids.insert(entry.second.message_id).second)
+               targets.push_back(entry);
+         }
       }
 
       return true;
