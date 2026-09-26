@@ -92,6 +92,9 @@ namespace HM
       void SetSequenceSet(std::vector<String> newVal) {sequence_set_ = newVal;}
       std::vector<String> &GetSequenceSet() {return sequence_set_;}
 
+      // The messages the sequence set names, once resolved against the session's view.
+      std::set<__int64> &GetResolvedMessageIds() {return resolved_message_ids_;}
+
    private:
 
       static bool IsSequenceSet_(const String &item);
@@ -105,6 +108,7 @@ namespace HM
       String header_field_;
       std::vector<std::shared_ptr<IMAPSearchCriteria> > sub_criterias_;
       std::vector<String> sequence_set_;
+      std::set<__int64> resolved_message_ids_;
 
       bool is_or_;
    };
