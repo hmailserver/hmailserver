@@ -15,6 +15,7 @@
 #include "PersistentMessage.h"
 #include "PersistentGroupMember.h"
 #include "PersistenceMode.h"
+#include "UIDValidityGenerator.h"
 
 #include "../Util/File.h"
 #include "../Util/Time.h"
@@ -67,6 +68,7 @@ namespace HM
       // Force delete any folders DeleteMessages above retained (Inbox and any
       // special-use folders), since the whole account is being removed.
       PersistentIMAPFolder::DeleteByAccount(iID, true);
+      UIDValidityGenerator::DeleteAccount(iID);
 
       pAccount->GetRules()->DeleteAll();
 

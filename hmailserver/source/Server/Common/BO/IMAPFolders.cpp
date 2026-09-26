@@ -45,7 +45,7 @@ namespace HM
 
       vecObjects.clear();
 
-      SQLCommand command("select folderid, folderparentid, foldername, folderissubscribed, foldercurrentuid, foldercreationtime, folderspecialuse from hm_imapfolders "
+      SQLCommand command("select folderid, folderparentid, foldername, folderissubscribed, foldercurrentuid, foldercreationtime, folderspecialuse, folderuidvalidity from hm_imapfolders "
                          " where folderaccountid = @FOLDERACCOUNTID order by folderid asc");
 
       command.AddParameter("@FOLDERACCOUNTID", account_id_);
@@ -75,6 +75,7 @@ namespace HM
             currentUID = (unsigned int) pRS->GetInt64Value("foldercurrentuid");
             creationTime = Time::GetDateFromSystemDate(pRS->GetStringValue("foldercreationtime"));
             unsigned int specialUseFlags = (unsigned int) pRS->GetLongValue("folderspecialuse");
+            unsigned int uidValidity = (unsigned int) pRS->GetInt64Value("folderuidvalidity");
 
             // Initialize with dummy parent folder. We can't set it here since it may not
             // even be loaded from the recordset yet.
@@ -86,6 +87,7 @@ namespace HM
             pFolder->SetCurrentUID(currentUID);
             pFolder->SetCreationTime(creationTime);
             pFolder->SetSpecialUseFlags(specialUseFlags);
+            pFolder->SetStoredUIDValidity(uidValidity);
 
             vecIMAPFolders.push_back(std::make_pair(iParentID, pFolder));
 

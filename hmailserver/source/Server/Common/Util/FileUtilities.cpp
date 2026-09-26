@@ -81,7 +81,7 @@ namespace HM
    }
 
    bool
-   FileUtilities::Copy(const String &sFrom, const String &sTo, bool bCreateMissingDirectories)
+   FileUtilities::Copy(const String &sFrom, const String &sTo, bool bCreateMissingDirectories, bool bReportMissingSource)
    {
       const int iMaxNumberOfTries = 5;
 
@@ -105,6 +105,9 @@ namespace HM
 
          // Retrying only helps if the file is locked, not if it's gone.
          bool source_missing = !Exists(sFrom);
+
+         if (source_missing && !bReportMissingSource)
+            return false;
 
          if (i == iMaxNumberOfTries || source_missing)
          {

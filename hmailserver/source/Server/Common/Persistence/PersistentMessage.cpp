@@ -401,7 +401,7 @@ namespace HM
    }
 
    std::shared_ptr<Message>
-   PersistentMessage::CopyToIMAPFolder(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage, std::shared_ptr<IMAPFolder> destinationFolder)
+   PersistentMessage::CopyToIMAPFolder(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage, std::shared_ptr<IMAPFolder> destinationFolder, bool reportMissingSource)
    {
       std::shared_ptr<Message> messageCopy = CreateCopy_(sourceMessage, (int) destinationFolder->GetAccountID());
       messageCopy->SetState(Message::Delivered);
@@ -420,7 +420,7 @@ namespace HM
          destinationFile = GetFileName(sourceAccount, messageCopy, AccountFolder);
       }
 
-      if (!FileUtilities::Copy(sourceFile, destinationFile, true))
+      if (!FileUtilities::Copy(sourceFile, destinationFile, true, reportMissingSource))
       {
          std::shared_ptr<Message> pEmpty;
          return pEmpty;

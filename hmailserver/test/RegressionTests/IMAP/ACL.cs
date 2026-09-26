@@ -1247,5 +1247,142 @@ namespace RegressionTests.IMAP
 
          imapClientSimulator.Disconnect();
       }
+
+      [Test]
+      [Description("APPEND leaves out the flags the user lacks the right to set (RFC 4314 4).")]
+      public void AppendWithoutWriteRightDropsFlags()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "flags@example.test", "test");
+         var permission = CreateShare(account, eACLPermission.ePermissionLookup, eACLPermission.ePermissionRead,
+            eACLPermission.ePermissionInsert);
+
+         var simulator = new ImapClientSimulator();
+         Assert.IsTrue(simulator.ConnectAndLogon(account.Address, "test"));
+
+         var append = AppendWithFlags(simulator, "#Public.Share", "(\\Draft \\Answered \\Flagged \\Deleted)");
+         Assert.IsTrue(append.Contains("A40 OK"), append);
+
+         permission.set_Permission(eACLPermission.ePermissionWriteOthers, true);
+         permission.set_Permission(eACLPermission.ePermissionWriteDeleted, true);
+         permission.Save();
+
+         append = AppendWithFlags(simulator, "#Public.Share", "(\\Draft \\Answered \\Flagged \\Deleted)");
+         Assert.IsTrue(append.Contains("A40 OK"), append);
+
+         Assert.IsTrue(simulator.SelectFolder("#Public.Share"));
+         AssertFlags(simulator.Fetch("1 (FLAGS)"), false);
+         AssertFlags(simulator.Fetch("2 (FLAGS)"), true);
+
+         simulator.Disconnect();
+      }
+
+      [Test]
+      [Description("COPY leaves out the flags the user lacks the right to set in the destination (RFC 4314 4).")]
+      public void CopyWithoutWriteRightDropsFlags()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "flags@example.test", "test");
+         CreateShare(account, eACLPermission.ePermissionLookup, eACLPermission.ePermissionRead,
+            eACLPermission.ePermissionInsert);
+
+         var simulator = new ImapClientSimulator();
+         Assert.IsTrue(simulator.ConnectAndLogon(account.Address, "test"));
+
+         var append = AppendWithFlags(simulator, "INBOX", "(\\Draft \\Answered \\Flagged \\Deleted)");
+         Assert.IsTrue(append.Contains("A40 OK"), append);
+
+         Assert.IsTrue(simulator.SelectFolder("INBOX"));
+         AssertFlags(simulator.Fetch("1 (FLAGS)"), true);
+         Assert.IsTrue(simulator.Copy(1, "#Public.Share"));
+
+         Assert.IsTrue(simulator.SelectFolder("#Public.Share"));
+         AssertFlags(simulator.Fetch("1 (FLAGS)"), false);
+
+         simulator.Disconnect();
+      }
+
+      [TestCase("SELECT")]
+      [TestCase("STATUS")]
+      [TestCase("STORE")]
+      [TestCase("CREATE")]
+      [TestCase("DELETE")]
+      [TestCase("RENAME")]
+      [TestCase("SETACL")]
+      [Description("An ACL denial is NO [NOPERM] (RFC 5530 3, RFC 4314 4), not BAD.")]
+      public void AclDenialIsNoPerm(string command)
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "noperm@example.test", "test");
+
+         // Enough to see the folders and put a message in them, but nothing else.
+         var permission = CreateShare(account, eACLPermission.ePermissionLookup, eACLPermission.ePermissionRead,
+            eACLPermission.ePermissionInsert);
+
+         var subFolder = _settings.PublicFolders.get_ItemByName("Share").SubFolders.Add("Sub");
+         subFolder.Save();
+
+         var simulator = new ImapClientSimulator();
+         Assert.IsTrue(simulator.ConnectAndLogon(account.Address, "test"));
+
+         string response;
+         switch (command)
+         {
+            case "SELECT":
+            case "STATUS":
+               permission.set_Permission(eACLPermission.ePermissionRead, false);
+               permission.Save();
+               response = command == "SELECT"
+                  ? simulator.SendSingleCommand("A10 SELECT \"#Public.Share\"")
+                  : simulator.SendSingleCommand("A10 STATUS \"#Public.Share\" (MESSAGES)");
+               break;
+            case "STORE":
+               Assert.IsTrue(AppendWithFlags(simulator, "#Public.Share", null).Contains("A40 OK"));
+               Assert.IsTrue(simulator.SelectFolder("#Public.Share"));
+               response = simulator.SendSingleCommand("A10 STORE 1 +FLAGS (\\Flagged)");
+               break;
+            case "CREATE":
+               response = simulator.SendSingleCommand("A10 CREATE \"#Public.Share.New\"");
+               break;
+            case "DELETE":
+               response = simulator.SendSingleCommand("A10 DELETE \"#Public.Share.Sub\"");
+               break;
+            case "RENAME":
+               response = simulator.SendSingleCommand("A10 RENAME \"#Public.Share.Sub\" \"#Public.Share.Renamed\"");
+               break;
+            default:
+               response = simulator.SendSingleCommand("A10 SETACL \"#Public.Share\" " + account.Address + " lrswipkxtea");
+               break;
+         }
+
+         StringAssert.Contains("A10 NO [NOPERM]", response);
+         simulator.Disconnect();
+      }
+
+      private IMAPFolderPermission CreateShare(Account account, params eACLPermission[] rights)
+      {
+         var folder = _settings.PublicFolders.Add("Share");
+         folder.Save();
+
+         var permission = folder.Permissions.Add();
+         permission.PermissionAccountID = account.ID;
+         permission.PermissionType = eACLPermissionType.ePermissionTypeUser;
+
+         foreach (var right in rights)
+            permission.set_Permission(right, true);
+
+         permission.Save();
+         return permission;
+      }
+
+      private static string AppendWithFlags(ImapClientSimulator simulator, string folderName, string flags)
+      {
+         const string message = "Subject: Flags\r\n\r\nBody\r\n";
+         return simulator.SendSingleCommandWithLiteral(
+            "A40 APPEND \"" + folderName + "\" " + (flags != null ? flags + " " : "") + "{" + message.Length + "}", message);
+      }
+
+      private static void AssertFlags(string fetch, bool expected)
+      {
+         foreach (var flag in new[] {"\\Draft", "\\Answered", "\\Flagged", "\\Deleted"})
+            Assert.AreEqual(expected, fetch.Contains(flag), flag + ": " + fetch);
+      }
    }
 }

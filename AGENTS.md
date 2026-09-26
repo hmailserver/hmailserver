@@ -81,7 +81,7 @@ Shared infrastructure used by SMTP, IMAP, POP3, and the COM layer. Broken into f
 | `Mime/` | MIME encoding and decoding for message parsing and construction |
 | `Persistence/` | ORM-like persistence layer — one class per business object, maps to DB columns |
 | `Scripting/` | Server-side event hooks that fire VBScript/JScript event handlers |
-| `SQL/` | Low-level database abstraction: connection management, parameterised queries; supports MySQL, MS SQL, and SQLite |
+| `SQL/` | Low-level database abstraction: connection management, parameterised queries; supports MySQL, MS SQL Server, PostgreSQL and SQL Server Compact |
 | `TCPIP/` | Async networking using Boost.Asio: DNS resolution, connection management, TLS |
 | `Threading/` | Thread pool, task queuing, and thread lifecycle management |
 | `Tracking/` | Publish/subscribe notification bus between server components |
@@ -138,7 +138,13 @@ Various scripts, for example, default event scripts
 
 ## `source/DBScripts/`
 
-SQL scripts for creating the hMailServer database schema from scratch, and incremental upgrade scripts for migrating from one version to the next. These cover MySQL, MS SQL Server, and SQLite. When adding a new persistent field, add the corresponding `ALTER TABLE` statement here.
+SQL scripts that create the database schema from scratch (`CreateTables*.sql`), and upgrade scripts that move a database from one version to the next (`Upgrade<from>to<to><type>.sql`). They cover MySQL, MS SQL Server, PostgreSQL and SQL Server Compact. SQL Server Compact is created with `CreateTablesMSSQL.sql` but has its own upgrade scripts (`*MSSQLCE.sql`).
+
+A schema change needs:
+- upgrade scripts for all four database types, ending with `update hm_dbversion set value = <new version>`;
+- the same change in the three `CreateTables*.sql` scripts, including the version they insert into `hm_dbversion`;
+- the new version in `REQUIRED_DB_VERSION` in `Server/Common/Application/Constants.h`;
+- the new script and version name in `Tools/DBUpdater/formMain.cs`.
 
 ---
 
@@ -198,7 +204,7 @@ Vendored third-party C++ libraries checked directly into the repository. Large e
 
 **Event scripting.** `EventHandlers/` allows administrators to run VBScript/JScript at server-defined hook points (e.g., on message receive). This is exposed as an optional, sandboxed scripting layer.
 
-**Database portability.** The SQL layer abstracts over MySQL, MS SQL Server, and SQLite. Use parameterised queries exclusively; never construct SQL strings manually.
+**Database portability.** The SQL layer abstracts over MySQL, MS SQL Server, PostgreSQL and SQL Server Compact (the built-in database). Use parameterised queries exclusively; never construct SQL strings manually.
 
 ---
 

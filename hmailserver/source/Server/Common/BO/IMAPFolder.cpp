@@ -134,6 +134,9 @@ namespace HM
       pNode->AppendAttr(_T("SpecialUse"), GetSpecialUse());
       pNode->AppendAttr(_T("CreateTime"), String(Time::GetTimeStampFromDateTime(create_time_)));
       pNode->AppendAttr(_T("CurrentUID"), StringParser::IntToString(current_uid_));
+      String sUIDValidity;
+      sUIDValidity.Format(_T("%u"), GetUIDValidity());
+      pNode->AppendAttr(_T("UIDValidity"), sUIDValidity);
 
       if (!GetMessages()->XMLStore(pNode, iBackupOptions))
          return false;
@@ -160,6 +163,11 @@ namespace HM
       SetSpecialUse(pFolderNode->GetAttrValue(_T("SpecialUse")));
       create_time_ = Time::GetDateFromSystemDate(pFolderNode->GetAttrValue(_T("CreateTime")));
       current_uid_ = _ttoi(pFolderNode->GetAttrValue(_T("CurrentUID")));
+
+      // Keep the UIDVALIDITY, so clients can keep their caches. Older backups don't have it,
+      // and the folder used its creation time.
+      String sUIDValidity = pFolderNode->GetAttrValue(_T("UIDValidity"));
+      uid_validity_ = sUIDValidity.IsEmpty() ? create_time_.ToInt() : (unsigned int) _ttoi64(sUIDValidity);
 
       return true;
    }

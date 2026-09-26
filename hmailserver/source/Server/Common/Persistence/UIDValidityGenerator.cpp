@@ -15,49 +15,112 @@
 namespace HM
 {
    boost::mutex UIDValidityGenerator::mutex_;
-   bool UIDValidityGenerator::loaded_ = false;
-   unsigned int UIDValidityGenerator::last_uid_validity_ = 0;
 
-   DateTime
-   UIDValidityGenerator::GetNewCreationTime()
+   unsigned int
+   UIDValidityGenerator::GetNext(__int64 account_id)
    {
       boost::lock_guard<boost::mutex> guard(mutex_);
 
-      unsigned int last_uid_validity = GetLastUIDValidity_();
+      __int64 value = 0;
+      bool exists = false;
 
-      DateTime creation_time = DateTime::GetCurrentTime();
-      unsigned int uid_validity = creation_time.ToInt();
+      if (!GetCounter_(account_id, value, exists))
+         return 0;
 
-      if (uid_validity <= last_uid_validity)
-      {
-         creation_time = creation_time + DateTimeSpan((last_uid_validity + 1 - uid_validity) / 86400.0);
-         uid_validity = creation_time.ToInt();
-      }
+      value++;
 
-      last_uid_validity_ = uid_validity;
+      // UIDVALIDITY is a 32-bit number.
+      if (value > UINT_MAX)
+         return 0;
 
-      return creation_time;
+      if (!SetCounter_(account_id, value, exists))
+         return 0;
+
+      return (unsigned int) value;
    }
 
-   unsigned int
-   UIDValidityGenerator::GetLastUIDValidity_()
+   void
+   UIDValidityGenerator::Reserve(__int64 account_id, unsigned int uid_validity)
    {
-      if (loaded_)
-         return last_uid_validity_;
+      boost::lock_guard<boost::mutex> guard(mutex_);
 
-      SQLCommand command("select max(foldercreationtime) as newest from hm_imapfolders");
+      __int64 value = 0;
+      bool exists = false;
 
-      // If the lookup fails, it's retried the next time a folder is created.
+      if (!GetCounter_(account_id, value, exists))
+         return;
+
+      if (uid_validity > value)
+         SetCounter_(account_id, uid_validity, exists);
+   }
+
+   bool
+   UIDValidityGenerator::DeleteAccount(__int64 account_id)
+   {
+      boost::lock_guard<boost::mutex> guard(mutex_);
+
+      SQLCommand command("delete from hm_uidvalidity where uidvalidityaccountid = @ACCOUNTID");
+      command.AddParameter("@ACCOUNTID", account_id);
+
+      return Application::Instance()->GetDBManager()->Execute(command);
+   }
+
+   bool
+   UIDValidityGenerator::GetCounter_(__int64 account_id, __int64 &value, bool &exists)
+   {
+      SQLCommand command("select uidvalidityvalue from hm_uidvalidity where uidvalidityaccountid = @ACCOUNTID");
+      command.AddParameter("@ACCOUNTID", account_id);
+
       std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
       if (!pRS)
-         return last_uid_validity_;
+         return false;
 
-      String newest = pRS->IsEOF() ? String() : pRS->GetStringValue("newest");
+      exists = !pRS->IsEOF();
+
+      if (exists)
+      {
+         value = pRS->GetInt64Value("uidvalidityvalue");
+         return true;
+      }
+
+      /*
+         The account's folders so far used their creation time as UIDVALIDITY, including
+         folders since deleted. Those were created no later than now, so starting at now keeps
+         the values increasing. A creation time in the future is covered as well.
+      */
+      value = DateTime::GetCurrentTime().ToInt();
+
+      SQLCommand newestCommand("select max(foldercreationtime) as newest from hm_imapfolders where folderaccountid = @ACCOUNTID");
+      newestCommand.AddParameter("@ACCOUNTID", account_id);
+
+      std::shared_ptr<DALRecordset> pNewestRS = Application::Instance()->GetDBManager()->OpenRecordset(newestCommand);
+      if (!pNewestRS)
+         return false;
+
+      String newest = pNewestRS->IsEOF() ? String() : pNewestRS->GetStringValue("newest");
       if (!newest.IsEmpty())
-         last_uid_validity_ = (std::max)(last_uid_validity_, Time::GetDateFromSystemDate(newest).ToInt());
+         value = (std::max)(value, (__int64) Time::GetDateFromSystemDate(newest).ToInt());
 
-      loaded_ = true;
+      return true;
+   }
 
-      return last_uid_validity_;
+   bool
+   UIDValidityGenerator::SetCounter_(__int64 account_id, __int64 value, bool exists)
+   {
+      // SQL CE binds parameters by position, so they're added in the order the query uses them.
+      if (exists)
+      {
+         SQLCommand command("update hm_uidvalidity set uidvalidityvalue = @VALUE where uidvalidityaccountid = @ACCOUNTID");
+         command.AddParameter("@VALUE", value);
+         command.AddParameter("@ACCOUNTID", account_id);
+
+         return Application::Instance()->GetDBManager()->Execute(command);
+      }
+
+      SQLCommand command("insert into hm_uidvalidity (uidvalidityaccountid, uidvalidityvalue) values (@ACCOUNTID, @VALUE)");
+      command.AddParameter("@ACCOUNTID", account_id);
+      command.AddParameter("@VALUE", value);
+
+      return Application::Instance()->GetDBManager()->Execute(command);
    }
 }

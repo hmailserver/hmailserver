@@ -162,12 +162,20 @@ namespace HM
          oStatement.SetIdentityColumn("folderid");
 
          if (pFolder->GetCreationTime().GetStatus() == DateTime::invalid)
-            pFolder->SetCreationTime(UIDValidityGenerator::GetNewCreationTime());
+            pFolder->SetCreationTime(DateTime::GetCurrentTime());
+
+         // A folder restored from a backup keeps its UIDVALIDITY. If no value can be stored,
+         // 0 makes the folder use its creation time.
+         if (pFolder->GetStoredUIDValidity() != 0)
+            UIDValidityGenerator::Reserve(pFolder->GetAccountID(), pFolder->GetStoredUIDValidity());
+         else
+            pFolder->SetStoredUIDValidity(UIDValidityGenerator::GetNext(pFolder->GetAccountID()));
 
          // This column is always updated by GetUniqueMessageID below
          // but we still need to create it.
          oStatement.AddColumn("foldercurrentuid", pFolder->GetCurrentUID());
          oStatement.AddColumnDate("foldercreationtime", pFolder->GetCreationTime());
+         oStatement.AddColumnInt64("folderuidvalidity", pFolder->GetStoredUIDValidity());
       }
       else
       {

@@ -209,6 +209,7 @@
     <Compile Include="IMAP\MessageUids.cs" />
     <Compile Include="IMAP\SessionMessageNumbering.cs" />
     <Compile Include="IMAP\UidPlus.cs" />
+    <Compile Include="IMAP\UidValidity.cs" />
     <Compile Include="IMAP\UidPlusTesting\TrackedImapSession.cs" />
     <Compile Include="IMAP\UidPlusTesting\UidPlusEdgeCaseTests.cs" />
     <Compile Include="IMAP\UidPlusTesting\UidPlusRfcTests.cs" />

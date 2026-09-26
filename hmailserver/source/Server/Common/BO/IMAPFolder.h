@@ -57,8 +57,13 @@ namespace HM
       const DateTime &GetCreationTime() const { return create_time_;} 
       void SetCreationTime(const DateTime &currentUID) {create_time_ = currentUID;}
 
-      // The IMAP UIDVALIDITY value. Every response that reports it must use this.
-      unsigned int GetUIDValidity() const { return create_time_.ToInt(); }
+      // The IMAP UIDVALIDITY value. Every response that reports it must use this. Folders
+      // created before UIDVALIDITY was stored use their creation time.
+      unsigned int GetUIDValidity() const { return uid_validity_ != 0 ? uid_validity_ : create_time_.ToInt(); }
+
+      // The stored value, 0 if there is none.
+      unsigned int GetStoredUIDValidity() const { return uid_validity_; }
+      void SetStoredUIDValidity(unsigned int value) { uid_validity_ = value; }
 
 
       bool GetIsSubscribed() const { return folder_is_subscribed_;} 
@@ -114,6 +119,7 @@ namespace HM
       boost::recursive_mutex sub_folders_mutex_;
 
       DateTime create_time_;
+      unsigned int uid_validity_ = 0;
    };
 
 }

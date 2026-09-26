@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 using System;
+using System.IO;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
@@ -28,6 +29,11 @@ namespace RegressionTests.Shared
       {
          ServiceRestartDetector.ValidateProcessId();
 
+         // Logged after the previous test was checked, for example by background delivery. Only
+         // a warning here, since this test didn't cause it.
+         if (File.Exists(LogHandler.GetErrorLogFileName()))
+            Assert.Warn("Errors were logged before this test started:" + Environment.NewLine + LogHandler.ReadAndDeleteErrorLog());
+
          _domain = SingletonProvider<TestSetup>.Instance.PerformBasicSetup();
 
          LogHandler.DeleteCurrentDefaultLog();
@@ -45,6 +51,10 @@ namespace RegressionTests.Shared
             Console.WriteLine(LogHandler.ReadCurrentDefaultLog());
             Console.WriteLine();
          }
+
+         // Deleted, so an error fails only the test that caused it.
+         if (File.Exists(LogHandler.GetErrorLogFileName()))
+            Assert.Fail("Errors were logged during the test:" + Environment.NewLine + LogHandler.ReadAndDeleteErrorLog());
       }
    }
 }

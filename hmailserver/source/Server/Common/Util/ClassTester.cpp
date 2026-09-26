@@ -20,6 +20,7 @@
 #include "Parsing/AddresslistParser.h"
 #include "../../IMAP/IMAPSimpleCommandParser.h"
 #include "../../IMAP/IMAPCommandRangeActionTester.h"
+#include "../Persistence/UIDValidityGeneratorTester.h"
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"
 #include "../../SMTP/SPF/Conformance/SPFConformanceTester.h"
@@ -228,6 +229,10 @@ namespace HM
       OutputDebugString(_T("hMailServer: Testing IMAP message sets\n"));
       IMAPCommandRangeActionTester rangeActionTester;
       ReportFailures_("IMAP message sets", rangeActionTester.Run());
+
+      OutputDebugString(_T("hMailServer: Testing UIDVALIDITY counters\n"));
+      UIDValidityGeneratorTester uidValidityTester;
+      ReportFailures_("UIDVALIDITY counters", uidValidityTester.Run());
    }
 
    void 
