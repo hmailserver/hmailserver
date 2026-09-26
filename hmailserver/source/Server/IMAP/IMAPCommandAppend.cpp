@@ -271,6 +271,18 @@ namespace HM
          }
       }
 
+      // Flags the user lacks the right to set are left unset (RFC 4314 4).
+      if (bDeleted && !pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteDeleted))
+         bDeleted = false;
+
+      if ((bDraft || bAnswered || bFlagged) &&
+          !pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteOthers))
+      {
+         bDraft = false;
+         bAnswered = false;
+         bFlagged = false;
+      }
+
       current_message_->SetFlagDeleted(bDeleted);
       current_message_->SetFlagSeen(bSeen);
       current_message_->SetFlagDraft(bDraft);
