@@ -364,7 +364,7 @@ namespace HM
       if (sRequest.GetLength() > 510)
       {
          // This line is too long... is this an evil user?
-         EnqueueWrite_("500 Line too long.");
+         SendErrorResponse_(500, "Line too long.");
          return;
       }
 
@@ -407,9 +407,9 @@ namespace HM
                   case SMTP_COMMAND_AUTH: ProtocolAUTH_(sRequest); break;
                   case SMTP_COMMAND_MAIL: ProtocolMAIL_(sRequest); break;
                   case SMTP_COMMAND_RCPT: ProtocolRCPT_(sRequest); break;
-                  case SMTP_COMMAND_TURN: EnqueueWrite_("502 TURN disallowed."); break;
+                  case SMTP_COMMAND_TURN: SendErrorResponse_(502, "TURN disallowed."); break;
                   case SMTP_COMMAND_ETRN: ProtocolETRN_(sRequest); break;
-                  case SMTP_COMMAND_VRFY: EnqueueWrite_("502 VRFY disallowed."); break;
+                  case SMTP_COMMAND_VRFY: SendErrorResponse_(502, "VRFY disallowed."); break;
                   case SMTP_COMMAND_DATA: ProtocolDATA_(); break;
                   default:
                      SendErrorResponse_(503, "Bad sequence of commands"); 
@@ -504,7 +504,7 @@ namespace HM
 
       if (current_message_) 
       {
-         EnqueueWrite_("503 Issue a reset if you want to start over"); 
+         SendErrorResponse_(503, "Issue a reset if you want to start over"); 
          return;
       }
      
@@ -593,9 +593,9 @@ namespace HM
       {
          // Message too big. Reject it.
          String sMessage;
-         sMessage.Format(_T("552 Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
+         sMessage.Format(_T("Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
                iEstimatedMessageSize / 1024, max_message_size_kb_);
-         EnqueueWrite_(sMessage);
+         SendErrorResponse_(552, sMessage);
          return ;
       }
       
@@ -674,7 +674,7 @@ namespace HM
 
       if (!current_message_) 
       {
-         EnqueueWrite_("503 Must have sender first."); 
+         SendErrorResponse_(503, "Must have sender first."); 
          return;
       }
 
@@ -897,9 +897,9 @@ namespace HM
          String messageText = rejectingResult ? rejectingResult->GetMessage() : GetSpamTestResultMessage_(spam_test_results_);
 
          if (spType == SPPreTransmission)
-            EnqueueWrite_("550 " + messageText);
+            SendErrorResponse_(550, messageText);
          else
-            EnqueueWrite_("554 " + messageText);
+            SendErrorResponse_(554, messageText);
 
          String sLogMessage;
          sLogMessage.Format(_T("hMailServer SpamProtection rejected RCPT (Sender: %s, IP:%s, Reason: %s)"), sFromAddress.c_str(), String(GetIPAddressString()).c_str(), messageText.c_str());
@@ -1227,7 +1227,7 @@ namespace HM
             // The delivery of the message failed. This may happen if tables are
             // corrupt in the database. We now return an error message to the sender. 
             // Hopefully, the sending server will retry later. 
-            EnqueueWrite_("554 Your message was received but it could not be saved. Please retry later.");
+            EnqueueWrite_("451 Your message was received but it could not be saved. Please retry later.");
 
             // Delete the file now since we could not save it in the database.
             ResetCurrentMessage_();
@@ -1318,7 +1318,7 @@ namespace HM
    {
       if (transmission_buffer_->GetCancelTransmission())
       {
-         EnqueueWrite_("554 "  + transmission_buffer_->GetCancelMessage());
+         SendErrorResponse_(554, transmission_buffer_->GetCancelMessage());
          LogAwstatsMessageRejected_();
          return false;
       }
@@ -1337,9 +1337,9 @@ namespace HM
       if (max_message_size_kb_ > 0 && (transmission_buffer_->GetSize() / 1024) > max_message_size_kb_)
       {
          String sMessage;
-         sMessage.Format(_T("554 Rejected - Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
+         sMessage.Format(_T("Rejected - Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
             transmission_buffer_->GetSize() / 1024, max_message_size_kb_);
-         EnqueueWrite_(sMessage);
+         SendErrorResponse_(554, sMessage);
          LogAwstatsMessageRejected_();
          return false;
       }
@@ -1349,10 +1349,7 @@ namespace HM
       {
          if (!CheckLineEndings_())
          {
-            String sMessage;
-            sMessage.Format(_T("554 Rejected - Message containing bare LF's."));
-            
-            EnqueueWrite_(sMessage);
+            SendErrorResponse_(554, "Rejected - Message containing bare LF's.");
             LogAwstatsMessageRejected_();
             return false;
          }
@@ -1391,15 +1388,13 @@ namespace HM
          {
          case 1:
             {
-               String sErrorMessage = "554 Rejected";
-               EnqueueWrite_(sErrorMessage);
+               SendErrorResponse_(554, "Rejected");
                LogAwstatsMessageRejected_();
                return false;
             }
          case 2:
             {
-               String sErrorMessage = "554 " + pResult->GetMessage();
-               EnqueueWrite_(sErrorMessage);
+               SendErrorResponse_(554, pResult->GetMessage());
                LogAwstatsMessageRejected_();
                return false;
             }
@@ -1734,15 +1729,13 @@ namespace HM
          {
          case 1:
          {
-            String sErrorMessage = "554 Rejected";
-            EnqueueWrite_(sErrorMessage);
+            SendErrorResponse_(554, "Rejected");
             LogAwstatsMessageRejected_();
             return;
          }
          case 2:
          {
-            String sErrorMessage = "554 " + pResult->GetMessage();
-            EnqueueWrite_(sErrorMessage);
+            SendErrorResponse_(554, pResult->GetMessage());
             LogAwstatsMessageRejected_();
             return;
          }
@@ -1806,15 +1799,13 @@ namespace HM
          {
          case 1:
          {
-            String sErrorMessage = "554 Rejected";
-            EnqueueWrite_(sErrorMessage);
+            SendErrorResponse_(554, "Rejected");
             LogAwstatsMessageRejected_();
             return;
          }
          case 2:
          {
-            String sErrorMessage = "554 " + pResult->GetMessage();
-            EnqueueWrite_(sErrorMessage);
+            SendErrorResponse_(554, pResult->GetMessage());
             LogAwstatsMessageRejected_();
             return;
          }
@@ -1863,14 +1854,14 @@ namespace HM
       if (!current_message_)
       {
          // User tried to send a mail without specifying a correct mail from or rcpt to.
-         EnqueueWrite_("503 Must have sender and recipient first.");
+         SendErrorResponse_(503, "Must have sender and recipient first.");
 
          return;
       }  
       else if ( current_message_->GetRecipients()->GetCount() == 0)
       {
          // User tried to send a mail without specifying a correct mail from or rcpt to.
-         EnqueueWrite_("503 Must have sender and recipient first.");
+         SendErrorResponse_(503, "Must have sender and recipient first.");
 
          return;
       }  
@@ -1908,15 +1899,13 @@ namespace HM
          {
          case 1:
             {
-               String sErrorMessage = "554 Rejected";
-               EnqueueWrite_(sErrorMessage);
+               SendErrorResponse_(554, "Rejected");
                LogAwstatsMessageRejected_();
                return;
             }
          case 2:
             {
-               String sErrorMessage = "554 " + pResult->GetMessage();
-               EnqueueWrite_(sErrorMessage);
+               SendErrorResponse_(554, pResult->GetMessage());
                LogAwstatsMessageRejected_();
                return;
             }
@@ -2183,7 +2172,7 @@ namespace HM
      else
      {
          // Send that we don't accept ETRN for that domain or invalid param
-         EnqueueWrite_("501 ETRN not supported for " + sETRNDomain.ToLower());
+         SendErrorResponse_(501, "ETRN not supported for " + sETRNDomain.ToLower());
          LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - Domain is not Route");      
          return;
      }
