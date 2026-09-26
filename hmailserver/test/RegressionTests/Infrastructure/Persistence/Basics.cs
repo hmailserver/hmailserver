@@ -385,10 +385,10 @@ namespace RegressionTests.Infrastructure.Persistence
          account2.ForwardAddress = "someone@external.com";
          account2.Save();
 
-         _domain.Name = "example.com";
+         _domain.Name = "example.foo";
          _domain.Save();
 
-         Assert.AreEqual("someone@example.com", _domain.Accounts[0].ForwardAddress);
+         Assert.AreEqual("someone@example.foo", _domain.Accounts[0].ForwardAddress);
          Assert.AreEqual("someone@external.com", _domain.Accounts[1].ForwardAddress);
       }
 
