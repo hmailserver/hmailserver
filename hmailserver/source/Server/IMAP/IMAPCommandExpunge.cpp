@@ -8,6 +8,7 @@
 
 #include "MessagesContainer.h"
 #include "IMAPFolderView.h"
+#include "IMAPNotificationClient.h"
 
 #include "../Common/BO/Messages.h"
 #include "../Common/BO/Message.h"
@@ -65,8 +66,13 @@ namespace HM
 
       auto messages = MessagesContainer::Instance()->GetMessages(pCurFolder->GetAccountID(), pCurFolder->GetID());
 
-      // EXPUNGE may report new messages as well, so take them into the view first.
-      view->AppendNewMessages(messages);
+      // EXPUNGE may report new messages as well, so take them into the view first. The client
+      // must be told about them before any EXPUNGE refers to their sequence numbers.
+      if (view->AppendNewMessages(messages) > 0)
+      {
+         pConnection->SendAsciiData(IMAPNotificationClient::GenerateExistsString(view->GetMessageCount()) +
+                                    IMAPNotificationClient::GenerateRecentString((int) pConnection->GetRecentMessageCount()));
+      }
 
       std::set<__int64> messages_in_uid_set;
       if (is_uid_)
