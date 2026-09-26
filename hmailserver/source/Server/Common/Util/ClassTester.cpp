@@ -177,7 +177,6 @@ namespace HM
       PasswordHasherTester passwordHasherTester;
       passwordHasherTester.Test();
 
-
       OutputDebugString(_T("hMailServer: Testing RegularExpressionTester\n"));
       RegularExpressionTester *pRegExTest = new RegularExpressionTester();
       pRegExTest->Test();
@@ -187,7 +186,7 @@ namespace HM
       Base64Tester base64Tester;
       base64Tester.Test();
 
-      OutputDebugString(_T("hMailServer: Testing Base64\n"));
+      OutputDebugString(_T("hMailServer: Testing ModifiedUTF7Tester\n"));
       ModifiedUTF7Tester modifiedUTF7Tester;
       modifiedUTF7Tester.Test();
 
@@ -200,7 +199,6 @@ namespace HM
       CharsetTester *pCharsetTester = new CharsetTester;
       pCharsetTester->Test();
       delete pCharsetTester;
-
 
       OutputDebugString(_T("hMailServer: Testing LocalIPAddresses\n"));
       LocalIPAddressesTester *pTest4 = new LocalIPAddressesTester();
@@ -217,9 +215,6 @@ namespace HM
       pTimeT->Test();
       delete pTimeT;
 
-
-
-
       OutputDebugString(_T("hMailServer: Testing BlowFishEncryptorTester\n"));
       BlowFishEncryptorTester *pTest3 = new BlowFishEncryptorTester();
       pTest3->Test();
@@ -233,9 +228,6 @@ namespace HM
       OutputDebugString(_T("hMailServer: Testing IMAP message sets\n"));
       IMAPCommandRangeActionTester rangeActionTester;
       ReportFailures_("IMAP message sets", rangeActionTester.Run());
-
-      
-
    }
 
    void 

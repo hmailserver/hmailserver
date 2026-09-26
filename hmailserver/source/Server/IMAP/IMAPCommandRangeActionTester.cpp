@@ -81,7 +81,6 @@ namespace HM
 
       Check_(view, _T("5"), true, "5");
       Check_(view, _T("3"), true, "");
-      Check_(view, _T("0"), true, "");
       Check_(view, _T("2,9"), true, "2 9");
       Check_(view, _T("1:3"), true, "2");
       Check_(view, _T("3:4"), true, "");
@@ -99,6 +98,10 @@ namespace HM
       // A range may be given in either order.
       Check_(view, _T("9:2"), true, "2 5 9");
       Check_(view, _T("6:3"), true, "5");
+
+      // A message named more than once is included once, where it first appears.
+      Check_(view, _T("5,2,5"), true, "5 2");
+      Check_(view, _T("2:5,5:9,*"), true, "2 5 9");
    }
 
    void
@@ -107,7 +110,6 @@ namespace HM
       auto view = CreateView_({ 2, 5, 9 });
 
       Check_(view, _T("2"), false, "5");
-      Check_(view, _T("0"), false, "");
       Check_(view, _T("4"), false, "");
       Check_(view, _T("1,3"), false, "2 9");
       Check_(view, _T("1:2"), false, "2 5");
@@ -121,6 +123,8 @@ namespace HM
 
       // A range may be given in either order.
       Check_(view, _T("3:2"), false, "5 9");
+
+      Check_(view, _T("1:2,2:3"), false, "2 5 9");
    }
 
    void
@@ -145,7 +149,10 @@ namespace HM
          _T("1,,2"), _T(",1"), _T("1,"), _T(","),
          _T(":2"), _T("1:"), _T(":"), _T("1:2:3"),
          _T("*1"), _T("1*"), _T("**"),
-         _T("4294967296"), _T("12345678901")
+         _T("4294967296"), _T("12345678901"),
+
+         // Sequence numbers and UIDs are nz-number (RFC 3501 9).
+         _T("0"), _T("0:1"), _T("1:0"), _T("1,0")
       };
 
       for (const String &set : sets)
