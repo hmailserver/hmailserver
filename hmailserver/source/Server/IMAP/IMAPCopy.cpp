@@ -133,6 +133,10 @@ namespace HM
       if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionInsert))
          return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Insert permission denied (Required for COPY command).");
 
+      can_write_seen_ = pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteSeen);
+      can_write_deleted_ = pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteDeleted);
+      can_write_others_ = pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteOthers);
+
       return IMAPResult();
    }
 
@@ -156,9 +160,19 @@ namespace HM
       if (!pNewMessage)
          return IMAPResult(IMAPResult::ResultBad, "Failed to copy message");
 
-      // Check if the user has access to set the Seen flag, otherwise 
-      if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionWriteSeen))
-         pNewMessage->SetFlagSeen(false);  
+      // Flags the user lacks the right to set are left unset (RFC 4314 4).
+      if (!can_write_seen_)
+         pNewMessage->SetFlagSeen(false);
+
+      if (!can_write_deleted_)
+         pNewMessage->SetFlagDeleted(false);
+
+      if (!can_write_others_)
+      {
+         pNewMessage->SetFlagDraft(false);
+         pNewMessage->SetFlagAnswered(false);
+         pNewMessage->SetFlagFlagged(false);
+      }
 
       if (!PersistentMessage::SaveObject(pNewMessage))
       {

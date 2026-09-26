@@ -42,6 +42,11 @@ namespace HM
       std::shared_ptr<IMAPFolder> destination_folder_;
       bool destination_readable_ = false;
 
+      // The flag rights on the destination.
+      bool can_write_seen_ = false;
+      bool can_write_deleted_ = false;
+      bool can_write_others_ = false;
+
       // In the order the messages were copied. Element n of each describes the same message.
       std::vector<unsigned int> source_uids_;
       std::vector<unsigned int> destination_uids_;
