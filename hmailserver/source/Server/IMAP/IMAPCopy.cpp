@@ -129,6 +129,10 @@ namespace HM
       if (!destination_folder_)
          return IMAPResult(IMAPResult::ResultNo, "[TRYCREATE] The folder could not be found.");
 
+      // A permission failure is NO. BAD is only for syntax errors.
+      if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionInsert))
+         return IMAPResult(IMAPResult::ResultNo, "ACL: Insert permission denied (Required for COPY command).");
+
       return IMAPResult();
    }
 
@@ -146,10 +150,6 @@ namespace HM
          if (!pAccount->SpaceAvailable(pOldMessage->GetSize()))
             return IMAPResult(IMAPResult::ResultNo, "Your quota has been exceeded.");
       }
-
-      // Check if the user has permission to copy to this destination folder
-      if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionInsert))
-         return IMAPResult(IMAPResult::ResultBad, "ACL: Insert permission denied (Required for COPY command).");
 
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder);
 
