@@ -54,7 +54,7 @@ namespace HM
    }
 
    bool 
-   BackupExecuter::StartBackup()
+   BackupExecuter::StartBackup(String &errorMessage)
    {
       Logger::Instance()->LogBackup("Loading backup settings....");         
 
@@ -68,14 +68,14 @@ namespace HM
       {
          if (!PersistentMessage::GetAllMessageFilesAreInDataFolder())
          {
-            Application::Instance()->GetBackupManager()->OnBackupFailed("All messages are not located in the data folder.");
+            errorMessage = "All messages are not located in the data folder.";
             return false;
          }
       }
 
       if (!FileUtilities::Exists(destination_))
       {
-         Application::Instance()->GetBackupManager()->OnBackupFailed("The specified backup directory is not accessible: " + destination_);
+         errorMessage = "The specified backup directory is not accessible: " + destination_;
          return false;
       }
 
@@ -112,7 +112,7 @@ namespace HM
 
          if (!BackupDomains_(pBackupNode))
          {
-            Application::Instance()->GetBackupManager()->OnBackupFailed("Could not backup domains.");
+            errorMessage = "Could not backup domains.";
             return false;
          }
          
@@ -122,7 +122,7 @@ namespace HM
             Logger::Instance()->LogBackup("Backing up data directory...");
             if (!BackupDataDirectory_(sDataBackupDir))
             {
-               Application::Instance()->GetBackupManager()->OnBackupFailed("Could not backup data directory.");
+               errorMessage = "Could not backup data directory.";
                return false;
             }
 
@@ -158,7 +158,7 @@ namespace HM
       String sXMLData = oDoc.GetXML();
       if (!FileUtilities::WriteToFile(sXMLFile, sXMLData, true))
       {
-         Application::Instance()->GetBackupManager()->OnBackupFailed("Could not write to the XML file.");
+         errorMessage = "Could not write to the XML file.";
          return false;
       }
 
@@ -182,12 +182,10 @@ namespace HM
          // the data backup directory
          if (!FileUtilities::DeleteDirectory(sDataBackupDir, true))
          {
-            Application::Instance()->GetBackupManager()->OnBackupFailed("Could not delete files from the destination directory.");
+            errorMessage = "Could not delete files from the destination directory.";
             return false;
          }
        }
-
-      Application::Instance()->GetBackupManager()->OnBackupCompleted();
 
       return true;
    }
@@ -227,7 +225,7 @@ namespace HM
    }
 
    bool
-   BackupExecuter::StartRestore(std::shared_ptr<Backup> pBackup)
+   BackupExecuter::StartRestore(std::shared_ptr<Backup> pBackup, String &errorMessage)
    {
       bool bMessagesDBOnly = IniFileSettings::Instance()->GetBackupMessagesDBOnly();
 
@@ -242,7 +240,7 @@ namespace HM
       if (!oComp.Uncompress(sZipFile, sTempDir, "hMailServerBackup.xml"))
       {
          String sErrorMessage = Formatter::Format("Unable to uncompress hMailServerBackup.xml from {0} to {1}. Please confirm that hMailServer has permissions to {0} and {1}.", sZipFile, sTempDir);
-         Application::Instance()->GetBackupManager()->OnBackupFailed(sErrorMessage);
+         errorMessage = sErrorMessage;
          return false;
       }
 
@@ -250,7 +248,7 @@ namespace HM
       if (sXMLData.IsEmpty())
       {
          String sErrorMessage = Formatter::Format("The file {0} could not be read.", sXMLFile);
-         Application::Instance()->GetBackupManager()->OnBackupFailed(sErrorMessage);
+         errorMessage = sErrorMessage;
          return false;
       }
 
@@ -264,7 +262,7 @@ namespace HM
       if (!pBackupNode)
       {
          String sErrorMessage = "The supplied XML file is not a valid hMailServer backup file";
-         Application::Instance()->GetBackupManager()->OnBackupFailed(sErrorMessage);
+         errorMessage = sErrorMessage;
          return false;
       }
 
@@ -301,7 +299,7 @@ namespace HM
          {
             String sErrorMessage = "Restore of domains failed. Please check hMailServer log.";
             Logger::Instance()->LogBackup(sErrorMessage);
-            Application::Instance()->GetBackupManager()->OnBackupFailed(sErrorMessage);
+            errorMessage = sErrorMessage;
             
             return false;
          }
@@ -315,7 +313,7 @@ namespace HM
          {
             String sErrorMessage = "Restore of settings failed. Please check hMailServer log.";
             Logger::Instance()->LogBackup(sErrorMessage);
-            Application::Instance()->GetBackupManager()->OnBackupFailed(sErrorMessage);
+            errorMessage = sErrorMessage;
             return false;
          }
       }
@@ -329,8 +327,6 @@ namespace HM
       Logger::Instance()->LogBackup("Reinitializing server (async)...");
 
       Reinitializator::Instance()->ReInitialize();
-
-      Logger::Instance()->LogBackup("Restore completed successfully.");         
 
       return true;
    }

@@ -38,32 +38,44 @@ namespace HM
    void
    BackupTask::DoWork()
    {
-      BackupThreadStoppedNotifier notifier;
+      bool succeeded = false;
+      String errorMessage;
 
-      try
       {
-         BackupExecuter oBE;
-         if (do_backup_)
+         BackupThreadStoppedNotifier notifier;
+
+         try
          {
-            oBE.StartBackup();
+            BackupExecuter oBE;
+            if (do_backup_)
+               succeeded = oBE.StartBackup(errorMessage);
+            else
+               succeeded = oBE.StartRestore(backup_, errorMessage);
          }
-         else
+         catch (boost::thread_interrupted&)
          {
-            oBE.StartRestore(backup_);
+            throw;
+         }
+         catch (std::exception& error)
+         {
+            errorMessage = error.what();
+         }
+         catch (...)
+         {
+            errorMessage = "Unknown error.";
          }
       }
-      catch (boost::thread_interrupted&)
-      {
-         throw;
-      }
-      catch (std::exception& error)
-      {
-         Application::Instance()->GetBackupManager()->OnBackupFailed(error.what());
-      }
-      catch (...)
-      {
-         Application::Instance()->GetBackupManager()->OnBackupFailed("Unknown error.");
-      }
+
+      // Report the result only after the backup manager knows the task has stopped.
+      // Otherwise, a backup started as soon as the result is logged is refused as already started.
+      auto backupManager = Application::Instance()->GetBackupManager();
+
+      if (!succeeded)
+         backupManager->OnBackupFailed(errorMessage);
+      else if (do_backup_)
+         backupManager->OnBackupCompleted();
+      else
+         Logger::Instance()->LogBackup("Restore completed successfully.");
    }
 
 

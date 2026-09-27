@@ -1149,6 +1149,48 @@ namespace RegressionTests.Infrastructure
          }
       }
 
+      [Test]
+      [Description("The backup log reported a failed backup before the backup manager was told that " +
+                   "the backup had stopped. A backup started at that point was refused as already started.")]
+      public void TestBackupCanBeStartedWhenFailureIsLogged()
+      {
+         _backupMessages = false;
+
+         LogHandler.DeleteErrorLog();
+         EnableSlowBackupFailedEvent();
+
+         var backupSettings = _application.Settings.Backup;
+         backupSettings.Destination = Path.Combine(_backupDir, "Missing");
+
+         CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+
+         _application.BackupManager.StartBackup();
+         Assert.IsFalse(WaitForBackupCompletion());
+
+         CustomAsserts.AssertReportedError("HM5014", "The specified backup directory is not accessible");
+
+         CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+         Assert.IsTrue(BackupEnvironment(), TestSetup.ReadExistingTextFile(backupSettings.LogFile));
+      }
+
+      /// <summary>
+      /// Makes the OnBackupFailed event take a few seconds, so the backup is still finishing when
+      /// the backup log says that it failed.
+      /// </summary>
+      private void EnableSlowBackupFailedEvent()
+      {
+         var script =
+            "Sub OnBackupFailed(reason)\r\n" +
+            "   Dim start : start = Timer\r\n" +
+            "   Do While Timer < start + 3 : Loop\r\n" +
+            "End Sub\r\n";
+
+         var scripting = _application.Settings.Scripting;
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+      }
+
       /// <summary>
       /// Tells whether Windows denies access to the directory, which is what the server
       /// is expected to run into.
