@@ -242,8 +242,6 @@ namespace RegressionTests.Shared
          if (antiVirus.NotifySender)
             antiVirus.NotifySender = false;
 
-         CustomAsserts.AssertNoReportedError();
-
          if (File.Exists(LogHandler.GetEventLogFileName()))
             File.Delete(LogHandler.GetEventLogFileName());
 

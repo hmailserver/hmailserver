@@ -41,7 +41,7 @@ namespace HM
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
 
       if (!pConnection->CheckPermission(pSelectedFolder, ACLPermission::PermissionRead))
-         return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied (Required for EXAMINE command).");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Read permission denied (Required for EXAMINE command).");
 
       // Close the previously selected folder before loading this one, so that re-selecting
       // the same folder still clears its recent flags first.

@@ -56,6 +56,10 @@ namespace HM
       if (!ResolveTargets(view, sMailNos, is_uid_, targets))
          return IMAPResult(IMAPResult::ResultBad, "Incorrect message set.");
 
+      IMAPResult prepare_result = Prepare(pConnection, pArgument);
+      if (prepare_result.GetResult() != IMAPResult::ResultOK)
+         return prepare_result;
+
       if (targets.empty())
          return IMAPResult();
 
@@ -135,7 +139,8 @@ namespace HM
 
       __int64 parsed = _ttoi64(value);
 
-      if (parsed > UINT_MAX)
+      // Sequence numbers and UIDs are nz-number (RFC 3501 9).
+      if (parsed == 0 || parsed > UINT_MAX)
          return false;
 
       number = (unsigned int) parsed;
@@ -182,13 +187,20 @@ namespace HM
          start = comma + 1;
       }
 
+      // A message named more than once is acted on once, where it first appears.
+      std::set<__int64> seen_message_ids;
+
       for (const auto &range : ranges)
       {
          auto entries = isUID ?
             view->GetEntriesByUIDRange(range.first, range.second) :
             view->GetEntriesBySequenceRange((int) std::min<unsigned int>(range.first, INT_MAX), (int) std::min<unsigned int>(range.second, INT_MAX));
 
-         targets.insert(targets.end(), entries.begin(), entries.end());
+         for (const auto &entry : entries)
+         {
+            if (seen_message_ids.insert(entry.second.message_id).second)
+               targets.push_back(entry);
+         }
       }
 
       return true;

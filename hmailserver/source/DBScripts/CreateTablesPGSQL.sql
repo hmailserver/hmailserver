@@ -27,6 +27,8 @@ select hm_drop_table('hm_message_metadata');
 
 select hm_drop_table('hm_dbversion');
 
+select hm_drop_table('hm_uidvalidity');
+
 select hm_drop_table('hm_distributionlists');
 
 select hm_drop_table('hm_distributionlistsrecipients');
@@ -211,6 +213,12 @@ create table hm_dbversion
 	value int not null
 );
 
+create table hm_uidvalidity 
+(
+	uidvalidityaccountid bigint not null primary key,
+	uidvalidityvalue bigint not null
+);
+
 create table hm_distributionlists 
 (
 	distributionlistid bigserial not null primary key,
@@ -253,7 +261,8 @@ create table hm_imapfolders
   folderissubscribed smallint NOT NULL,
   foldercreationtime timestamp NOT NULL,
   foldercurrentuid bigint NOT NULL,
-  folderspecialuse int NOT NULL
+  folderspecialuse int NOT NULL,
+  folderuidvalidity bigint NOT NULL
 );
 
 CREATE INDEX idx_hm_imapfolders ON hm_imapfolders (folderaccountid);
@@ -829,4 +838,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5712);
+insert into hm_dbversion values (5713);

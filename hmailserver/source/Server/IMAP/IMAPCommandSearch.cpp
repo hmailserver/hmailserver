@@ -8,7 +8,7 @@
 #include "IMAPFolderView.h"
 #include "IMAPSort.h"
 #include "IMAPConfiguration.h"
-#include "IMAPListLookup.h"
+#include "IMAPCommandRangeAction.h"
 
 #include "../Common/BO/IMAPFolder.h"
 #include "../Common/Persistence/PersistentMessage.h"
@@ -88,6 +88,9 @@ namespace HM
 
       if (!view)
          return IMAPResult(IMAPResult::ResultBad, "No selected folder");
+
+      if (!ResolveMessageSets_(view, pParser->GetCriteria()))
+         return IMAPResult(IMAPResult::ResultBad, "Incorrect message set.");
 
       // Search the messages in this session's view, using this session's numbering.
       auto entries = view->GetAllEntries();
@@ -265,14 +268,9 @@ namespace HM
                break;
             }
          case IMAPSearchCriteria::CTUID:
-            {
-               if (!MatchesUIDCriteria_(pMessage, pCriteria))
-                  bMessageIsMatchingCriteria = false;
-               break;
-            }
          case IMAPSearchCriteria::CTSequenceSet:
             {
-               if (!MatchesSequenceSetCriteria_(pMessage, pCriteria, index))
+               if (!MatchesMessageSetCriteria_(pMessage, pCriteria))
                   bMessageIsMatchingCriteria = false;
                break;
             }
@@ -648,12 +646,12 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::MatchesUIDCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
+   IMAPCommandSEARCH::MatchesMessageSetCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      std::vector<String> split = pCriteria->GetSequenceSet();
+      const auto &message_ids = pCriteria->GetResolvedMessageIds();
 
-      bool found = IMAPListLookup::IsItemInList(split, (int) pMessage->GetUID());
-      
+      bool found = message_ids.find(pMessage->GetID()) != message_ids.end();
+
       if (pCriteria->GetPositive())
          return found;
       else
@@ -661,16 +659,32 @@ namespace HM
    }
 
    bool
-   IMAPCommandSEARCH::MatchesSequenceSetCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria, int index)
+   IMAPCommandSEARCH::ResolveMessageSets_(std::shared_ptr<IMAPFolderView> view, std::shared_ptr<IMAPSearchCriteria> pCriteria)
    {
-      std::vector<String> split = pCriteria->GetSequenceSet();
+      auto type = pCriteria->GetType();
 
-      bool found = IMAPListLookup::IsItemInList(split, index);
+      if (type == IMAPSearchCriteria::CTUID || type == IMAPSearchCriteria::CTSequenceSet)
+      {
+         String sMessageSet = StringParser::JoinVector(pCriteria->GetSequenceSet(), ",");
 
-      if (pCriteria->GetPositive())
-         return found;
-      else
-         return !found;
+         std::vector<std::pair<int, IMAPViewEntry>> targets;
+         if (!IMAPCommandRangeAction::ResolveTargets(view, sMessageSet, type == IMAPSearchCriteria::CTUID, targets))
+            return false;
+
+         auto &message_ids = pCriteria->GetResolvedMessageIds();
+         message_ids.clear();
+
+         for (const auto &target : targets)
+            message_ids.insert(target.second.message_id);
+      }
+
+      for (auto sub_criteria : pCriteria->GetSubCriterias())
+      {
+         if (!ResolveMessageSets_(view, sub_criteria))
+            return false;
+      }
+
+      return true;
    }
 
 

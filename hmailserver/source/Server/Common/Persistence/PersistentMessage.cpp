@@ -296,6 +296,20 @@ namespace HM
    }
 
    bool
+   PersistentMessage::GetExists(__int64 messageID, bool &exists)
+   {
+      SQLCommand command("select messageid from hm_messages where messageid = @MESSAGEID");
+      command.AddParameter("@MESSAGEID", messageID);
+
+      std::shared_ptr<DALRecordset> pRS = Application::Instance()->GetDBManager()->OpenRecordset(command);
+      if (!pRS)
+         return false;
+
+      exists = !pRS->IsEOF();
+      return true;
+   }
+
+   bool
    PersistentMessage::SaveRecipients_(std::shared_ptr<Message> pMessage)
    {
       std::vector<std::shared_ptr<MessageRecipient> > vecRecipients = pMessage->GetRecipients()->GetVector();
@@ -401,7 +415,7 @@ namespace HM
    }
 
    std::shared_ptr<Message>
-   PersistentMessage::CopyToIMAPFolder(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage, std::shared_ptr<IMAPFolder> destinationFolder)
+   PersistentMessage::CopyToIMAPFolder(std::shared_ptr<const Account> sourceAccount, std::shared_ptr<Message> sourceMessage, std::shared_ptr<IMAPFolder> destinationFolder, bool reportMissingSource)
    {
       std::shared_ptr<Message> messageCopy = CreateCopy_(sourceMessage, (int) destinationFolder->GetAccountID());
       messageCopy->SetState(Message::Delivered);
@@ -420,7 +434,7 @@ namespace HM
          destinationFile = GetFileName(sourceAccount, messageCopy, AccountFolder);
       }
 
-      if (!FileUtilities::Copy(sourceFile, destinationFile, true))
+      if (!FileUtilities::Copy(sourceFile, destinationFile, true, reportMissingSource))
       {
          std::shared_ptr<Message> pEmpty;
          return pEmpty;

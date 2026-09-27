@@ -148,11 +148,11 @@ namespace HM
             return IMAPResult(IMAPResult::ResultNo, "Account could not be fetched.");
 
          if (!pAccount->SpaceAvailable(bytes_left_to_receive_))
-            return IMAPResult(IMAPResult::ResultNo, "Your quota has been exceeded.");
+            return IMAPResult(IMAPResult::ResultNo, "[OVERQUOTA] Your quota has been exceeded.");
       }
 
       if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionInsert))
-         return IMAPResult(IMAPResult::ResultBad, "ACL: Insert permission denied (Required for APPEND command).");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Insert permission denied (Required for APPEND command).");
 
 
 
@@ -269,6 +269,18 @@ namespace HM
             // User does not have permission to set the Seen flag. 
             bSeen = false;
          }
+      }
+
+      // Flags the user lacks the right to set are left unset (RFC 4314 4).
+      if (bDeleted && !pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteDeleted))
+         bDeleted = false;
+
+      if ((bDraft || bAnswered || bFlagged) &&
+          !pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteOthers))
+      {
+         bDraft = false;
+         bAnswered = false;
+         bFlagged = false;
       }
 
       current_message_->SetFlagDeleted(bDeleted);

@@ -62,19 +62,19 @@ namespace HM
       {
          // ACL: If user tries to change the Seen flag, check that he has permission to do so.
          if (!pConnection->CheckPermission(pConnection->GetCurrentFolder(), ACLPermission::PermissionWriteSeen))
-            return IMAPResult(IMAPResult::ResultNo, "ACL: WriteSeen permission denied (Required for STORE command).");
+            return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: WriteSeen permission denied (Required for STORE command).");
       }
 
       if (bDeleted)
       {
          if (!pConnection->CheckPermission(pConnection->GetCurrentFolder(), ACLPermission::PermissionWriteDeleted))
-            return IMAPResult(IMAPResult::ResultNo, "ACL: DeleteMessages permission denied (Required for STORE command).");
+            return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: DeleteMessages permission denied (Required for STORE command).");
       }
 
       if (bDraft || bAnswered || bFlagged)
       {
          if (!pConnection->CheckPermission(pConnection->GetCurrentFolder(), ACLPermission::PermissionWriteOthers))
-            return IMAPResult(IMAPResult::ResultNo, "ACL: WriteOthers permission denied (Required for STORE command).");
+            return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: WriteOthers permission denied (Required for STORE command).");
       }
 
 

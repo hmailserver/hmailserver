@@ -45,7 +45,7 @@ namespace HM
 
       // Check if the user has access to rename this folder
       if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionDeleteMailbox))
-         return IMAPResult(IMAPResult::ResultNo, "ACL: DeleteMailbox permission denied (required for DELETE).");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: DeleteMailbox permission denied (required for DELETE).");
       
       PersistentIMAPFolder::DeleteObject(pFolder);
 

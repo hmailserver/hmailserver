@@ -595,18 +595,31 @@ namespace RegressionTests.Shared
 
          var result = Send(command);
 
-         var expectingLiteral = result.StartsWith("+ Ready");
-
          var startTime = DateTime.Now;
 
-         // If the commandName is found in the middle of the stream, we shouldn't consider
-         // the command completed. Otherwise this code will fail if the subject or message
-         // ID happens to contain the command name.
-         while ((!result.StartsWith(commandName) && !result.Contains("\r\n" + commandName)) ||
-                GetPendingDataExists())
+         // Untagged responses, such as EXISTS for other sessions' changes, may come before the
+         // continuation request. Read until we have either it or the tagged response.
+         while (IndexOfContinuationRequest(result) < 0 && !IsTaggedResponse(result, commandName))
+         {
+            result += Receive();
+
+            if (!_tcpConnection.IsConnected)
+               return result;
+
+            if (DateTime.Now - startTime > new TimeSpan(0, 0, 30))
+               Assert.Fail("Timeout while waiting for data.");
+         }
+
+         var expectingLiteral = IndexOfContinuationRequest(result) >= 0;
+
+         while (!IsTaggedResponse(result, commandName) || GetPendingDataExists())
          {
             if (expectingLiteral)
-               result = Send(literalData);
+            {
+               // Keep the untagged responses sent before the continuation request.
+               result = result.Substring(0, IndexOfContinuationRequest(result)) + Send(literalData);
+               expectingLiteral = false;
+            }
             else
                result += Receive();
 
@@ -618,6 +631,23 @@ namespace RegressionTests.Shared
          }
 
          return result;
+      }
+
+      private static int IndexOfContinuationRequest(string response)
+      {
+         if (response.StartsWith("+ Ready"))
+            return 0;
+
+         var index = response.IndexOf("\r\n+ Ready");
+         return index < 0 ? -1 : index + 2;
+      }
+
+      // If the commandName is found in the middle of the stream, we shouldn't consider
+      // the command completed. Otherwise this code will fail if the subject or message
+      // ID happens to contain the command name.
+      private static bool IsTaggedResponse(string response, string commandName)
+      {
+         return response.StartsWith(commandName) || response.Contains("\r\n" + commandName);
       }
 
 

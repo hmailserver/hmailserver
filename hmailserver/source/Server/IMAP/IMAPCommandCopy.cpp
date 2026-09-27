@@ -52,19 +52,10 @@ namespace HM
 
       pArgument->Command("\"" + sFolderName + "\"");
 
-      // We should check if the folder exists. If not, notify user with trycreate
-      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
-
-      if (!pFolder)
-      {
-         // Nope, doesn't exist.
-         return IMAPResult(IMAPResult::ResultNo, "Can't find mailbox with that name.\r\n");
-      }
-
       IMAPResult result = pCopy->DoForMails(pConnection, sMailNo, pArgument);
 
       if (result.GetResult() == IMAPResult::ResultOK)
-          pConnection->SendAsciiData(pArgument->Tag() + " OK " + pCopy->GetResponseCode() + "COPY completed\r\n");
+          pConnection->SendAsciiData(pCopy->GetUntaggedResponse(pConnection) + pArgument->Tag() + " OK " + pCopy->GetResponseCode() + "COPY completed\r\n");
 
       return result;
    }

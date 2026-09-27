@@ -39,9 +39,16 @@ namespace HM
       // A response code for the tagged OK, followed by a space, or empty if there is none.
       virtual String GetResponseCode() const { return String(); }
 
+      // Untagged responses to send before the tagged OK, or empty if there are none.
+      virtual String GetUntaggedResponse(std::shared_ptr<IMAPConnection> pConnection) { return String(); }
+
    protected:
 
       bool GetIsUID();
+
+      // Called once the message set is known to be valid, before any message is acted on.
+      virtual IMAPResult Prepare(std::shared_ptr<IMAPConnection> pConnection, const std::shared_ptr<IMAPCommandArgument> pArgument) { return IMAPResult(); }
+
       virtual IMAPResult DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pMessage, const std::shared_ptr<IMAPCommandArgument> pArgument) = 0;
 
       // Called when DoAction fails. Override to undo the actions already taken.

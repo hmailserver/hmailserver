@@ -153,4 +153,4 @@
 #define PROPERTY_SRS_MAXAGEDAYS                 _T("SRSMaxAgeDays")
 #define PROPERTY_SRS_HASHLENGTH                 _T("SRSHashLength")
 
-#define REQUIRED_DB_VERSION            5712
+#define REQUIRED_DB_VERSION            5713

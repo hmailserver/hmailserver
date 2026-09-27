@@ -226,14 +226,15 @@ namespace HM
          }
       }
 
-      if (flagMessages.size() > 0)
-         SendFLAGS_(flagMessages);
-      
       if (lastExists >= 0)
          SendEXISTS_(lastExists);
 
       if (lastRecent >= 0)
          SendRECENT_(lastRecent);
+
+      // After EXISTS, since the flags may be for messages which were just added to the view.
+      if (flagMessages.size() > 0)
+         SendFLAGS_(flagMessages);
 
       std::vector<std::shared_ptr<ChangeNotification> >::iterator iter = cached_changes_.begin();
       
