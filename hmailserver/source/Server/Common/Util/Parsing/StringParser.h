@@ -15,6 +15,7 @@ namespace HM
       static String ExtractAddress(const String &sEMailAddress);
 
       static bool IsValidEmailAddress(const String &sEmailAddress);
+      static bool IsValidAccountAddress(const String &sEmailAddress);
       static bool IsValidDomainName(const String &sEmailAddress);
       static bool WildcardMatch(const String &pattern, const String &value);
       static bool WildcardMatchNoCase(const String &sWildcard, const String &sString);
