@@ -19,8 +19,8 @@ namespace HM
       BackupExecuter();
       ~BackupExecuter(void);
 
-      bool StartBackup();
-      bool StartRestore(std::shared_ptr<Backup> pBackup);
+      bool StartBackup(String &errorMessage);
+      bool StartRestore(std::shared_ptr<Backup> pBackup, String &errorMessage);
 
    private:
 
