@@ -117,17 +117,17 @@ namespace HM
          {
             int instance = static_cast<int>(sets_.size()) + 1;
 
-            AnsiString authenticationResults;
-            authenticationResults.Format("i=%d; mx%d.example.org; dkim=pass header.d=example.com; "
-                                         "spf=pass smtp.mailfrom=sender@example.com; dmarc=pass header.from=example.com",
-                                         instance, instance);
+            // Built by concatenation: CStdStr::Format sizes its buffer wrongly for narrow strings.
+            AnsiString number = std::to_string(instance).c_str();
+
+            AnsiString authenticationResults = "i=" + number + "; mx" + number + ".example.org; dkim=pass header.d=example.com; "
+                                               "spf=pass smtp.mailfrom=sender@example.com; dmarc=pass header.from=example.com";
 
             Write();
 
             std::vector<AnsiString> signedFields = { "From", "To", "Subject", "Date", "Message-ID" };
 
-            AnsiString leadingTags;
-            leadingTags.Format("i=%d", instance);
+            AnsiString leadingTags = "i=" + number;
 
             AnsiString messageSignature = DKIM::CreateSignature(ARCVerifier::MessageSignatureFieldName, String(leadingTags), header,
                                                                 message_file_, "example.org", "arc", key_.privateKeyPem,
@@ -135,8 +135,8 @@ namespace HM
                                                                 Canonicalization::Relaxed, signedFields);
             Expect(!messageSignature.IsEmpty(), "creating the message signature");
 
-            AnsiString unsignedSeal;
-            unsignedSeal.Format("i=%d; a=rsa-sha256; cv=%s; d=example.org; s=arc; t=1790000000; b=", instance, chainValidation);
+            AnsiString unsignedSeal = "i=" + number + "; a=rsa-sha256; cv=" + AnsiString(chainValidation) +
+                                      "; d=example.org; s=arc; t=1790000000; b=";
 
             std::vector<std::pair<AnsiString, AnsiString> > set;
             set.push_back(std::make_pair(AnsiString(ARCVerifier::AuthenticationResultsFieldName), authenticationResults));
@@ -266,8 +266,7 @@ namespace HM
             Expect(verifier.GetHighestInstance() == hops, "highest instance");
             Expect(verifier.GetSealerDomain() == "example.org", "sealer domain");
 
-            AnsiString expectedStart;
-            expectedStart.Format("mx%d.example.org;", hops);
+            AnsiString expectedStart = AnsiString("mx") + std::to_string(hops).c_str() + ".example.org;";
             Expect(verifier.GetAuthenticationResults().Find(expectedStart) == 0, "results of the last sealer");
          }
 
