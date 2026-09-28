@@ -63,6 +63,8 @@ select hm_drop_table('hm_servermessages');
 
 select hm_drop_table('hm_greylisting_whiteaddresses');
 
+select hm_drop_table('hm_arc_trusted_sealers');
+
 select hm_drop_table('hm_tcpipports');
 
 select hm_drop_table('hm_whitelist');
@@ -433,6 +435,13 @@ create table hm_greylisting_whiteaddresses
 	whiteipdescription varchar(255) not null
 );
 
+create table hm_arc_trusted_sealers
+(
+	sealerid bigserial not null primary key,
+	sealerdomain varchar(255) not null,
+	sealerdescription varchar(255) not null
+);
+
 create table hm_blocked_attachments
 (
 	baid bigserial not null primary key,
@@ -765,8 +774,6 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('AS
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ASAddAuthResultsHeader', '', 0);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ASARCEnabled', '', 0);
-
-insert into hm_settings (settingname, settingstring, settinginteger) values ('ASARCTrustedSealers', '', 0);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSEnabled', '', 0);
 

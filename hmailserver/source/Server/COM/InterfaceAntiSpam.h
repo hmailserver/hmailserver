@@ -160,8 +160,7 @@ public:
    STDMETHOD(get_ARCEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_ARCEnabled)(/*[in]*/ VARIANT_BOOL newVal);
 
-   STDMETHOD(get_ARCTrustedSealers)(/*[out, retval]*/ BSTR *pVal);
-   STDMETHOD(put_ARCTrustedSealers)(/*[in]*/ BSTR newVal);
+   STDMETHOD(get_ARCTrustedSealers)(/*[out, retval]*/ IInterfaceARCTrustedSealers **pVal);
 
 private:
 

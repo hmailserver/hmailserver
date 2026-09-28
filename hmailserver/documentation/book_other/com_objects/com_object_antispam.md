@@ -42,9 +42,9 @@ The AntiSpam object contains all server-wide settings related to anti-spam.
 
 <div class="api_description">Enable ARC (Authenticated Received Chain) validation.<br></div>
 
-<div class="api_method_name">string ARCTrustedSealers</div>
+<div class="api_method_name"><a href="?page=com_object_arctrustedsealers">ARCTrustedSealers</a> ARCTrustedSealers</div>
 
-<div class="api_description">Domains whose ARC seal may override a DMARC failure, separated by commas.<br></div>
+<div class="api_description">Domains whose ARC seal may override a DMARC failure.<br> <i>(read-only)</i></div>
 
 <div class="api_method_name">bool BypassGreylistingOnMailFromMX</div>
 

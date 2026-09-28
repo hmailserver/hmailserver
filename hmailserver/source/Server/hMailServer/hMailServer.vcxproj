@@ -250,6 +250,8 @@ EXIT 0
     <ClCompile Include="..\Common\Bo\FetchAccounts.cpp" />
     <ClCompile Include="..\Common\Bo\FetchAccountUID.cpp" />
     <ClCompile Include="..\Common\Bo\FetchAccountUIDs.cpp" />
+    <ClCompile Include="..\Common\BO\ARCTrustedSealer.cpp" />
+    <ClCompile Include="..\Common\BO\ARCTrustedSealers.cpp" />
     <ClCompile Include="..\Common\BO\GreyListingWhiteAddress.cpp" />
     <ClCompile Include="..\Common\BO\GreyListingWhiteAddresses.cpp" />
     <ClCompile Include="..\Common\BO\GreyListTriplet.cpp" />
@@ -328,6 +330,7 @@ EXIT 0
     <ClCompile Include="..\Common\Persistence\PersistentFetchAccount.cpp" />
     <ClCompile Include="..\Common\Persistence\PersistentFetchAccountUID.cpp" />
     <ClCompile Include="..\Common\Persistence\PersistentGreyList.cpp" />
+    <ClCompile Include="..\Common\Persistence\PersistentARCTrustedSealer.cpp" />
     <ClCompile Include="..\Common\Persistence\PersistentGreyListingWhiteAddress.cpp" />
     <ClCompile Include="..\Common\Persistence\PersistentGroup.cpp" />
     <ClCompile Include="..\Common\Persistence\PersistentGroupMember.cpp" />
@@ -507,6 +510,8 @@ EXIT 0
     <ClCompile Include="..\COM\InterfaceFetchAccount.cpp" />
     <ClCompile Include="..\COM\InterfaceFetchAccounts.cpp" />
     <ClCompile Include="..\COM\InterfaceGlobalObjects.cpp" />
+    <ClCompile Include="..\COM\InterfaceARCTrustedSealer.cpp" />
+    <ClCompile Include="..\COM\InterfaceARCTrustedSealers.cpp" />
     <ClCompile Include="..\COM\InterfaceGreyListingWhiteAddress.cpp" />
     <ClCompile Include="..\COM\InterfaceGreyListingWhiteAddresses.cpp" />
     <ClCompile Include="..\COM\InterfaceGroup.cpp" />
@@ -777,6 +782,8 @@ EXIT 0
     <ClInclude Include="..\Common\Bo\FetchAccounts.h" />
     <ClInclude Include="..\Common\Bo\FetchAccountUID.h" />
     <ClInclude Include="..\Common\Bo\FetchAccountUIDs.h" />
+    <ClInclude Include="..\Common\BO\ARCTrustedSealer.h" />
+    <ClInclude Include="..\Common\BO\ARCTrustedSealers.h" />
     <ClInclude Include="..\Common\BO\GreyListingWhiteAddress.h" />
     <ClInclude Include="..\Common\BO\GreyListingWhiteAddresses.h" />
     <ClInclude Include="..\Common\BO\GreyListTriplet.h" />
@@ -860,6 +867,7 @@ EXIT 0
     <ClInclude Include="..\Common\Persistence\PersistentFetchAccount.h" />
     <ClInclude Include="..\Common\Persistence\PersistentFetchAccountUID.h" />
     <ClInclude Include="..\Common\Persistence\PersistentGreyList.h" />
+    <ClInclude Include="..\Common\Persistence\PersistentARCTrustedSealer.h" />
     <ClInclude Include="..\Common\Persistence\PersistentGreyListingWhiteAddress.h" />
     <ClInclude Include="..\Common\Persistence\PersistentGroup.h" />
     <ClInclude Include="..\Common\Persistence\PersistentGroupMember.h" />
@@ -1050,6 +1058,8 @@ EXIT 0
     <ClInclude Include="..\Com\InterfaceFetchAccount.h" />
     <ClInclude Include="..\Com\InterfaceFetchAccounts.h" />
     <ClInclude Include="..\COM\InterfaceGlobalObjects.h" />
+    <ClInclude Include="..\COM\InterfaceARCTrustedSealer.h" />
+    <ClInclude Include="..\COM\InterfaceARCTrustedSealers.h" />
     <ClInclude Include="..\COM\InterfaceGreyListingWhiteAddress.h" />
     <ClInclude Include="..\COM\InterfaceGreyListingWhiteAddresses.h" />
     <ClInclude Include="..\COM\InterfaceGroup.h" />
@@ -1371,6 +1381,8 @@ EXIT 0
     <None Include="..\COM\InterfaceFetchAccount.rgs" />
     <None Include="..\COM\InterfaceFetchAccounts.rgs" />
     <None Include="..\COM\InterfaceGlobalObjects.rgs" />
+    <None Include="..\COM\InterfaceARCTrustedSealer.rgs" />
+    <None Include="..\COM\InterfaceARCTrustedSealers.rgs" />
     <None Include="..\COM\InterfaceGreyListingWhiteAddress.rgs" />
     <None Include="..\COM\InterfaceGreyListingWhiteAddresses.rgs" />
     <None Include="..\COM\InterfaceIMAPFolder.rgs" />

@@ -83,7 +83,12 @@ namespace RegressionTests.AntiSpam.ARC
       {
          _antiSpam.DMARCEnabled = true;
          _antiSpam.DMARCFailureScore = 6;
-         _antiSpam.ARCTrustedSealers = "outlook.com, example.org";
+         foreach (var domain in new[] { "outlook.com", "example.org" })
+         {
+            var sealer = _antiSpam.ARCTrustedSealers.Add();
+            sealer.Domain = domain;
+            sealer.Save();
+         }
 
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
 

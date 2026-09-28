@@ -112,8 +112,8 @@ When this option is enabled, hMailServer adds an Authentication-Results header t
 <h3>Use ARC</h3>
 <div class="indented">If you enable this option, hMailServer validates the ARC (Authenticated Received Chain) headers of incoming messages. Forwarders and mailing lists add ARC headers to record the SPF, DKIM and DMARC results they saw before they changed or passed on the message. The result is added to the Authentication-Results header. A broken chain adds no spam score.</div>
 
-<h3>Trusted sealers</h3>
-<div class="indented">The domains whose ARC headers you trust, separated by commas, for example <em>google.com, microsoft.com</em>. When a message fails DMARC, but its ARC chain is valid, the last server that added ARC headers is in this list, and that server recorded that the message passed SPF, DKIM or DMARC for the From domain, the DMARC failure is ignored. Only list domains you trust not to vouch for spam. Subdomains of a listed domain are not trusted automatically.</div>
+<h3>ARC trusted sealers</h3>
+<div class="indented">The domains whose ARC headers you trust, for example <em>google.com</em>, managed on the <em>ARC trusted sealers</em> tab. Enter the domain in the d= tag of the ARC-Seal header. When a message fails DMARC, but its ARC chain is valid, the last server that added ARC headers is in this list, and that server recorded that the message passed SPF, DKIM or DMARC for the From domain, the DMARC failure is ignored. Only list domains you trust not to vouch for spam. Subdomains of a listed domain are not trusted automatically.</div>
 </div>
 
 <div class="indented">

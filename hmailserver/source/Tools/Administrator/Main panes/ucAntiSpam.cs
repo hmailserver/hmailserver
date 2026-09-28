@@ -85,12 +85,98 @@ namespace hMailServer.Administrator
             checkAddAuthenticationResultsHeader.Checked = antiSpam.AddAuthenticationResultsHeader;
 
             checkARCEnabled.Checked = antiSpam.ARCEnabled;
-            textARCTrustedSealers.Text = antiSpam.ARCTrustedSealers;
 
             EnableDisable();
 
             Marshal.ReleaseComObject(settings);
             Marshal.ReleaseComObject(antiSpam);
+
+            ListARCTrustedSealers();
+        }
+
+        private void ListARCTrustedSealers()
+        {
+            listARCTrustedSealers.Items.Clear();
+
+            hMailServer.AntiSpam antiSpam = APICreator.AntiSpamSettings;
+            hMailServer.ARCTrustedSealers sealers = antiSpam.ARCTrustedSealers;
+
+            for (int i = 0; i < sealers.Count; i++)
+            {
+                hMailServer.ARCTrustedSealer sealer = sealers[i];
+
+                ListViewItem item = listARCTrustedSealers.Items.Add(sealer.Domain);
+                item.SubItems.Add(sealer.Description);
+                item.Tag = sealer.ID;
+
+                Marshal.ReleaseComObject(sealer);
+            }
+
+            Marshal.ReleaseComObject(sealers);
+            Marshal.ReleaseComObject(antiSpam);
+        }
+
+        // Trusted sealers are saved when the dialog is closed, as the greylisting white list is.
+        private void buttonAddARCTrustedSealer_Click(object sender, EventArgs e)
+        {
+            formARCTrustedSealer sealerDlg = new formARCTrustedSealer();
+
+            if (sealerDlg.ShowDialog() == DialogResult.OK)
+            {
+                hMailServer.AntiSpam antiSpam = APICreator.AntiSpamSettings;
+                hMailServer.ARCTrustedSealers sealers = antiSpam.ARCTrustedSealers;
+                hMailServer.ARCTrustedSealer sealer = sealers.Add();
+
+                sealerDlg.SaveProperties(sealer);
+                sealer.Save();
+
+                Marshal.ReleaseComObject(sealer);
+                Marshal.ReleaseComObject(sealers);
+                Marshal.ReleaseComObject(antiSpam);
+
+                ListARCTrustedSealers();
+            }
+        }
+
+        private void buttonEditARCTrustedSealer_Click(object sender, EventArgs e)
+        {
+            if (listARCTrustedSealers.SelectedItems.Count != 1)
+                return;
+
+            int id = Convert.ToInt32(listARCTrustedSealers.SelectedItems[0].Tag);
+
+            hMailServer.AntiSpam antiSpam = APICreator.AntiSpamSettings;
+            hMailServer.ARCTrustedSealers sealers = antiSpam.ARCTrustedSealers;
+            hMailServer.ARCTrustedSealer sealer = sealers.get_ItemByDBID(id);
+
+            formARCTrustedSealer sealerDlg = new formARCTrustedSealer();
+            sealerDlg.LoadProperties(sealer);
+
+            if (sealerDlg.ShowDialog() == DialogResult.OK)
+            {
+                sealerDlg.SaveProperties(sealer);
+                sealer.Save();
+
+                ListARCTrustedSealers();
+            }
+
+            Marshal.ReleaseComObject(sealer);
+            Marshal.ReleaseComObject(sealers);
+            Marshal.ReleaseComObject(antiSpam);
+        }
+
+        private void buttonDeleteARCTrustedSealer_Click(object sender, EventArgs e)
+        {
+            hMailServer.AntiSpam antiSpam = APICreator.AntiSpamSettings;
+            hMailServer.ARCTrustedSealers sealers = antiSpam.ARCTrustedSealers;
+
+            foreach (ListViewItem item in listARCTrustedSealers.SelectedItems)
+                sealers.DeleteByDBID(Convert.ToInt32(item.Tag));
+
+            Marshal.ReleaseComObject(sealers);
+            Marshal.ReleaseComObject(antiSpam);
+
+            ListARCTrustedSealers();
         }
 
         public bool SaveData()
@@ -129,7 +215,6 @@ namespace hMailServer.Administrator
             antiSpam.AddAuthenticationResultsHeader = checkAddAuthenticationResultsHeader.Checked;
 
             antiSpam.ARCEnabled = checkARCEnabled.Checked;
-            antiSpam.ARCTrustedSealers = textARCTrustedSealers.Text;
 
             antiSpam.MaximumMessageSize = textMaximumMessageSize.Number;
 
@@ -180,8 +265,6 @@ namespace hMailServer.Administrator
 
             textDMARCFailureScore.Enabled = checkDMARCEnabled.Checked;
             checkDMARCHonorPolicy.Enabled = checkDMARCEnabled.Checked;
-
-            textARCTrustedSealers.Enabled = checkARCEnabled.Checked;
 
         }
 

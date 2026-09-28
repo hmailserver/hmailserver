@@ -129,6 +129,7 @@ namespace RegressionTests.Infrastructure
       {
          SetupBlockedAttachment();
          SetupGreyListingWhiteList();
+         SetupARCTrustedSealers();
          SetupWhiteList();
          SetupRoutes();
          SetupDNSBlackLists();
@@ -223,6 +224,21 @@ namespace RegressionTests.Infrastructure
          address.Save();
       }
 
+
+      private void SetupARCTrustedSealers()
+      {
+         var sealers = _application.Settings.AntiSpam.ARCTrustedSealers;
+
+         var sealer = sealers.Add();
+         sealer.Domain = "example.com";
+         sealer.Description = "sealer1";
+         sealer.Save();
+
+         sealer = sealers.Add();
+         sealer.Domain = "example.net";
+         sealer.Description = "sealer2";
+         sealer.Save();
+      }
 
       private void SetupWhiteList()
       {
@@ -625,6 +641,7 @@ namespace RegressionTests.Infrastructure
          ConfirmBlockedAttachments();
          ConfirmRoutes();
          ConfirmGreyListingWhiteList();
+         ConfirmARCTrustedSealers();
          ConfirmWhiteList();
          ConfirmDNSBlackLists();
          ConfirmSURBLServers();
@@ -746,6 +763,21 @@ namespace RegressionTests.Infrastructure
          address = addresses[1];
          Assert.AreEqual("helo2", address.Description);
          Assert.AreEqual("2.2.2.2", address.IPAddress);
+      }
+
+      private void ConfirmARCTrustedSealers()
+      {
+         var sealers = _application.Settings.AntiSpam.ARCTrustedSealers;
+
+         Assert.AreEqual(2, sealers.Count);
+
+         var sealer = sealers[0];
+         Assert.AreEqual("example.com", sealer.Domain);
+         Assert.AreEqual("sealer1", sealer.Description);
+
+         sealer = sealers[1];
+         Assert.AreEqual("example.net", sealer.Domain);
+         Assert.AreEqual("sealer2", sealer.Description);
       }
 
       private void ConfirmWhiteList()

@@ -67,6 +67,8 @@ interface IInterfaceServerMessage;
 interface IInterfaceServerMessages;
 interface IInterfaceGreyListingWhiteAddress;
 interface IInterfaceGreyListingWhiteAddresses;
+interface IInterfaceARCTrustedSealer;
+interface IInterfaceARCTrustedSealers;
 interface IInterfaceTCPIPPort;
 interface IInterfaceTCPIPPorts;
 interface IInterfaceWhiteListAddress;
@@ -2343,8 +2345,7 @@ interface IInterfaceAntiSpam : IDispatch
    [propput, id(42), helpstring("Add an Authentication-Results header to accepted messages.")] HRESULT AddAuthenticationResultsHeader([in] VARIANT_BOOL newVal);
    [propget, id(43), helpstring("Enable ARC (Authenticated Received Chain) validation.")] HRESULT ARCEnabled([out, retval] VARIANT_BOOL* pVal);
    [propput, id(43), helpstring("Enable ARC (Authenticated Received Chain) validation.")] HRESULT ARCEnabled([in] VARIANT_BOOL newVal);
-   [propget, id(44), helpstring("Domains whose ARC seal may override a DMARC failure, separated by commas.")] HRESULT ARCTrustedSealers([out, retval] BSTR* pVal);
-   [propput, id(44), helpstring("Domains whose ARC seal may override a DMARC failure, separated by commas.")] HRESULT ARCTrustedSealers([in] BSTR newVal);
+   [propget, id(44), helpstring("Domains whose ARC seal may override a DMARC failure.")] HRESULT ARCTrustedSealers([out, retval] IInterfaceARCTrustedSealers** pVal);
 };
 
 
@@ -2460,6 +2461,45 @@ interface IInterfaceGreyListingWhiteAddress : IDispatch
    [id(5), helpstring("Deletes the object from the database.")] HRESULT Delete();
 
 };
+
+[
+	object,
+	uuid(C858B968-A09A-4548-89FC-BDB882C65788),
+	dual,
+	nonextensible,
+	helpstring("The ARCTrustedSealers object is a collection of the domains whose ARC seal may override a DMARC failure."),
+	pointer_default(unique)
+]
+interface IInterfaceARCTrustedSealers : IDispatch
+{
+   [propget, id(0), defaultbind, helpstring("Returns an object by its given index.")] HRESULT Item([in] long Index, [out, retval] IInterfaceARCTrustedSealer **pVal);
+   [propget, id(1), helpstring("The number of objects in the collection.")] HRESULT Count([out, retval] long *pVal);
+   [id(2), helpstring("Deletes an object in the database by its given database identifier.")] HRESULT DeleteByDBID([in] long DBID);
+   [id(3), helpstring("Adds a new object to the collection.")] HRESULT Add([out, retval] IInterfaceARCTrustedSealer **pVal);
+   [propget, id(5), helpstring("Returns a object by its database identifier")] HRESULT ItemByDBID([in] long DBID, [out, retval] IInterfaceARCTrustedSealer* *pVal);
+   [id(6), helpstring("Refreshes the collection.")] HRESULT Refresh();
+   [propget, id(7), helpstring("Returns an object by its domain.")] HRESULT ItemByName([in] BSTR sName, [out, retval] IInterfaceARCTrustedSealer **pVal);
+};
+
+[
+	object,
+	uuid(B5BB82AA-8C92-403F-9E57-C44711FCD352),
+	dual,
+	nonextensible,
+	helpstring("The ARCTrustedSealer object contains a domain whose ARC seal may override a DMARC failure."),
+	pointer_default(unique)
+]
+interface IInterfaceARCTrustedSealer : IDispatch
+{
+   [propget, id(1), helpstring("The unique database identifier for the object.")] HRESULT ID([out, retval] long *pVal);
+   [propget, id(2), helpstring("The domain in the d= tag of the ARC-Seal.")] HRESULT Domain([out, retval] BSTR *pVal);
+   [propput, id(2), helpstring("The domain in the d= tag of the ARC-Seal.")] HRESULT Domain([in] BSTR newVal);
+   [propget, id(3), helpstring("Description of the sealer.")] HRESULT Description([out, retval] BSTR *pVal);
+   [propput, id(3), helpstring("Description of the sealer.")] HRESULT Description([in] BSTR newVal);
+   [id(4), helpstring("Saves changes of the object in the database.")] HRESULT Save();
+   [id(5), helpstring("Deletes the object from the database.")] HRESULT Delete();
+};
+
 [
 	object,
 	uuid(70471130-C8FA-4218-B68A-F1C9AD973FF6),
@@ -3616,6 +3656,22 @@ library hMailServer
 	coclass IncomingRelays
 	{
 		[default] interface IInterfaceIncomingRelays;
+	};
+	[
+		uuid(99E49969-492B-406F-87BF-1476D3C8BFA1),
+		helpstring("ARCTrustedSealer Class")
+	]
+	coclass ARCTrustedSealer
+	{
+		[default] interface IInterfaceARCTrustedSealer;
+	};
+	[
+		uuid(CFA90ED1-F030-4248-A44D-8C984CFF0A8B),
+		helpstring("ARCTrustedSealers Class")
+	]
+	coclass ARCTrustedSealers
+	{
+		[default] interface IInterfaceARCTrustedSealers;
 	};
 
    	[

@@ -7,6 +7,7 @@
 #include "../BO/SURBLServers.h"
 #include "../BO/DNSBlackLists.h"
 #include "../BO/GreyListingWhiteAddresses.h"
+#include "../BO/ARCTrustedSealers.h"
 #include "../BO/WhiteListAddresses.h"
 #include "../Persistence/PersistentGreyList.h"
 
@@ -214,6 +215,10 @@ namespace HM
       if (!dnsBlackLists_->XMLStore(pBackupNode, iOptions))
          return false;
 
+      // ARC TRUSTED SEALERS
+      if (!GetARCTrustedSealers()->XMLStore(pBackupNode, iOptions))
+         return false;
+
       return true;
    }
 
@@ -236,6 +241,10 @@ namespace HM
       // DNS BLACK LISTS
       dnsBlackLists_->Refresh();
       if (!dnsBlackLists_->XMLLoad(pBackupNode, iRestoreOptions))
+         return false;
+
+      // ARC TRUSTED SEALERS
+      if (!GetARCTrustedSealers()->XMLLoad(pBackupNode, iRestoreOptions))
          return false;
 
       return true;
@@ -497,41 +506,13 @@ namespace HM
       GetSettings_()->SetBool(PROPERTY_AS_ARC_ENABLED, newValue);
    }
 
-   String
+   std::shared_ptr<ARCTrustedSealers>
    AntiSpamConfiguration::GetARCTrustedSealers()
    {
-      return GetSettings_()->GetString(PROPERTY_AS_ARC_TRUSTED_SEALERS);
-   }
+      std::shared_ptr<ARCTrustedSealers> trustedSealers = std::shared_ptr<ARCTrustedSealers>(new ARCTrustedSealers);
+      trustedSealers->Refresh();
 
-   void
-   AntiSpamConfiguration::SetARCTrustedSealers(const String &newValue)
-   {
-      GetSettings_()->SetString(PROPERTY_AS_ARC_TRUSTED_SEALERS, newValue);
-   }
-
-   bool
-   AntiSpamConfiguration::IsTrustedARCSealer(const String &domain)
-   {
-      if (domain.IsEmpty())
-         return false;
-
-      String sealers = GetARCTrustedSealers();
-      sealers.Replace(_T(","), _T(" "));
-      sealers.Replace(_T(";"), _T(" "));
-      sealers.Replace(_T("\t"), _T(" "));
-      sealers.Replace(_T("\r"), _T(" "));
-      sealers.Replace(_T("\n"), _T(" "));
-
-      for (String sealer : StringParser::SplitString(sealers, _T(" ")))
-      {
-         sealer.Trim();
-
-         // An exact match. A trusted domain doesn't make its subdomains trusted.
-         if (!sealer.IsEmpty() && sealer.CompareNoCase(domain) == 0)
-            return true;
-      }
-
-      return false;
+      return trustedSealers;
    }
 
    bool 

@@ -54,6 +54,8 @@ if exists (select * from sysobjects where id = object_id('hm_servermessages') an
 
 if exists (select * from sysobjects where id = object_id('hm_greylisting_whiteaddresses') and objectproperty(id, 'isusertable') = 1) drop table hm_greylisting_whiteaddresses 
 
+if exists (select * from sysobjects where id = object_id('hm_arc_trusted_sealers') and objectproperty(id, 'isusertable') = 1) drop table hm_arc_trusted_sealers 
+
 if exists (select * from sysobjects where id = object_id('hm_tcpipports') and objectproperty(id, 'isusertable') = 1) drop table hm_tcpipports 
 
 if exists (select * from sysobjects where id = object_id('hm_whitelist') and objectproperty(id, 'isusertable') = 1) drop table hm_whitelist 
@@ -571,6 +573,15 @@ ALTER TABLE hm_greylisting_whiteaddresses ADD CONSTRAINT hm_glwhite_pk PRIMARY K
 
 ALTER TABLE hm_greylisting_whiteaddresses ADD CONSTRAINT u_glwhite UNIQUE NONCLUSTERED (whiteipaddress) 
 
+create table hm_arc_trusted_sealers
+(
+	sealerid bigint identity(1,1) not null,
+	sealerdomain nvarchar(255) not null,
+	sealerdescription nvarchar(255) not null
+) 
+
+ALTER TABLE hm_arc_trusted_sealers ADD CONSTRAINT hm_arc_trusted_sealers_pk PRIMARY KEY NONCLUSTERED (sealerid) 
+
 create table hm_blocked_attachments
 (
 	baid bigint identity(1,1) not null,
@@ -923,8 +934,6 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('AS
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ASAddAuthResultsHeader', '', 0)
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ASARCEnabled', '', 0)
-
-insert into hm_settings (settingname, settingstring, settinginteger) values ('ASARCTrustedSealers', '', 0)
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSEnabled', '', 0)
 

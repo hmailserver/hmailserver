@@ -39,6 +39,8 @@ The complete COM API is available as a .NET class in the hMailserver bin direct
 - [AntiSpam](?page=com_object_antispam)
 - [AntiVirus](?page=com_object_antivirus)
 - [Application](?page=com_object_application)
+- [ARCTrustedSealer](?page=com_object_arctrustedsealer)
+- [ARCTrustedSealers](?page=com_object_arctrustedsealers)
 - [Attachment](?page=com_object_attachment)
 - [Attachments](?page=com_object_attachments)
 - [Backup](?page=com_object_backup)

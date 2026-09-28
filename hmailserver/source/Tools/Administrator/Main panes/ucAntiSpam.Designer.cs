@@ -47,8 +47,6 @@
            this.checkDMARCEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
            this.checkDMARCHonorPolicy = new hMailServer.Administrator.Controls.ucCheckbox();
            this.checkARCEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
-           this.labelARCTrustedSealers = new System.Windows.Forms.Label();
-           this.textARCTrustedSealers = new hMailServer.Shared.ucText();
            this.checkAddAuthenticationResultsHeader = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textCheckHostInHeloScore = new hMailServer.Shared.ucText();
            this.textCheckPTRScore = new hMailServer.Shared.ucText();
@@ -60,6 +58,13 @@
            this.chkCheckPTR = new hMailServer.Administrator.Controls.ucCheckbox();
            this.chkUseSPF = new hMailServer.Administrator.Controls.ucCheckbox();
            this.tabPage3 = new System.Windows.Forms.TabPage();
+           this.tabPage4 = new System.Windows.Forms.TabPage();
+           this.listARCTrustedSealers = new hMailServer.Administrator.ucListView();
+           this.columnSealerDomain = new System.Windows.Forms.ColumnHeader();
+           this.columnSealerDescription = new System.Windows.Forms.ColumnHeader();
+           this.buttonAddARCTrustedSealer = new System.Windows.Forms.Button();
+           this.buttonEditARCTrustedSealer = new System.Windows.Forms.Button();
+           this.buttonDeleteARCTrustedSealer = new System.Windows.Forms.Button();
            this.buttonTest = new System.Windows.Forms.Button();
            this.textSpamAssassinScore = new hMailServer.Shared.ucText();
            this.labelFixedScore = new System.Windows.Forms.Label();
@@ -73,6 +78,7 @@
            this.tabPage1.SuspendLayout();
            this.tabPage2.SuspendLayout();
            this.tabPage3.SuspendLayout();
+           this.tabPage4.SuspendLayout();
            this.SuspendLayout();
            // 
            // tabControl
@@ -80,6 +86,7 @@
            this.tabControl.Controls.Add(this.tabPage1);
            this.tabControl.Controls.Add(this.tabPage2);
            this.tabControl.Controls.Add(this.tabPage3);
+           this.tabControl.Controls.Add(this.tabPage4);
            this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
            this.tabControl.Location = new System.Drawing.Point(0, 0);
            this.tabControl.Name = "tabControl";
@@ -220,8 +227,6 @@
            this.tabPage2.Controls.Add(this.checkDMARCEnabled);
            this.tabPage2.Controls.Add(this.checkDMARCHonorPolicy);
            this.tabPage2.Controls.Add(this.checkARCEnabled);
-           this.tabPage2.Controls.Add(this.labelARCTrustedSealers);
-           this.tabPage2.Controls.Add(this.textARCTrustedSealers);
            this.tabPage2.Controls.Add(this.textCheckHostInHeloScore);
            this.tabPage2.Controls.Add(this.textUseMXChecksScore);
            this.tabPage2.Controls.Add(this.textCheckPTRScore);
@@ -321,24 +326,6 @@
            this.checkARCEnabled.Text = "Use ARC";
            this.checkARCEnabled.UseVisualStyleBackColor = true;
            this.checkARCEnabled.CheckedChanged += new System.EventHandler(this.checkARCEnabled_CheckedChanged);
-           // 
-           // labelARCTrustedSealers
-           // 
-           this.labelARCTrustedSealers.AutoSize = true;
-           this.labelARCTrustedSealers.Location = new System.Drawing.Point(31, 261);
-           this.labelARCTrustedSealers.Name = "labelARCTrustedSealers";
-           this.labelARCTrustedSealers.Size = new System.Drawing.Size(80, 13);
-           this.labelARCTrustedSealers.TabIndex = 30;
-           this.labelARCTrustedSealers.Text = "Trusted sealers";
-           // 
-           // textARCTrustedSealers
-           // 
-           this.textARCTrustedSealers.Location = new System.Drawing.Point(130, 258);
-           this.textARCTrustedSealers.Name = "textARCTrustedSealers";
-           this.textARCTrustedSealers.Number = 0;
-           this.textARCTrustedSealers.Numeric = false;
-           this.textARCTrustedSealers.Size = new System.Drawing.Size(250, 20);
-           this.textARCTrustedSealers.TabIndex = 31;
            //
            // textCheckHostInHeloScore
            // 
@@ -426,6 +413,79 @@
            this.tabPage3.TabIndex = 2;
            this.tabPage3.Text = "SpamAssassin";
            this.tabPage3.UseVisualStyleBackColor = true;
+           // 
+           // tabPage4
+           // 
+           this.tabPage4.Controls.Add(this.buttonEditARCTrustedSealer);
+           this.tabPage4.Controls.Add(this.buttonDeleteARCTrustedSealer);
+           this.tabPage4.Controls.Add(this.buttonAddARCTrustedSealer);
+           this.tabPage4.Controls.Add(this.listARCTrustedSealers);
+           this.tabPage4.Location = new System.Drawing.Point(4, 22);
+           this.tabPage4.Name = "tabPage4";
+           this.tabPage4.Size = new System.Drawing.Size(480, 294);
+           this.tabPage4.TabIndex = 3;
+           this.tabPage4.Text = "ARC trusted sealers";
+           this.tabPage4.UseVisualStyleBackColor = true;
+           // 
+           // listARCTrustedSealers
+           // 
+           this.listARCTrustedSealers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                       | System.Windows.Forms.AnchorStyles.Left)
+                       | System.Windows.Forms.AnchorStyles.Right)));
+           this.listARCTrustedSealers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnSealerDomain,
+            this.columnSealerDescription});
+           this.listARCTrustedSealers.FullRowSelect = true;
+           this.listARCTrustedSealers.Location = new System.Drawing.Point(15, 12);
+           this.listARCTrustedSealers.Name = "listARCTrustedSealers";
+           this.listARCTrustedSealers.Size = new System.Drawing.Size(353, 267);
+           this.listARCTrustedSealers.TabIndex = 0;
+           this.listARCTrustedSealers.UseCompatibleStateImageBehavior = false;
+           this.listARCTrustedSealers.View = System.Windows.Forms.View.Details;
+           this.listARCTrustedSealers.DoubleClick += new System.EventHandler(this.buttonEditARCTrustedSealer_Click);
+           // 
+           // columnSealerDomain
+           // 
+           this.columnSealerDomain.Text = "Domain";
+           this.columnSealerDomain.Width = 140;
+           // 
+           // columnSealerDescription
+           // 
+           this.columnSealerDescription.Text = "Description";
+           this.columnSealerDescription.Width = 200;
+           // 
+           // buttonAddARCTrustedSealer
+           // 
+           this.buttonAddARCTrustedSealer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+           this.buttonAddARCTrustedSealer.Location = new System.Drawing.Point(376, 12);
+           this.buttonAddARCTrustedSealer.Name = "buttonAddARCTrustedSealer";
+           this.buttonAddARCTrustedSealer.Size = new System.Drawing.Size(100, 25);
+           this.buttonAddARCTrustedSealer.TabIndex = 1;
+           this.buttonAddARCTrustedSealer.Text = "&Add...";
+           this.buttonAddARCTrustedSealer.UseVisualStyleBackColor = true;
+           this.buttonAddARCTrustedSealer.Click += new System.EventHandler(this.buttonAddARCTrustedSealer_Click);
+           // 
+           // buttonEditARCTrustedSealer
+           // 
+           this.buttonEditARCTrustedSealer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+           this.buttonEditARCTrustedSealer.Location = new System.Drawing.Point(376, 43);
+           this.buttonEditARCTrustedSealer.Name = "buttonEditARCTrustedSealer";
+           this.buttonEditARCTrustedSealer.Size = new System.Drawing.Size(100, 25);
+           this.buttonEditARCTrustedSealer.TabIndex = 2;
+           this.buttonEditARCTrustedSealer.Text = "&Edit...";
+           this.buttonEditARCTrustedSealer.UseVisualStyleBackColor = true;
+           this.buttonEditARCTrustedSealer.Click += new System.EventHandler(this.buttonEditARCTrustedSealer_Click);
+           // 
+           // buttonDeleteARCTrustedSealer
+           // 
+           this.buttonDeleteARCTrustedSealer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+           this.buttonDeleteARCTrustedSealer.Location = new System.Drawing.Point(376, 74);
+           this.buttonDeleteARCTrustedSealer.Name = "buttonDeleteARCTrustedSealer";
+           this.buttonDeleteARCTrustedSealer.Size = new System.Drawing.Size(100, 25);
+           this.buttonDeleteARCTrustedSealer.TabIndex = 3;
+           this.buttonDeleteARCTrustedSealer.Text = "Remove";
+           this.buttonDeleteARCTrustedSealer.UseVisualStyleBackColor = true;
+           this.buttonDeleteARCTrustedSealer.Click += new System.EventHandler(this.buttonDeleteARCTrustedSealer_Click);
            // 
            // buttonTest
            // 
@@ -530,6 +590,7 @@
            this.tabPage2.PerformLayout();
            this.tabPage3.ResumeLayout(false);
            this.tabPage3.PerformLayout();
+           this.tabPage4.ResumeLayout(false);
            this.ResumeLayout(false);
 
         }
@@ -573,8 +634,13 @@
        private hMailServer.Administrator.Controls.ucCheckbox checkDMARCEnabled;
        private hMailServer.Administrator.Controls.ucCheckbox checkDMARCHonorPolicy;
        private hMailServer.Administrator.Controls.ucCheckbox checkARCEnabled;
-       private System.Windows.Forms.Label labelARCTrustedSealers;
-       private hMailServer.Shared.ucText textARCTrustedSealers;
+       private System.Windows.Forms.TabPage tabPage4;
+       private hMailServer.Administrator.ucListView listARCTrustedSealers;
+       private System.Windows.Forms.ColumnHeader columnSealerDomain;
+       private System.Windows.Forms.ColumnHeader columnSealerDescription;
+       private System.Windows.Forms.Button buttonAddARCTrustedSealer;
+       private System.Windows.Forms.Button buttonEditARCTrustedSealer;
+       private System.Windows.Forms.Button buttonDeleteARCTrustedSealer;
        private hMailServer.Administrator.Controls.ucCheckbox checkAddAuthenticationResultsHeader;
        private System.Windows.Forms.Button buttonTest;
     }

@@ -14,6 +14,7 @@
 #include "../SpamTestData.h"
 #include "../SpamTestResult.h"
 #include "../ARC/ARCAuthenticationResults.h"
+#include "../../BO/ARCTrustedSealers.h"
 #include "../DKIM/DKIM.h"
 
 #include "../../BO/MessageData.h"
@@ -182,7 +183,7 @@ namespace HM
       // Only the last sealer counts: it is the hop that handed the message to us.
       String sealer = senderAuthentication->GetARCSealerDomain();
 
-      if (!config.IsTrustedARCSealer(sealer))
+      if (!config.GetARCTrustedSealers()->IsTrusted(sealer))
          return false;
 
       // The sealer must also have seen the original message authenticate.

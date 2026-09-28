@@ -111,7 +111,6 @@
 #define PROPERTY_AS_ADD_AUTHENTICATION_RESULTS        _T("ASAddAuthResultsHeader")
 
 #define PROPERTY_AS_ARC_ENABLED                       _T("ASARCEnabled")
-#define PROPERTY_AS_ARC_TRUSTED_SEALERS               _T("ASARCTrustedSealers")
 
 #define PROPERTY_AUTOBAN_ENABLED                _T("AutoBanOnLogonFailureEnabled")
 #define PROPERTY_MAX_INVALID_LOGON_ATTEMPTS     _T("MaxInvalidLogonAttempts")

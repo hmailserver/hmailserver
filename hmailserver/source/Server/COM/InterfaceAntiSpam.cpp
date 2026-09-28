@@ -14,6 +14,7 @@
 
 #include "InterfaceAntiSpam.h"
 #include "InterfaceGreyListingWhiteAddresses.h"
+#include "InterfaceARCTrustedSealers.h"
 #include "InterfaceWhiteListAddresses.h"
 #include "InterfaceSURBLServers.h"
 #include "InterfaceDNSBlackLists.h"
@@ -1288,31 +1289,19 @@ STDMETHODIMP InterfaceAntiSpam::put_ARCEnabled(VARIANT_BOOL newVal)
    }
 }
 
-STDMETHODIMP InterfaceAntiSpam::get_ARCTrustedSealers(BSTR *pVal)
+STDMETHODIMP InterfaceAntiSpam::get_ARCTrustedSealers(IInterfaceARCTrustedSealers **pVal)
 {
    try
    {
       if (!config_)
          return GetAccessDenied();
 
-      *pVal = config_->GetAntiSpamConfiguration().GetARCTrustedSealers().AllocSysString();
+      CComObject<InterfaceARCTrustedSealers>* pTrustedSealers = new CComObject<InterfaceARCTrustedSealers>();
+      pTrustedSealers->SetAuthentication(authentication_);
+      pTrustedSealers->Attach(config_->GetAntiSpamConfiguration().GetARCTrustedSealers());
+      pTrustedSealers->AddRef();
 
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
-}
-
-STDMETHODIMP InterfaceAntiSpam::put_ARCTrustedSealers(BSTR newVal)
-{
-   try
-   {
-      if (!config_)
-         return GetAccessDenied();
-
-      config_->GetAntiSpamConfiguration().SetARCTrustedSealers(newVal);
+      *pVal = pTrustedSealers;
 
       return S_OK;
    }

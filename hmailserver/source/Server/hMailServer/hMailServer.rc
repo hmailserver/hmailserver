@@ -210,6 +210,8 @@ IDR_INTERFACEMESSAGEINDEXING REGISTRY                "..\\COM\\InterfaceMessageI
 IDR_INTERFACEDIAGNOSTICS REGISTRY                "..\\COM\\InterfaceDiagnostics.rgs"
 IDR_INTERFACEDIAGNOSTICRESULTS REGISTRY                "..\\COM\\InterfaceDiagnosticResults.rgs"
 IDR_INTERFACEDIAGNOSTICRESULT REGISTRY                "..\\COM\\InterfaceDiagnosticResult.rgs"
+IDR_INTERFACEARCTRUSTEDSEALER REGISTRY                "..\\COM\\InterfaceARCTrustedSealer.rgs"
+IDR_INTERFACEARCTRUSTEDSEALERS REGISTRY                "..\\COM\\InterfaceARCTrustedSealers.rgs"
 
 #endif    // Swedish resources
 /////////////////////////////////////////////////////////////////////////////

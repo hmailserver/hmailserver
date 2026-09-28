@@ -1,0 +1,24 @@
+HKCR
+{
+	hMailServer.ARCTrustedSealer.1 = s 'ARCTrustedSealer Class'
+	{
+		CLSID = s '{99E49969-492B-406F-87BF-1476D3C8BFA1}'
+	}
+	hMailServer.ARCTrustedSealer = s 'ARCTrustedSealer Class'
+	{
+		CLSID = s '{99E49969-492B-406F-87BF-1476D3C8BFA1}'
+		CurVer = s 'hMailServer.ARCTrustedSealer.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {99E49969-492B-406F-87BF-1476D3C8BFA1} = s 'ARCTrustedSealer Class'
+		{
+			ProgID = s 'hMailServer.ARCTrustedSealer.1'
+			VersionIndependentProgID = s 'hMailServer.ARCTrustedSealer'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{DB241B59-A1B1-4C59-98FC-8D101A2995F2}'
+		}
+	}
+}

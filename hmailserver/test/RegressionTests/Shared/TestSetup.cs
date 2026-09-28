@@ -71,6 +71,7 @@ namespace RegressionTests.Shared
          RemoveAllSharedFolders();
          RemoveAllGroups();
          ClearGreyListingWhiteAddresses();
+         ClearARCTrustedSealers();
          EnableLogging(true);
 
          _settings.SSLCertificates.Clear();
@@ -350,6 +351,13 @@ namespace RegressionTests.Shared
       }
 
 
+      private void ClearARCTrustedSealers()
+      {
+         var sealers = _settings.AntiSpam.ARCTrustedSealers;
+         while (sealers.Count > 0)
+            sealers.DeleteByDBID(sealers[0].ID);
+      }
+
       private void ClearGreyListingWhiteAddresses()
       {
          var addresses = _settings.AntiSpam.GreyListingWhiteAddresses;
@@ -511,9 +519,6 @@ namespace RegressionTests.Shared
 
          if (antiSpam.ARCEnabled)
             antiSpam.ARCEnabled = false;
-
-         if (antiSpam.ARCTrustedSealers != "")
-            antiSpam.ARCTrustedSealers = "";
 
          antiSpam.WhiteListAddresses.Clear();
 

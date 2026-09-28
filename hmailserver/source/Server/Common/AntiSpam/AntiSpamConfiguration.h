@@ -7,6 +7,7 @@ namespace HM
 {
    class SURBLServers;
    class GreyListingWhiteAddresses;
+   class ARCTrustedSealers;
    class WhiteListAddresses;
    class DNSBlackLists;
 
@@ -118,11 +119,8 @@ namespace HM
       bool GetARCEnabled();
       void SetARCEnabled(bool newValue);
 
-      // Domains whose ARC seal may override a DMARC failure, separated by commas,
-      // semicolons or whitespace.
-      String GetARCTrustedSealers();
-      void SetARCTrustedSealers(const String &newValue);
-      bool IsTrustedARCSealer(const String &domain);
+      // Domains whose ARC seal may override a DMARC failure.
+      std::shared_ptr<ARCTrustedSealers> GetARCTrustedSealers();
 
       bool GetBypassGreyListingOnSPFSuccess();
       void SetBypassGreyListingOnSPFSuccess(bool newValue);

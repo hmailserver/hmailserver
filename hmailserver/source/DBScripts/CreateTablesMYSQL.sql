@@ -52,6 +52,8 @@ drop table if exists hm_servermessages;
 
 drop table if exists hm_greylisting_whiteaddresses;
 
+drop table if exists hm_arc_trusted_sealers;
+
 drop table if exists hm_tcpipports;
 
 drop table if exists hm_whitelist;
@@ -418,6 +420,13 @@ create table hm_greylisting_whiteaddresses
 	whiteipdescription varchar(255) not null
 ) DEFAULT CHARSET=utf8;
 
+create table hm_arc_trusted_sealers
+(
+	sealerid bigint auto_increment not null, primary key(sealerid), unique(sealerid),
+	sealerdomain varchar(255) not null,
+	sealerdescription varchar(255) not null
+) DEFAULT CHARSET=utf8;
+
 create table hm_blocked_attachments
 (
 	baid bigint auto_increment not null, primary key(baid), unique(baid),
@@ -749,8 +758,6 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('AS
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ASAddAuthResultsHeader', '', 0);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ASARCEnabled', '', 0);
-
-insert into hm_settings (settingname, settingstring, settinginteger) values ('ASARCTrustedSealers', '', 0);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSEnabled', '', 0);
 

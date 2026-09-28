@@ -167,6 +167,12 @@
     <Compile Include="Dialogs\formFolderPermissions.Designer.cs">
       <DependentUpon>formFolderPermissions.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\formARCTrustedSealer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\formARCTrustedSealer.Designer.cs">
+      <DependentUpon>formARCTrustedSealer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\formGreyListingWhiteAddress.cs">
       <SubType>Form</SubType>
     </Compile>

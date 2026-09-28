@@ -82,6 +82,7 @@ if (hmailGetAdminLevel() == 2)
     $dtree .= "d.add(" . $dtitem++ . ",$settings_spamprotection_root,'" . GetStringForJavaScript("SURBL servers") . "','index.php?page=surblservers','','','" . "images/folder.png','" . "images/folder.png');\r\n";
     $dtree .= "d.add(" . $dtitem++ . ",$settings_spamprotection_root,'" . GetStringForJavaScript("Greylisting") . "','index.php?page=greylisting','','','" . "images/time_delete.png','" . "images/time_delete.png');\r\n";
     $dtree .= "d.add(" . $dtitem++ . ",$settings_spamprotection_root,'" . GetStringForJavaScript("White listing") . "','index.php?page=whitelistaddresses','','','" . "images/email_link.png','" . "images/email_link.png');\r\n";
+    $dtree .= "d.add(" . $dtitem++ . ",$settings_spamprotection_root,'" . GetStringForJavaScript("ARC trusted sealers") . "','index.php?page=arctrustedsealers','','','" . "images/folder.png','" . "images/folder.png');\r\n";
     
     $dtree .= "d.add(" . $dtitem++ . ",$settings_root,'" . GetStringForJavaScript("Anti-virus") . "','index.php?page=smtp_antivirus','','','" . "images/bug_delete.png','" . "images/bug_delete.png');\r\n";
     
