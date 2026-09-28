@@ -157,6 +157,12 @@ public:
    STDMETHOD(get_AddAuthenticationResultsHeader)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_AddAuthenticationResultsHeader)(/*[in]*/ VARIANT_BOOL newVal);
 
+   STDMETHOD(get_ARCEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_ARCEnabled)(/*[in]*/ VARIANT_BOOL newVal);
+
+   STDMETHOD(get_ARCTrustedSealers)(/*[out, retval]*/ BSTR *pVal);
+   STDMETHOD(put_ARCTrustedSealers)(/*[in]*/ BSTR newVal);
+
 private:
 
    HM::Configuration* config_;

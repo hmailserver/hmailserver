@@ -38,6 +38,14 @@ The AntiSpam object contains all server-wide settings related to anti-spam.
 
 <div class="api_description">Add header X-hMailServer-Spam when spam message is found.<br></div>
 
+<div class="api_method_name">bool ARCEnabled</div>
+
+<div class="api_description">Enable ARC (Authenticated Received Chain) validation.<br></div>
+
+<div class="api_method_name">string ARCTrustedSealers</div>
+
+<div class="api_description">Domains whose ARC seal may override a DMARC failure, separated by commas.<br></div>
+
 <div class="api_method_name">bool BypassGreylistingOnMailFromMX</div>
 
 <div class="api_description">Bypass grey listing if mail comes from domain A or MX record.<br></div>

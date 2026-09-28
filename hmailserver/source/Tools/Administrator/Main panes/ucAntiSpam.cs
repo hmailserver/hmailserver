@@ -84,6 +84,9 @@ namespace hMailServer.Administrator
             checkDMARCHonorPolicy.Checked = antiSpam.DMARCHonorPolicy;
             checkAddAuthenticationResultsHeader.Checked = antiSpam.AddAuthenticationResultsHeader;
 
+            checkARCEnabled.Checked = antiSpam.ARCEnabled;
+            textARCTrustedSealers.Text = antiSpam.ARCTrustedSealers;
+
             EnableDisable();
 
             Marshal.ReleaseComObject(settings);
@@ -124,6 +127,9 @@ namespace hMailServer.Administrator
             antiSpam.DMARCFailureScore = textDMARCFailureScore.Number;
             antiSpam.DMARCHonorPolicy = checkDMARCHonorPolicy.Checked;
             antiSpam.AddAuthenticationResultsHeader = checkAddAuthenticationResultsHeader.Checked;
+
+            antiSpam.ARCEnabled = checkARCEnabled.Checked;
+            antiSpam.ARCTrustedSealers = textARCTrustedSealers.Text;
 
             antiSpam.MaximumMessageSize = textMaximumMessageSize.Number;
 
@@ -174,6 +180,8 @@ namespace hMailServer.Administrator
 
             textDMARCFailureScore.Enabled = checkDMARCEnabled.Checked;
             checkDMARCHonorPolicy.Enabled = checkDMARCEnabled.Checked;
+
+            textARCTrustedSealers.Enabled = checkARCEnabled.Checked;
 
         }
 
@@ -227,6 +235,11 @@ namespace hMailServer.Administrator
         }
 
         private void checkDMARCEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisable();
+        }
+
+        private void checkARCEnabled_CheckedChanged(object sender, EventArgs e)
         {
             EnableDisable();
         }

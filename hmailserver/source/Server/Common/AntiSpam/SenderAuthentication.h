@@ -4,6 +4,7 @@
 #pragma once
 
 #include "DKIM/DKIM.h"
+#include "ARC/ARCVerifier.h"
 #include "../../SMTP/SPF/SPF.h"
 
 namespace HM
@@ -47,9 +48,26 @@ namespace HM
       // One entry per DKIM signature that was evaluated, keyed on the d= domain.
       const std::vector<std::pair<AnsiString, DKIM::Result> > &GetDKIMSignatures() const;
 
+      // Validates the ARC chain, unless it has already been done.
+      ARCVerifier::Result EvaluateARC(std::shared_ptr<SpamTestData> testData);
+
+      bool GetARCChecked() const;
+      ARCVerifier::Result GetARCResult() const;
+      // The d= of the last ARC-Seal, set when the chain passed.
+      AnsiString GetARCSealerDomain() const;
+      // The results the last sealer recorded, set when the chain passed.
+      AnsiString GetARCAuthenticationResults() const;
+      String GetARCFailureReason() const;
+      // The client address the chain was received from.
+      String GetARCClientAddress() const;
+
       void SetDMARCResult(DMARCResult result, const String &headerFromDomain);
       DMARCResult GetDMARCResult() const;
       String GetDMARCDomain() const;
+
+      // Set when a failing DMARC result was overridden since a trusted sealer vouched for the message.
+      void SetDMARCOverriddenBySealer(const String &sealerDomain);
+      String GetDMARCOverriddenBySealer() const;
 
    private:
 
@@ -64,7 +82,15 @@ namespace HM
       DKIM::Result dkim_result_;
       std::vector<std::pair<AnsiString, DKIM::Result> > dkim_signatures_;
 
+      bool arc_checked_;
+      ARCVerifier::Result arc_result_;
+      AnsiString arc_sealer_domain_;
+      AnsiString arc_authentication_results_;
+      String arc_failure_reason_;
+      String arc_client_address_;
+
       DMARCResult dmarc_result_;
       String dmarc_domain_;
+      String dmarc_overridden_by_sealer_;
    };
 }

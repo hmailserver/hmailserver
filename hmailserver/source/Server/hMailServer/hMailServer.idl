@@ -2341,6 +2341,10 @@ interface IInterfaceAntiSpam : IDispatch
    [propput, id(41), helpstring("Honor the DMARC policy published by the sender domain.")] HRESULT DMARCHonorPolicy([in] VARIANT_BOOL newVal);
    [propget, id(42), helpstring("Add an Authentication-Results header to accepted messages.")] HRESULT AddAuthenticationResultsHeader([out, retval] VARIANT_BOOL* pVal);
    [propput, id(42), helpstring("Add an Authentication-Results header to accepted messages.")] HRESULT AddAuthenticationResultsHeader([in] VARIANT_BOOL newVal);
+   [propget, id(43), helpstring("Enable ARC (Authenticated Received Chain) validation.")] HRESULT ARCEnabled([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(43), helpstring("Enable ARC (Authenticated Received Chain) validation.")] HRESULT ARCEnabled([in] VARIANT_BOOL newVal);
+   [propget, id(44), helpstring("Domains whose ARC seal may override a DMARC failure, separated by commas.")] HRESULT ARCTrustedSealers([out, retval] BSTR* pVal);
+   [propput, id(44), helpstring("Domains whose ARC seal may override a DMARC failure, separated by commas.")] HRESULT ARCTrustedSealers([in] BSTR newVal);
 };
 
 

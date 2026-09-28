@@ -45,6 +45,9 @@ if($action == "save")
    $antiSpamSettings->DMARCFailureScore = hmailGetVar("DMARCFailureScore", 0);
    $antiSpamSettings->DMARCHonorPolicy = hmailGetVar("DMARCHonorPolicy", 0);
    $antiSpamSettings->AddAuthenticationResultsHeader = hmailGetVar("AddAuthenticationResultsHeader", 0);
+
+   $antiSpamSettings->ARCEnabled = hmailGetVar("ARCEnabled", 0);
+   $antiSpamSettings->ARCTrustedSealers = hmailGetVar("ARCTrustedSealers", "");
 }
 
 $SpamMarkThreshold = $antiSpamSettings->SpamMarkThreshold;
@@ -73,6 +76,9 @@ $DMARCEnabled = $antiSpamSettings->DMARCEnabled;
 $DMARCFailureScore = $antiSpamSettings->DMARCFailureScore;
 $DMARCHonorPolicy = $antiSpamSettings->DMARCHonorPolicy;
 $AddAuthenticationResultsHeader = $antiSpamSettings->AddAuthenticationResultsHeader;
+
+$ARCEnabled = $antiSpamSettings->ARCEnabled;
+$ARCTrustedSealers = $antiSpamSettings->ARCTrustedSealers;
 
 $AddHeaderSpam =   $antiSpamSettings->AddHeaderSpam;
 $AddHeaderReason =   $antiSpamSettings->AddHeaderReason;
@@ -188,6 +194,8 @@ function TestSpamAssassinConnection()
                PrintCheckboxRow("DMARCEnabled", "Use DMARC", $DMARCEnabled);
                PrintPropertyEditRow("DMARCFailureScore", "Score", $DMARCFailureScore, 4, "number", true);
                PrintCheckboxRow("DMARCHonorPolicy", "Honor the policy published by the sender domain", $DMARCHonorPolicy, false, true);
+               PrintCheckboxRow("ARCEnabled", "Use ARC", $ARCEnabled);
+               PrintPropertyEditRow("ARCTrustedSealers", "Trusted sealers", $ARCTrustedSealers, 40, "", true);
             ?>
          </table>
      </div>

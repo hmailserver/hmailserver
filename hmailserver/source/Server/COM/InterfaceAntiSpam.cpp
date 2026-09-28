@@ -1254,6 +1254,74 @@ STDMETHODIMP InterfaceAntiSpam::put_AddAuthenticationResultsHeader(VARIANT_BOOL 
    }
 }
 
+STDMETHODIMP InterfaceAntiSpam::get_ARCEnabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetAntiSpamConfiguration().GetARCEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceAntiSpam::put_ARCEnabled(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->GetAntiSpamConfiguration().SetARCEnabled(newVal == VARIANT_TRUE);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceAntiSpam::get_ARCTrustedSealers(BSTR *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetAntiSpamConfiguration().GetARCTrustedSealers().AllocSysString();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceAntiSpam::put_ARCTrustedSealers(BSTR newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->GetAntiSpamConfiguration().SetARCTrustedSealers(newVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP InterfaceAntiSpam::get_BypassGreylistingOnSPFSuccess(VARIANT_BOOL *pVal)
 {
    try

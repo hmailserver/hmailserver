@@ -29,6 +29,7 @@
 #include "../../SMTP/SPF/SPFRecordTester.h"
 #include "../../SMTP/SRS/SRSTester.h"
 #include "../AntiSpam/DMARC/DMARCTester.h"
+#include "../AntiSpam/ARC/ARCTester.h"
 #include "PublicSuffixListTester.h"
 #include "../../SMTP/BLCheck.h"
 #include "../Application/BackupManager.h"
@@ -169,6 +170,10 @@ namespace HM
       OutputDebugString(_T("hMailServer: Testing DMARC\n"));
       DMARCTester dmarcTester;
       dmarcTester.Test();
+
+      OutputDebugString(_T("hMailServer: Testing ARC\n"));
+      ARCTester arcTester;
+      arcTester.Test();
 
       OutputDebugString(_T("hMailServer: Testing SHA256\n"));
       HashCreatorTester tester;

@@ -164,6 +164,10 @@ EXIT 0
     <ClCompile Include="..\Common\AntiSpam\AntiSpamConfiguration.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SenderAuthentication.cpp" />
     <ClCompile Include="..\Common\AntiSpam\AuthenticationResultsHeader.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\ARC\ARCAuthenticationResults.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\ARC\ARCTester.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\ARC\ARCVerifier.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\ARC\SpamTestARC.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DKIM\Canonicalization.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DKIM\DKIM.cpp" />
     <ClCompile Include="..\Common\AntiSpam\DKIM\DKIMParameters.cpp" />
@@ -683,6 +687,10 @@ EXIT 0
     <ClInclude Include="..\Common\AntiSpam\AntiSpamConfiguration.h" />
     <ClInclude Include="..\Common\AntiSpam\SenderAuthentication.h" />
     <ClInclude Include="..\Common\AntiSpam\AuthenticationResultsHeader.h" />
+    <ClInclude Include="..\Common\AntiSpam\ARC\ARCAuthenticationResults.h" />
+    <ClInclude Include="..\Common\AntiSpam\ARC\ARCTester.h" />
+    <ClInclude Include="..\Common\AntiSpam\ARC\ARCVerifier.h" />
+    <ClInclude Include="..\Common\AntiSpam\ARC\SpamTestARC.h" />
     <ClInclude Include="..\Common\AntiSpam\DKIM\Canonicalization.h" />
     <ClInclude Include="..\Common\AntiSpam\DKIM\DKIM.h" />
     <ClInclude Include="..\Common\AntiSpam\DKIM\DKIMParameters.h" />

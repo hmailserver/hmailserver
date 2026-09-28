@@ -509,6 +509,12 @@ namespace RegressionTests.Shared
          if (antiSpam.AddAuthenticationResultsHeader)
             antiSpam.AddAuthenticationResultsHeader = false;
 
+         if (antiSpam.ARCEnabled)
+            antiSpam.ARCEnabled = false;
+
+         if (antiSpam.ARCTrustedSealers != "")
+            antiSpam.ARCTrustedSealers = "";
+
          antiSpam.WhiteListAddresses.Clear();
 
          var dnsBlackLists = antiSpam.DNSBlackLists;

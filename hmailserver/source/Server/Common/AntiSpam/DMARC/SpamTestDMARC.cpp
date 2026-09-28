@@ -13,6 +13,7 @@
 #include "../SenderAuthentication.h"
 #include "../SpamTestData.h"
 #include "../SpamTestResult.h"
+#include "../ARC/ARCAuthenticationResults.h"
 #include "../DKIM/DKIM.h"
 
 #include "../../BO/MessageData.h"
@@ -85,6 +86,21 @@ namespace HM
 
       senderAuthentication->SetDMARCResult(SenderAuthentication::DMARCResult::Fail, headerFromDomain);
 
+      String trustedSealer;
+      if (IsVouchedForByTrustedSealer_(pTestData, record, headerFromDomain, trustedSealer))
+      {
+         // The message failed since it was forwarded. A sealer we trust saw it pass
+         // before that, so the failure is neither scored nor acted on.
+         senderAuthentication->SetDMARCOverriddenBySealer(trustedSealer);
+
+         LOG_DEBUG("DMARC: The failure was overridden since the trusted ARC sealer " + trustedSealer + " saw the message pass.");
+
+         std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Pass, 0, ""));
+         setSpamTestResults.insert(pResult);
+
+         return setSpamTestResults;
+      }
+
       String message;
       message.Format(_T("Rejected by DMARC. (%s)"), headerFromDomain.c_str());
 
@@ -147,6 +163,38 @@ namespace HM
       }
 
       return DMARCRecord::Policy::None;
+   }
+
+   bool
+   SpamTestDMARC::IsVouchedForByTrustedSealer_(std::shared_ptr<SpamTestData> pTestData, const DMARCRecord &record,
+                                               const String &headerFromDomain, String &sealerDomain)
+   {
+      AntiSpamConfiguration &config = Configuration::Instance()->GetAntiSpamConfiguration();
+
+      if (!config.GetARCEnabled())
+         return false;
+
+      std::shared_ptr<SenderAuthentication> senderAuthentication = pTestData->GetSenderAuthentication();
+
+      if (senderAuthentication->EvaluateARC(pTestData) != ARCVerifier::Result::Pass)
+         return false;
+
+      // Only the last sealer counts: it is the hop that handed the message to us.
+      String sealer = senderAuthentication->GetARCSealerDomain();
+
+      if (!config.IsTrustedARCSealer(sealer))
+         return false;
+
+      // The sealer must also have seen the original message authenticate.
+      if (!ARCAuthenticationResults::ShowsAlignedPass(senderAuthentication->GetARCAuthenticationResults(), headerFromDomain,
+                                                      record.GetSPFAlignment(), record.GetDKIMAlignment()))
+      {
+         LOG_DEBUG("DMARC: The trusted ARC sealer " + sealer + " did not record an aligned pass.");
+         return false;
+      }
+
+      sealerDomain = sealer;
+      return true;
    }
 
    String

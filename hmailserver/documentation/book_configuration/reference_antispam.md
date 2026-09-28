@@ -108,6 +108,12 @@ When this option is enabled, hMailServer adds an Authentication-Results header t
 <div class="indented">If you enable this option, hMailServer applies the policy the sender domain publishes in its DMARC record when the check fails, regardless of the spam score. A policy of <em>reject</em> makes hMailServer reject the message, and a policy of <em>quarantine</em> makes hMailServer mark the message as spam. A policy of <em>none</em> only adds the spam score. The <em>pct</em> tag of the DMARC record is respected, so a domain owner can roll a policy out gradually.</div>
 
 <div class="indented">If this option is disabled, a failed DMARC check only adds the spam score.</div>
+
+<h3>Use ARC</h3>
+<div class="indented">If you enable this option, hMailServer validates the ARC (Authenticated Received Chain) headers of incoming messages. Forwarders and mailing lists add ARC headers to record the SPF, DKIM and DMARC results they saw before they changed or passed on the message. The result is added to the Authentication-Results header. A broken chain adds no spam score.</div>
+
+<h3>Trusted sealers</h3>
+<div class="indented">The domains whose ARC headers you trust, separated by commas, for example <em>google.com, microsoft.com</em>. When a message fails DMARC, but its ARC chain is valid, the last server that added ARC headers is in this list, and that server recorded that the message passed SPF, DKIM or DMARC for the From domain, the DMARC failure is ignored. Only list domains you trust not to vouch for spam. Subdomains of a listed domain are not trusted automatically.</div>
 </div>
 
 <div class="indented">

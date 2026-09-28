@@ -45,6 +45,38 @@ namespace HM
          return "neutral";
       }
 
+      String GetARCResultText(ARCVerifier::Result result)
+      {
+         switch (result)
+         {
+         case ARCVerifier::Result::Pass:
+            return "pass";
+         case ARCVerifier::Result::Fail:
+            return "fail";
+         }
+
+         return "none";
+      }
+
+      // Keeps a value placed in a comment from ending the comment early.
+      String CommentSafe(const String &value)
+      {
+         String result;
+
+         for (TCHAR character : value)
+         {
+            bool allowed = (character >= '0' && character <= '9') ||
+                           (character >= 'a' && character <= 'z') ||
+                           (character >= 'A' && character <= 'Z') ||
+                           character == '-' || character == '.' || character == ' ' || character == '=';
+
+            if (allowed)
+               result += character;
+         }
+
+         return result;
+      }
+
       String GetDKIMResultText(DKIM::Result result)
       {
          switch (result)
@@ -135,7 +167,12 @@ namespace HM
          methods.push_back("dmarc=pass header.from=" + FormatValue(senderAuthentication->GetDMARCDomain()));
          break;
       case SenderAuthentication::DMARCResult::Fail:
-         methods.push_back("dmarc=fail header.from=" + FormatValue(senderAuthentication->GetDMARCDomain()));
+         {
+            String overriddenBy = senderAuthentication->GetDMARCOverriddenBySealer();
+            String comment = overriddenBy.IsEmpty() ? String("") : " (overridden, trusted ARC sealer " + CommentSafe(overriddenBy) + ")";
+
+            methods.push_back("dmarc=fail" + comment + " header.from=" + FormatValue(senderAuthentication->GetDMARCDomain()));
+         }
          break;
       }
 
@@ -155,6 +192,21 @@ namespace HM
       {
          methods.push_back("dkim=" + GetDKIMResultText(signature.second) +
                            " header.d=" + FormatValue(String(signature.first)));
+      }
+
+      if (senderAuthentication->GetARCChecked())
+      {
+         ARCVerifier::Result arcResult = senderAuthentication->GetARCResult();
+         String method = "arc=" + GetARCResultText(arcResult);
+
+         if (arcResult == ARCVerifier::Result::Fail && !senderAuthentication->GetARCFailureReason().IsEmpty())
+            method += " (" + CommentSafe(senderAuthentication->GetARCFailureReason()) + ")";
+
+         // The address the chain was received from, which the arc method reports.
+         if (!senderAuthentication->GetARCClientAddress().IsEmpty())
+            method += " smtp.remote-ip=" + FormatValue(senderAuthentication->GetARCClientAddress());
+
+         methods.push_back(method);
       }
 
       if (methods.empty())

@@ -485,6 +485,55 @@ namespace HM
       GetSettings_()->SetBool(PROPERTY_AS_ADD_AUTHENTICATION_RESULTS, newValue);
    }
 
+   bool
+   AntiSpamConfiguration::GetARCEnabled()
+   {
+      return GetSettings_()->GetBool(PROPERTY_AS_ARC_ENABLED);
+   }
+
+   void
+   AntiSpamConfiguration::SetARCEnabled(bool newValue)
+   {
+      GetSettings_()->SetBool(PROPERTY_AS_ARC_ENABLED, newValue);
+   }
+
+   String
+   AntiSpamConfiguration::GetARCTrustedSealers()
+   {
+      return GetSettings_()->GetString(PROPERTY_AS_ARC_TRUSTED_SEALERS);
+   }
+
+   void
+   AntiSpamConfiguration::SetARCTrustedSealers(const String &newValue)
+   {
+      GetSettings_()->SetString(PROPERTY_AS_ARC_TRUSTED_SEALERS, newValue);
+   }
+
+   bool
+   AntiSpamConfiguration::IsTrustedARCSealer(const String &domain)
+   {
+      if (domain.IsEmpty())
+         return false;
+
+      String sealers = GetARCTrustedSealers();
+      sealers.Replace(_T(","), _T(" "));
+      sealers.Replace(_T(";"), _T(" "));
+      sealers.Replace(_T("\t"), _T(" "));
+      sealers.Replace(_T("\r"), _T(" "));
+      sealers.Replace(_T("\n"), _T(" "));
+
+      for (String sealer : StringParser::SplitString(sealers, _T(" ")))
+      {
+         sealer.Trim();
+
+         // An exact match. A trusted domain doesn't make its subdomains trusted.
+         if (!sealer.IsEmpty() && sealer.CompareNoCase(domain) == 0)
+            return true;
+      }
+
+      return false;
+   }
+
    bool 
    AntiSpamConfiguration::GetBypassGreyListingOnSPFSuccess()
    {

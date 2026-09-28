@@ -46,6 +46,9 @@
            this.textDMARCFailureScore = new hMailServer.Shared.ucText();
            this.checkDMARCEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
            this.checkDMARCHonorPolicy = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.checkARCEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
+           this.labelARCTrustedSealers = new System.Windows.Forms.Label();
+           this.textARCTrustedSealers = new hMailServer.Shared.ucText();
            this.checkAddAuthenticationResultsHeader = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textCheckHostInHeloScore = new hMailServer.Shared.ucText();
            this.textCheckPTRScore = new hMailServer.Shared.ucText();
@@ -216,6 +219,9 @@
            this.tabPage2.Controls.Add(this.textDMARCFailureScore);
            this.tabPage2.Controls.Add(this.checkDMARCEnabled);
            this.tabPage2.Controls.Add(this.checkDMARCHonorPolicy);
+           this.tabPage2.Controls.Add(this.checkARCEnabled);
+           this.tabPage2.Controls.Add(this.labelARCTrustedSealers);
+           this.tabPage2.Controls.Add(this.textARCTrustedSealers);
            this.tabPage2.Controls.Add(this.textCheckHostInHeloScore);
            this.tabPage2.Controls.Add(this.textUseMXChecksScore);
            this.tabPage2.Controls.Add(this.textCheckPTRScore);
@@ -304,6 +310,35 @@
            this.checkDMARCHonorPolicy.TabIndex = 28;
            this.checkDMARCHonorPolicy.Text = "Honor the policy published by the sender domain";
            this.checkDMARCHonorPolicy.UseVisualStyleBackColor = true;
+           // 
+           // checkARCEnabled
+           // 
+           this.checkARCEnabled.AutoSize = true;
+           this.checkARCEnabled.Location = new System.Drawing.Point(15, 235);
+           this.checkARCEnabled.Name = "checkARCEnabled";
+           this.checkARCEnabled.Size = new System.Drawing.Size(70, 17);
+           this.checkARCEnabled.TabIndex = 29;
+           this.checkARCEnabled.Text = "Use ARC";
+           this.checkARCEnabled.UseVisualStyleBackColor = true;
+           this.checkARCEnabled.CheckedChanged += new System.EventHandler(this.checkARCEnabled_CheckedChanged);
+           // 
+           // labelARCTrustedSealers
+           // 
+           this.labelARCTrustedSealers.AutoSize = true;
+           this.labelARCTrustedSealers.Location = new System.Drawing.Point(31, 261);
+           this.labelARCTrustedSealers.Name = "labelARCTrustedSealers";
+           this.labelARCTrustedSealers.Size = new System.Drawing.Size(80, 13);
+           this.labelARCTrustedSealers.TabIndex = 30;
+           this.labelARCTrustedSealers.Text = "Trusted sealers";
+           // 
+           // textARCTrustedSealers
+           // 
+           this.textARCTrustedSealers.Location = new System.Drawing.Point(130, 258);
+           this.textARCTrustedSealers.Name = "textARCTrustedSealers";
+           this.textARCTrustedSealers.Number = 0;
+           this.textARCTrustedSealers.Numeric = false;
+           this.textARCTrustedSealers.Size = new System.Drawing.Size(250, 20);
+           this.textARCTrustedSealers.TabIndex = 31;
            //
            // textCheckHostInHeloScore
            // 
@@ -537,6 +572,9 @@
        private hMailServer.Shared.ucText textDMARCFailureScore;
        private hMailServer.Administrator.Controls.ucCheckbox checkDMARCEnabled;
        private hMailServer.Administrator.Controls.ucCheckbox checkDMARCHonorPolicy;
+       private hMailServer.Administrator.Controls.ucCheckbox checkARCEnabled;
+       private System.Windows.Forms.Label labelARCTrustedSealers;
+       private hMailServer.Shared.ucText textARCTrustedSealers;
        private hMailServer.Administrator.Controls.ucCheckbox checkAddAuthenticationResultsHeader;
        private System.Windows.Forms.Button buttonTest;
     }

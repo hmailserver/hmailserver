@@ -115,6 +115,15 @@ namespace HM
       bool GetAddAuthenticationResultsHeader();
       void SetAddAuthenticationResultsHeader(bool newValue);
 
+      bool GetARCEnabled();
+      void SetARCEnabled(bool newValue);
+
+      // Domains whose ARC seal may override a DMARC failure, separated by commas,
+      // semicolons or whitespace.
+      String GetARCTrustedSealers();
+      void SetARCTrustedSealers(const String &newValue);
+      bool IsTrustedARCSealer(const String &domain);
+
       bool GetBypassGreyListingOnSPFSuccess();
       void SetBypassGreyListingOnSPFSuccess(bool newValue);
 

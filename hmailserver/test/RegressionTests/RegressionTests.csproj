@@ -174,6 +174,8 @@
   <ItemGroup>
     <Compile Include="AntiSpam\DKIM\Signing.cs" />
     <Compile Include="AntiSpam\DKIM\Verification.cs" />
+    <Compile Include="AntiSpam\ARC\Settings.cs" />
+    <Compile Include="AntiSpam\ARC\Verification.cs" />
     <Compile Include="AntiSpam\AuthenticationResults.cs" />
     <Compile Include="AntiSpam\DMARC\Settings.cs" />
     <Compile Include="AntiSpam\DMARC\Verification.cs" />

@@ -44,6 +44,12 @@ hMailServer can also honor the policy the domain publishes. A domain which publi
 
 Messages from domains which do not publish a DMARC record are not affected.
 
+### Use ARC
+
+Forwarding and mailing lists often break SPF and DKIM, so a forwarded message can fail DMARC even though the original passed. ARC, Authenticated Received Chain, lets each server that handles a message record the authentication results it saw, and seal them with a signature.
+
+If ARC is enabled, hMailServer validates the ARC chain on incoming messages and reports the result in the Authentication-Results header. If a message fails DMARC, hMailServer ignores the failure when the chain is valid, the last server that sealed it is one of your trusted sealers, and that server recorded that the message passed. See the [anti-spam settings](?page=reference_antispam).
+
 ### Check rDNS/PTR record
 
 If you enable this option, hMailServer will look up the PTR (reverse DNS) record for the IP address the message is delivered from, and check that hostname resolves back to that same IP address. Legitimate mail servers are normally set up with matching forward and reverse DNS records, while many spam sources are not. If no matching PTR record is found, the message is treated as spam.

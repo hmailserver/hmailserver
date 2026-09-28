@@ -764,6 +764,10 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('AS
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ASAddAuthResultsHeader', '', 0);
 
+insert into hm_settings (settingname, settingstring, settinginteger) values ('ASARCEnabled', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('ASARCTrustedSealers', '', 0);
+
 insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSEnabled', '', 0);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSSecret', '', 0);
@@ -838,4 +842,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5713);
+insert into hm_dbversion values (5714);

@@ -32,6 +32,11 @@ namespace HM
 
       bool IsAuthenticated_(std::shared_ptr<SenderAuthentication> senderAuthentication, const DMARCRecord &record, const String &headerFromDomain);
 
+      // True if the ARC chain passes, its last sealer is trusted, and that sealer recorded
+      // that the message authenticated for the From domain. See RFC 8617.
+      bool IsVouchedForByTrustedSealer_(std::shared_ptr<SpamTestData> pTestData, const DMARCRecord &record,
+                                        const String &headerFromDomain, String &sealerDomain);
+
       // The policy to enforce, after applying the pct tag. See RFC 7489, section 6.6.4.
       static DMARCRecord::Policy GetPolicyToApply_(const DMARCRecord &record, DMARCRecord::Policy policy);
       static DMARCRecord::Policy DegradePolicy_(DMARCRecord::Policy policy);

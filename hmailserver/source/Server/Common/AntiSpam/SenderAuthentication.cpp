@@ -6,6 +6,8 @@
 
 #include "SpamTestData.h"
 
+#include "DMARC/DMARCTxtLookup.h"
+
 #include "../BO/MessageData.h"
 #include "../Persistence/PersistentMessage.h"
 
@@ -30,6 +32,8 @@ namespace HM
       spf_checked_helo_(false),
       dkim_checked_(false),
       dkim_result_(DKIM::Neutral),
+      arc_checked_(false),
+      arc_result_(ARCVerifier::Result::None),
       dmarc_result_(DMARCResult::NotEvaluated)
    {
 
@@ -139,6 +143,70 @@ namespace HM
       return dkim_signatures_;
    }
 
+   ARCVerifier::Result
+   SenderAuthentication::EvaluateARC(std::shared_ptr<SpamTestData> testData)
+   {
+      if (arc_checked_)
+         return arc_result_;
+
+      std::shared_ptr<MessageData> messageData = testData->GetMessageData();
+
+      if (!messageData)
+         return arc_result_;
+
+      const String fileName = PersistentMessage::GetFileName(messageData->GetMessage());
+
+      ARCVerifier verifier(std::shared_ptr<DMARCTxtLookup>(new DMARCDnsTxtLookup));
+      ARCVerifier::Result result = verifier.Verify(fileName);
+
+      arc_checked_ = true;
+      arc_result_ = result;
+      arc_sealer_domain_ = verifier.GetSealerDomain();
+      arc_authentication_results_ = verifier.GetAuthenticationResults();
+      arc_failure_reason_ = verifier.GetFailureReason();
+
+      if (!testData->GetOriginatingIP().IsAny())
+         arc_client_address_ = testData->GetOriginatingIP().ToString();
+
+      return arc_result_;
+   }
+
+   bool
+   SenderAuthentication::GetARCChecked() const
+   {
+      return arc_checked_;
+   }
+
+   ARCVerifier::Result
+   SenderAuthentication::GetARCResult() const
+   {
+      return arc_result_;
+   }
+
+   AnsiString
+   SenderAuthentication::GetARCSealerDomain() const
+   {
+      return arc_sealer_domain_;
+   }
+
+   AnsiString
+   SenderAuthentication::GetARCAuthenticationResults() const
+   {
+      return arc_authentication_results_;
+   }
+
+   String
+   SenderAuthentication::GetARCFailureReason() const
+   {
+      return arc_failure_reason_;
+   }
+
+   String
+   SenderAuthentication::GetARCClientAddress() const
+   {
+      return arc_client_address_;
+   }
+
    void
    SenderAuthentication::SetDMARCResult(DMARCResult result, const String &headerFromDomain)
    {
@@ -156,5 +224,17 @@ namespace HM
    SenderAuthentication::GetDMARCDomain() const
    {
       return dmarc_domain_;
+   }
+
+   void
+   SenderAuthentication::SetDMARCOverriddenBySealer(const String &sealerDomain)
+   {
+      dmarc_overridden_by_sealer_ = sealerDomain;
+   }
+
+   String
+   SenderAuthentication::GetDMARCOverriddenBySealer() const
+   {
+      return dmarc_overridden_by_sealer_;
    }
 }

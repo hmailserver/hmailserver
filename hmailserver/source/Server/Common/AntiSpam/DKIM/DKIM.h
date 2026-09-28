@@ -80,6 +80,13 @@ namespace HM
                                          const AnsiString &auid,
                                          bool &testMode);
 
+      // As VerifySignatureField, with the public key already retrieved.
+      static Result VerifySignatureWithKey(const String &messageFile,
+                                           const AnsiString &messageHeader,
+                                           const std::pair<AnsiString, AnsiString> &signatureField,
+                                           const DKIMParameters &signatureParams,
+                                           const AnsiString &publicKeyString);
+
       static std::shared_ptr<Canonicalization> CreateCanonicalization(Canonicalization::CanonicalizeMethod method);
 
       // Parses a c= tag such as relaxed/simple. A missing part defaults to simple.
@@ -90,6 +97,9 @@ namespace HM
       static AnsiString SignHash(const AnsiString &privateKey, const AnsiString &canonicalizedHeader, HashCreator::HashType hashType);
       static Result VerifyHash(const AnsiString &canonicalizedHeader, const AnsiString &tagA, const AnsiString &tagB, const AnsiString &publicKeyString);
       static Result RetrievePublicKey(const AnsiString &domain, const AnsiString &selector, const AnsiString &tagA, const AnsiString &auid, AnsiString &publicKey, AnsiString &flags);
+
+      // Validates the TXT records found for a key and extracts the key (p=) and flags (t=).
+      static Result ParsePublicKeyRecords(const std::vector<String> &records, const AnsiString &domain, const AnsiString &tagA, const AnsiString &auid, AnsiString &publicKey, AnsiString &flags);
 
       // Returns up to maxCount fields named fieldName, in header order.
       static std::vector<std::pair<AnsiString, AnsiString> > GetSignatureFields(MimeHeader &mimeHeader, const AnsiString &fieldName, size_t maxCount);

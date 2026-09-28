@@ -363,10 +363,6 @@ namespace HM
    {
       testMode = false;
 
-      std::shared_ptr<Canonicalization> headerCanonicalization;
-      std::shared_ptr<Canonicalization> bodyCanonicalization;
-      ParseCanonicalizationTag(signatureParams.GetValue("c"), headerCanonicalization, bodyCanonicalization);
-
       AnsiString tagA = signatureParams.GetValue("a");
 
       AnsiString publicKeyString;
@@ -384,6 +380,22 @@ namespace HM
       {
          LOG_DEBUG("DKIM: Domain is in test mode. Results of this signature test won't have any effect.");
       }
+
+      return VerifySignatureWithKey(messageFile, messageHeader, signatureField, signatureParams, publicKeyString);
+   }
+
+   DKIM::Result
+   DKIM::VerifySignatureWithKey(const String &messageFile,
+                                const AnsiString &messageHeader,
+                                const std::pair<AnsiString, AnsiString> &signatureField,
+                                const DKIMParameters &signatureParams,
+                                const AnsiString &publicKeyString)
+   {
+      std::shared_ptr<Canonicalization> headerCanonicalization;
+      std::shared_ptr<Canonicalization> bodyCanonicalization;
+      ParseCanonicalizationTag(signatureParams.GetValue("c"), headerCanonicalization, bodyCanonicalization);
+
+      AnsiString tagA = signatureParams.GetValue("a");
 
       if (!ValidateBodyHash_(messageFile, signatureParams, bodyCanonicalization))
       {
@@ -649,6 +661,15 @@ namespace HM
          LOG_DEBUG("DKIM: Error when retrieving public key. No key for signature.");
          return PermFail;
       }
+
+      return ParsePublicKeyRecords(results, domain, tagA, auid, publicKey, flags);
+   }
+
+   DKIM::Result
+   DKIM::ParsePublicKeyRecords(const std::vector<String> &results, const AnsiString &domain, const AnsiString &tagA, const AnsiString &auid, AnsiString &publicKey, AnsiString &flags)
+   {
+      if (results.size() == 0)
+         return PermFail;
 
       /* example:
          Line breaks won't actually exist.
