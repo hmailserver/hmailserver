@@ -5,7 +5,7 @@
 #pragma once
 
 
-#include "../common/TCPIP/TCPConnection.h"
+#include "../Common/TCPIP/TCPConnection.h"
 
 #include "RecipientParser.h"
 
@@ -138,6 +138,15 @@ namespace HM
       void AuthenticateUsingPLAIN_(const String &sLine);
       // Authenticates using a PLAIN line.
 
+      static bool ParsePlainAuthentication_(const String &authentication, String &authzid, String &authcid, String &password);
+      // Splits a decoded RFC 4616 PLAIN message into its three parts.
+
+      static String MaskPlainAuthentication_(const String &base64_encoded);
+      // Returns a PLAIN message in a form which is safe to log.
+
+      static bool AuthorizationIdentityMatches_(const String &authzid, const String &authcid);
+      // Checks whether the authorization identity refers to the authenticating user.
+
       void Authenticate_();
       // validates the username and password.
 
@@ -230,5 +239,12 @@ namespace HM
 
       RecipientParser recipientParser_;
       bool start_tls_used_;
+
+      bool auth_command_received_;
+      // True from an AUTH command until the next known command. Lines received
+      // in between may hold credentials, even if the AUTH command was refused.
+
+      bool auth_login_username_next_;
+      // True if the next line is the AUTH LOGIN user name, which is not secret.
    };
 }

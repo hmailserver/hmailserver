@@ -13,6 +13,7 @@ namespace HM
    class IMAPConnection;
    class MessageData;
    class MimeHeader;
+   class IMAPFolderView;
 
    class IMAPCommandSEARCH : public IMAPCommand
    {
@@ -27,8 +28,10 @@ namespace HM
    private:
 
       bool MatchesHeaderCriteria_(const String &fileName,std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool MatchesUIDCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria);
-      bool MatchesSequenceSetCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria, int index);
+      bool MatchesMessageSetCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria);
+
+      // Resolves the UID and sequence sets in the criteria, the same way FETCH does. False if one is malformed.
+      static bool ResolveMessageSets_(std::shared_ptr<IMAPFolderView> view, std::shared_ptr<IMAPSearchCriteria> pCriteria);
       bool MatchesTEXTCriteria_(const String &fileName, std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria);
       bool MatchesBODYCriteria_(const String &fileName, std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria);
       bool MatchesONCriteria_(std::shared_ptr<Message> pMessage, std::shared_ptr<IMAPSearchCriteria> pCriteria);

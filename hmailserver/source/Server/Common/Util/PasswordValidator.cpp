@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\passwordvalidator.h"
+#include "stdafx.h"
+#include "./PasswordValidator.h"
 
 #include "../Application/ObjectCache.h"
 #include "../Application/DefaultDomain.h"

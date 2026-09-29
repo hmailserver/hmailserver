@@ -6,29 +6,29 @@
 
 #include <Boost/Regex.hpp>
 
-#include "../common/bo/MessageData.h"
+#include "../Common/BO/MessageData.h"
 
-#include "../common/Cache/CacheContainer.h"
-#include "../common/Util/PasswordValidator.h"
-#include "../common/Util/AccountLogon.h"
-#include "../common/persistence/PersistentMessage.h"
-#include "../common/BO/Message.h"
-#include "../common/BO/SecurityRange.h"
-#include "../common/Mime/Mime.h"
-#include "../common/util/MessageUtilities.h"
-#include "../common/util/Utilities.h"
-#include "../common/util/File.h"
-#include "../common/Scripting/ClientInfo.h"
-#include "../common/AntiSpam/SpamTestResult.h"
-#include "../Common/UTil/Math.h"
-#include "../Common/UTil/SignatureAdder.h"
-#include "../common/BO/Routes.h"
-#include "../common/BO/RouteAddresses.h"
-#include "../common/BO/MessageRecipient.h"
-#include "../common/BO/MessageRecipients.h"
+#include "../Common/Cache/CacheContainer.h"
+#include "../Common/Util/PasswordValidator.h"
+#include "../Common/Util/AccountLogon.h"
+#include "../Common/Persistence/PersistentMessage.h"
+#include "../Common/BO/Message.h"
+#include "../Common/BO/SecurityRange.h"
+#include "../Common/Mime/Mime.h"
+#include "../Common/Util/MessageUtilities.h"
+#include "../Common/Util/Utilities.h"
+#include "../Common/Util/File.h"
+#include "../Common/Scripting/ClientInfo.h"
+#include "../Common/AntiSpam/SpamTestResult.h"
+#include "../Common/Util/Math.h"
+#include "../Common/Util/SignatureAdder.h"
+#include "../Common/BO/Routes.h"
+#include "../Common/BO/RouteAddresses.h"
+#include "../Common/BO/MessageRecipient.h"
+#include "../Common/BO/MessageRecipients.h"
 #include "../Common/Util/ByteBuffer.h"
 #include "../Common/Util/ServerStatus.h"
-#include "../Common/Util/AWstats.h"
+#include "../Common/Util/AWStats.h"
 #include "../Common/Util/TransparentTransmissionBuffer.h"
 #include "../Common/Application/ObjectCache.h"
 #include "../Common/Application/DefaultDomain.h"
@@ -40,8 +40,8 @@
 
 #include "../Common/BO/Collection.h"
 
-#include "../common/Threading/AsynchronousTask.h"
-#include "../common/Threading/WorkQueue.h"
+#include "../Common/Threading/AsynchronousTask.h"
+#include "../Common/Threading/WorkQueue.h"
 
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
@@ -88,7 +88,9 @@ namespace HM
       type_(SPNone),
       pending_disconnect_(false),
       isAuthenticated_(false),
-      start_tls_used_(false)
+      start_tls_used_(false),
+      auth_command_received_(false),
+      auth_login_username_next_(false)
    {
 
       smtpconf_ = Configuration::Instance()->GetSMTPConfiguration();
@@ -254,64 +256,74 @@ namespace HM
    {
       if (Logger::Instance()->GetLogSMTP())
       {
-
          String sLogData = sClientData;
 
-         String sRegex = "^(?>AUTH PLAIN )((?:[A-Z\\d+/]{4})*(?:[A-Z\\d+/]{3}=|[A-Z\\d+/]{2}==)?)$";
-         boost::wregex expression(sRegex, boost::wregex::icase);
-         boost::wsmatch matches;
-         // AUTH PLAIN command and both user name and password in line. 
-         if (current_state_ == HEADER && boost::regex_match(sLogData, matches, expression))
+         if (current_state_ == SMTPUSERNAME)
          {
-            if (matches.size() > 0)
-            {
-               // Both user name and password in line.
-               String sAuthentication;
-               String sBase64Encoded = matches[1];
-               StringParser::Base64Decode(sBase64Encoded, sAuthentication);
+            // The AUTH LOGIN user name is logged as is.
+            if (requestedAuthenticationType_ == AUTH_PLAIN)
+               sLogData = MaskPlainAuthentication_(sClientData);
 
-               // Extract the username from the decoded string.
-               int iSecondTab = sAuthentication.Find(_T("\t"), 1);
-               if (iSecondTab > 0)
-               {
-                  String username = sAuthentication.Mid(1, iSecondTab - 1);
-                  //sLogData = "AUTH PLAIN " + username + " ***";
-                  String usernameBase64Encoded;
-                  StringParser::Base64Encode(username, usernameBase64Encoded);
-                  sLogData = "AUTH PLAIN " + usernameBase64Encoded + " ***";
-               }
-               else
-               {
-                  sLogData = "AUTH PLAIN ***";
-               }
-            }
-         }
-         else if (current_state_ == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
-         {
-            // Both user name and password in line.
-            String sAuthentication;
-            StringParser::Base64Decode(sClientData, sAuthentication);
-
-            // Extract the username from the decoded string.
-            int iSecondTab = sAuthentication.Find(_T("\t"), 1);
-            if (iSecondTab > 0)
-            {
-               String username = sAuthentication.Mid(1, iSecondTab - 1);
-               //sLogData = username + " ***";
-               String usernameBase64Encoded;
-               StringParser::Base64Encode(username, usernameBase64Encoded);
-               sLogData = usernameBase64Encoded + " ***";
-            }
-            else 
-            {
-               sLogData = "***";
-            }
+            auth_login_username_next_ = false;
          }
          else if (current_state_ == SMTPUPASSWORD)
          {
             sLogData = "***";
-         }         
-         
+         }
+         else
+         {
+            // Mask credentials regardless of state, since the client may send them
+            // when the server does not expect them, e.g. before EHLO.
+            String command = sClientData;
+            command.Trim();
+
+            int first_space = command.Find(_T(" "));
+            String first_word = first_space < 0 ? command : command.Mid(0, first_space);
+            first_word.MakeUpper();
+
+            eSMTPCommandTypes command_type = GetCommandType_(first_word);
+
+            if (command_type == SMTP_COMMAND_AUTH)
+            {
+               // AUTH mechanism [initial-response]
+               String arguments;
+               if (first_space > 0)
+                  arguments = command.Mid(first_space + 1).Trim();
+
+               int second_space = arguments.Find(_T(" "));
+               String mechanism = second_space < 0 ? arguments : arguments.Mid(0, second_space);
+               mechanism.MakeUpper();
+
+               if (second_space > 0)
+               {
+                  String initial_response = arguments.Mid(second_space + 1).Trim();
+
+                  // The initial response of AUTH LOGIN is the user name only.
+                  if (mechanism == _T("PLAIN"))
+                     sLogData = "AUTH PLAIN " + MaskPlainAuthentication_(initial_response);
+                  else if (mechanism != _T("LOGIN"))
+                     sLogData = "AUTH " + mechanism + " ***";
+               }
+
+               auth_login_username_next_ = mechanism == _T("LOGIN") && second_space < 0;
+            }
+            else if (command_type == SMTP_COMMAND_UNKNOWN && auth_command_received_)
+            {
+               // Most likely credentials, sent although the AUTH command was refused.
+               // Only the AUTH LOGIN user name is logged as is.
+               if (!auth_login_username_next_)
+                  sLogData = "***";
+
+               auth_login_username_next_ = false;
+            }
+
+            auth_command_received_ = command_type == SMTP_COMMAND_AUTH ||
+                                     (auth_command_received_ && command_type == SMTP_COMMAND_UNKNOWN);
+
+            if (!auth_command_received_)
+               auth_login_username_next_ = false;
+         }
+
          // Append
          sLogData = "RECEIVED: " + sLogData;
 
@@ -352,7 +364,7 @@ namespace HM
       if (sRequest.GetLength() > 510)
       {
          // This line is too long... is this an evil user?
-         EnqueueWrite_("500 Line too long.");
+         SendErrorResponse_(500, "Line too long.");
          return;
       }
 
@@ -395,9 +407,9 @@ namespace HM
                   case SMTP_COMMAND_AUTH: ProtocolAUTH_(sRequest); break;
                   case SMTP_COMMAND_MAIL: ProtocolMAIL_(sRequest); break;
                   case SMTP_COMMAND_RCPT: ProtocolRCPT_(sRequest); break;
-                  case SMTP_COMMAND_TURN: EnqueueWrite_("502 TURN disallowed."); break;
+                  case SMTP_COMMAND_TURN: SendErrorResponse_(502, "TURN disallowed."); break;
                   case SMTP_COMMAND_ETRN: ProtocolETRN_(sRequest); break;
-                  case SMTP_COMMAND_VRFY: EnqueueWrite_("502 VRFY disallowed."); break;
+                  case SMTP_COMMAND_VRFY: SendErrorResponse_(502, "VRFY disallowed."); break;
                   case SMTP_COMMAND_DATA: ProtocolDATA_(); break;
                   default:
                      SendErrorResponse_(503, "Bad sequence of commands"); 
@@ -492,7 +504,7 @@ namespace HM
 
       if (current_message_) 
       {
-         EnqueueWrite_("503 Issue a reset if you want to start over"); 
+         SendErrorResponse_(503, "Issue a reset if you want to start over"); 
          return;
       }
      
@@ -581,9 +593,9 @@ namespace HM
       {
          // Message too big. Reject it.
          String sMessage;
-         sMessage.Format(_T("552 Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
+         sMessage.Format(_T("Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
                iEstimatedMessageSize / 1024, max_message_size_kb_);
-         EnqueueWrite_(sMessage);
+         SendErrorResponse_(552, sMessage);
          return ;
       }
       
@@ -662,7 +674,7 @@ namespace HM
 
       if (!current_message_) 
       {
-         EnqueueWrite_("503 Must have sender first."); 
+         SendErrorResponse_(503, "Must have sender first."); 
          return;
       }
 
@@ -885,9 +897,9 @@ namespace HM
          String messageText = rejectingResult ? rejectingResult->GetMessage() : GetSpamTestResultMessage_(spam_test_results_);
 
          if (spType == SPPreTransmission)
-            EnqueueWrite_("550 " + messageText);
+            SendErrorResponse_(550, messageText);
          else
-            EnqueueWrite_("554 " + messageText);
+            SendErrorResponse_(554, messageText);
 
          String sLogMessage;
          sLogMessage.Format(_T("hMailServer SpamProtection rejected RCPT (Sender: %s, IP:%s, Reason: %s)"), sFromAddress.c_str(), String(GetIPAddressString()).c_str(), messageText.c_str());
@@ -1215,7 +1227,7 @@ namespace HM
             // The delivery of the message failed. This may happen if tables are
             // corrupt in the database. We now return an error message to the sender. 
             // Hopefully, the sending server will retry later. 
-            EnqueueWrite_("554 Your message was received but it could not be saved. Please retry later.");
+            EnqueueWrite_("451 Your message was received but it could not be saved. Please retry later.");
 
             // Delete the file now since we could not save it in the database.
             ResetCurrentMessage_();
@@ -1306,7 +1318,7 @@ namespace HM
    {
       if (transmission_buffer_->GetCancelTransmission())
       {
-         EnqueueWrite_("554 "  + transmission_buffer_->GetCancelMessage());
+         SendErrorResponse_(554, transmission_buffer_->GetCancelMessage());
          LogAwstatsMessageRejected_();
          return false;
       }
@@ -1325,9 +1337,9 @@ namespace HM
       if (max_message_size_kb_ > 0 && (transmission_buffer_->GetSize() / 1024) > max_message_size_kb_)
       {
          String sMessage;
-         sMessage.Format(_T("554 Rejected - Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
+         sMessage.Format(_T("Rejected - Message size exceeds fixed maximum message size. Size: %d KB, Max size: %d KB"), 
             transmission_buffer_->GetSize() / 1024, max_message_size_kb_);
-         EnqueueWrite_(sMessage);
+         SendErrorResponse_(554, sMessage);
          LogAwstatsMessageRejected_();
          return false;
       }
@@ -1337,10 +1349,7 @@ namespace HM
       {
          if (!CheckLineEndings_())
          {
-            String sMessage;
-            sMessage.Format(_T("554 Rejected - Message containing bare LF's."));
-            
-            EnqueueWrite_(sMessage);
+            SendErrorResponse_(554, "Rejected - Message containing bare LF's.");
             LogAwstatsMessageRejected_();
             return false;
          }
@@ -1379,15 +1388,13 @@ namespace HM
          {
          case 1:
             {
-               String sErrorMessage = "554 Rejected";
-               EnqueueWrite_(sErrorMessage);
+               SendErrorResponse_(554, "Rejected");
                LogAwstatsMessageRejected_();
                return false;
             }
          case 2:
             {
-               String sErrorMessage = "554 " + pResult->GetMessage();
-               EnqueueWrite_(sErrorMessage);
+               SendErrorResponse_(554, pResult->GetMessage());
                LogAwstatsMessageRejected_();
                return false;
             }
@@ -1722,15 +1729,13 @@ namespace HM
          {
          case 1:
          {
-            String sErrorMessage = "554 Rejected";
-            EnqueueWrite_(sErrorMessage);
+            SendErrorResponse_(554, "Rejected");
             LogAwstatsMessageRejected_();
             return;
          }
          case 2:
          {
-            String sErrorMessage = "554 " + pResult->GetMessage();
-            EnqueueWrite_(sErrorMessage);
+            SendErrorResponse_(554, pResult->GetMessage());
             LogAwstatsMessageRejected_();
             return;
          }
@@ -1794,15 +1799,13 @@ namespace HM
          {
          case 1:
          {
-            String sErrorMessage = "554 Rejected";
-            EnqueueWrite_(sErrorMessage);
+            SendErrorResponse_(554, "Rejected");
             LogAwstatsMessageRejected_();
             return;
          }
          case 2:
          {
-            String sErrorMessage = "554 " + pResult->GetMessage();
-            EnqueueWrite_(sErrorMessage);
+            SendErrorResponse_(554, pResult->GetMessage());
             LogAwstatsMessageRejected_();
             return;
          }
@@ -1851,14 +1854,14 @@ namespace HM
       if (!current_message_)
       {
          // User tried to send a mail without specifying a correct mail from or rcpt to.
-         EnqueueWrite_("503 Must have sender and recipient first.");
+         SendErrorResponse_(503, "Must have sender and recipient first.");
 
          return;
       }  
       else if ( current_message_->GetRecipients()->GetCount() == 0)
       {
          // User tried to send a mail without specifying a correct mail from or rcpt to.
-         EnqueueWrite_("503 Must have sender and recipient first.");
+         SendErrorResponse_(503, "Must have sender and recipient first.");
 
          return;
       }  
@@ -1896,15 +1899,13 @@ namespace HM
          {
          case 1:
             {
-               String sErrorMessage = "554 Rejected";
-               EnqueueWrite_(sErrorMessage);
+               SendErrorResponse_(554, "Rejected");
                LogAwstatsMessageRejected_();
                return;
             }
          case 2:
             {
-               String sErrorMessage = "554 " + pResult->GetMessage();
-               EnqueueWrite_(sErrorMessage);
+               SendErrorResponse_(554, pResult->GetMessage());
                LogAwstatsMessageRejected_();
                return;
             }
@@ -2171,10 +2172,75 @@ namespace HM
      else
      {
          // Send that we don't accept ETRN for that domain or invalid param
-         EnqueueWrite_("501 ETRN not supported for " + sETRNDomain.ToLower());
+         SendErrorResponse_(501, "ETRN not supported for " + sETRNDomain.ToLower());
          LOG_SMTP(GetSessionID(), GetIPAddressString(), "SMTPDeliverer - ETRN - Domain is not Route");      
          return;
      }
+   }
+
+   bool
+   SMTPConnection::ParsePlainAuthentication_(const String &authentication, String &authzid, String &authcid, String &password)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Splits a decoded RFC 4616 PLAIN message, [authzid] NUL authcid NUL passwd,
+   // into its three parts. The null characters have been replaced by tabs by the
+   // base64 decoder. Only the first two tabs are separators; the password may
+   // contain tabs of its own.
+   //---------------------------------------------------------------------------()
+   {
+      int first_tab = authentication.Find(_T("\t"));
+      if (first_tab < 0)
+         return false;
+
+      int second_tab = authentication.Find(_T("\t"), first_tab + 1);
+      if (second_tab < 0)
+         return false;
+
+      authzid = authentication.Mid(0, first_tab);
+      authcid = authentication.Mid(first_tab + 1, second_tab - first_tab - 1);
+      password = authentication.Mid(second_tab + 1);
+
+      return authcid.GetLength() > 0 && password.GetLength() > 0;
+   }
+
+   String
+   SMTPConnection::MaskPlainAuthentication_(const String &base64_encoded)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Returns a base64 encoded PLAIN message in a form which is safe to log: the
+   // authentication identity, base64 encoded, followed by a mask.
+   //---------------------------------------------------------------------------()
+   {
+      String authentication;
+      StringParser::Base64Decode(base64_encoded, authentication);
+
+      String authzid;
+      String authcid;
+      String password;
+
+      if (!ParsePlainAuthentication_(authentication, authzid, authcid, password))
+         return "***";
+
+      String authcid_base64_encoded;
+      StringParser::Base64Encode(authcid, authcid_base64_encoded);
+      return authcid_base64_encoded + " ***";
+   }
+
+   bool
+   SMTPConnection::AuthorizationIdentityMatches_(const String &authzid, const String &authcid)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Checks whether the authorization identity refers to the same account as the
+   // authentication identity. hMailServer does not support acting as another user
+   // over SMTP, so the two must be the same.
+   //---------------------------------------------------------------------------()
+   {
+      std::shared_ptr<DomainAliases> domain_aliases = ObjectCache::Instance()->GetDomainAliases();
+
+      String authorization_address = DefaultDomain::ApplyDefaultDomain(domain_aliases->ApplyAliasesOnAddress(authzid));
+      String authentication_address = DefaultDomain::ApplyDefaultDomain(domain_aliases->ApplyAliasesOnAddress(authcid));
+
+      return authorization_address.CompareNoCase(authentication_address) == 0;
    }
 
    void
@@ -2183,16 +2249,26 @@ namespace HM
       String sAuthentication;
       StringParser::Base64Decode(sLine, sAuthentication);
 
-      // Extract the username and password from the decoded string.
-      int iSecondTab = sAuthentication.Find(_T("\t"),1);
-      if (iSecondTab < 0)
+      String authzid;
+      String authcid;
+      String password;
+
+      if (!ParsePlainAuthentication_(sAuthentication, authzid, authcid, password))
       {
          RestartAuthentication_();
          return;
       }
 
-      username_ = sAuthentication.Mid(1, iSecondTab-1);
-      password_ = sAuthentication.Mid(iSecondTab+1);
+      // An authorization identity is only accepted if it identifies the user who
+      // is authenticating.
+      if (authzid.GetLength() > 0 && !AuthorizationIdentityMatches_(authzid, authcid))
+      {
+         RestartAuthentication_();
+         return;
+      }
+
+      username_ = authcid;
+      password_ = password;
 
       // Authenticate the user.
       Authenticate_();      

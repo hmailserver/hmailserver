@@ -186,16 +186,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="hMailServer">
-      <Guid>{DB241B59-A1B1-4C59-98FC-8D101A2995F2}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-    </COMReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="database_add.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -222,6 +212,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\Interop.hMailServer.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

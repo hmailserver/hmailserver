@@ -47,7 +47,7 @@ namespace HM
 
       // Check if the user has access to read this folder.
       if (!readAccess)
-         return IMAPResult(IMAPResult::ResultBad, "ACL: Read permission denied (Required for SELECT command).");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Read permission denied (Required for SELECT command).");
 
       // Close the previously selected folder before loading this one, so that re-selecting
       // the same folder still clears its recent flags first.
@@ -75,7 +75,7 @@ namespace HM
 
 	   sResponse += _T("* FLAGS (\\Deleted \\Seen \\Draft \\Answered \\Flagged)\r\n");
 
-      sRespTemp.Format(_T("* OK [UIDVALIDITY %d] current uidvalidity\r\n"), pSelectedFolder->GetCreationTime().ToInt());   
+      sRespTemp.Format(_T("* OK [UIDVALIDITY %u] current uidvalidity\r\n"), pSelectedFolder->GetUIDValidity());
       sResponse += sRespTemp;
       
       if (lFirstUnseenID > 0)

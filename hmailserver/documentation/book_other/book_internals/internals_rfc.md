@@ -42,6 +42,9 @@ This page describes RFC's which are relevant to hMailServer.
 - [RFC 5256](http://tools.ietf.org/html/rfc5256) - SORT and THREAD Extensions  
 
  The SORT extension provides server side sorting capabilities. This adds performance, since IMAP clients does not have to download all messages in a mailbox to be able to sort them. The Thread extension is not implemented in hMailServer.  
+- [RFC 4315](http://tools.ietf.org/html/rfc4315) - IMAP UIDPLUS extension  
+
+ Tells the client which UID a message got when it was appended or copied, and lets the client expunge only the messages it names.
 
   
 

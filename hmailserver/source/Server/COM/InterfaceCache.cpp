@@ -5,14 +5,14 @@
 #include "COMError.h"
 #include "InterfaceCache.h"
 
-#include "..\Common\Cache\Cache.h"
-#include "..\Common\Cache\CacheConfiguration.h"
-#include "..\Common\Cache\CacheContainer.h"
+#include "../Common/Cache/Cache.h"
+#include "../Common/Cache/CacheConfiguration.h"
+#include "../Common/Cache/CacheContainer.h"
 
-#include "..\Common\BO\Domain.h"   
-#include "..\Common\BO\Account.h"
-#include "..\Common\BO\Alias.h"
-#include "..\Common\BO\DistributionList.h"
+#include "../Common/BO/Domain.h"   
+#include "../Common/BO/Account.h"
+#include "../Common/BO/Alias.h"
+#include "../Common/BO/DistributionList.h"
 
 #include "../IMAP/MessagesContainer.h"
 

@@ -7,8 +7,8 @@
 
 #include "InterfaceDistributionList.h"
 
-#include "../common/bo/distributionlists.h"
-#include "../common/persistence/PersistentDistributionList.h"
+#include "../Common/BO/DistributionLists.h"
+#include "../Common/Persistence/PersistentDistributionList.h"
 
 void 
 InterfaceDistributionLists::Attach(std::shared_ptr<HM::DistributionLists> pDistributionLists)

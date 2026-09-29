@@ -21,6 +21,7 @@
 
 #include "../POP3/POP3Configuration.h"
 #include "../SMTP/SMTPConfiguration.h"
+#include "../SMTP/SRS/SRS.h"
 #include "../IMAP/IMAPConfiguration.h"
 
 
@@ -2644,6 +2645,180 @@ STDMETHODIMP InterfaceSettings::put_RewriteEnvelopeFromWhenForwarding(VARIANT_BO
          return GetAccessDenied();
 
       ini_file_settings_->SetRewriteEnvelopeFromWhenForwarding(newVal == VARIANT_TRUE);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_SRSEnabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetSMTPConfiguration()->GetSRSEnabled() ? VARIANT_TRUE : VARIANT_FALSE;
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_SRSEnabled(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->GetSMTPConfiguration()->SetSRSEnabled(newVal == VARIANT_TRUE);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_SRSSecret(BSTR *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetSMTPConfiguration()->GetSRSSecret().AllocSysString();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_SRSSecret(BSTR newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      HM::String sNewVal = newVal;
+
+      if (sNewVal.IsEmpty())
+      {
+         // A server with SRS switched on and no secret can neither rewrite nor reverse an
+         // address. Clearing the secret used to generate a new one, which is a thing to ask
+         // for rather than to arrive at by accident.
+         return COMError::GenerateError("The SRS secret cannot be empty. Use RotateSRSSecret to replace it with a new one.");
+      }
+
+      if (sNewVal.GetLength() > HM::SRS::MaxSecretLength)
+      {
+         // The secret is stored encrypted, in a column with a size of its own, so how long
+         // it may be is bounded rather than left to whoever sets it. Length is not what
+         // makes a secret hard to guess in any case - the one the server generates for
+         // itself is 32 random bytes, well inside this.
+         return COMError::GenerateError(HM::Formatter::Format("The SRS secret may not be longer than {0} characters.",
+            HM::SRS::MaxSecretLength));
+      }
+
+      config_->GetSMTPConfiguration()->SetSRSSecret(sNewVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::RotateSRSSecret()
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      if (!config_->GetSMTPConfiguration()->RotateSRSSecret())
+         return COMError::GenerateError("Failed to generate a new SRS secret.");
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_SRSMaxAgeDays(long *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetSMTPConfiguration()->GetSRSMaxAgeDays();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_SRSMaxAgeDays(long newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->GetSMTPConfiguration()->SetSRSMaxAgeDays(newVal);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_SRSHashLength(long *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetSMTPConfiguration()->GetSRSHashLength();
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_SRSHashLength(long newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->GetSMTPConfiguration()->SetSRSHashLength(newVal);
 
       return S_OK;
    }

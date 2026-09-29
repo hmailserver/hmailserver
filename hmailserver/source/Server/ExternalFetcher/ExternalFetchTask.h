@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "..\Common\Threading\Task.h"
-#include ".\FetchAccountLock.h"
+#include "../Common/Threading/Task.h"
+#include "./FetchAccountLock.h"
 
 namespace HM
 {

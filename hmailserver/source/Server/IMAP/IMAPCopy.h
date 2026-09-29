@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+// Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
 #pragma once
@@ -7,6 +7,8 @@
 
 namespace HM
 {
+   class IMAPFolder;
+
    class IMAPCopy  : public IMAPCommandRangeAction
    {
    public:
@@ -17,6 +19,41 @@ namespace HM
       // COPY is atomic (RFC 3501 6.4.7), so nothing is copied unless every message exists.
       virtual MissingMessagePolicy GetMissingMessagePolicy() const { return MissingMessagePolicy::FailBeforeActing; }
 
-      
+      // The COPYUID response code (RFC 4315) followed by a space, or empty if nothing was copied
+      // or the destination can't be read.
+      virtual String GetResponseCode() const;
+
+      // EXISTS and RECENT if messages were copied into the selected folder, since the delayed
+      // notification is not sent to this session.
+      virtual String GetUntaggedResponse(std::shared_ptr<IMAPConnection> pConnection);
+
+   protected:
+
+      // Looks up the destination, so a missing one is reported even if the set matches nothing.
+      virtual IMAPResult Prepare(std::shared_ptr<IMAPConnection> pConnection, const std::shared_ptr<IMAPCommandArgument> pArgument);
+
+      // Removes the copies already made, so a failed COPY leaves the destination unchanged.
+      virtual void RollBack(std::shared_ptr<IMAPConnection> pConnection);
+
+   private:
+
+      static String FormatUIDSet_(const std::vector<unsigned int> &uids);
+
+      // For a source message deleted during the COPY. UID COPY skips it, COPY fails.
+      IMAPResult SourceMessageGone_(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<Message> pOldMessage);
+
+      std::shared_ptr<IMAPFolder> destination_folder_;
+      bool destination_readable_ = false;
+
+      // The flag rights on the destination.
+      bool can_write_seen_ = false;
+      bool can_write_deleted_ = false;
+      bool can_write_others_ = false;
+
+      // In the order the messages were copied. Element n of each describes the same message.
+      std::vector<unsigned int> source_uids_;
+      std::vector<unsigned int> destination_uids_;
+
+      std::set<__int64> copied_message_ids_;
    };
 }

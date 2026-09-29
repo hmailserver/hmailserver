@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\databaseconnectionmanager.h"
+#include "stdafx.h"
+#include "./DatabaseConnectionManager.h"
 
 #include "DALConnection.h"
 #include "DALConnectionFactory.h"

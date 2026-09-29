@@ -22,13 +22,16 @@ Data Directory Synchronizer goes through all the message files in the data folde
 
 If the .eml file exists in a user directory, hMailServer inserts the message into this users account. The message then ends up in the users Inbox folder. The IMAP folder information is stored in the database, and since this info has been lost, hMailServer does not know what folder to store the message in.
 
+If the .eml file exists in the public folder, the message is inserted into the public IMAP folder you select when you run the tool. The public IMAP folder a message belongs to is stored in the database only - it's not part of the path on disk - so hMailServer is not able to tell which folder the message was stored in before the database information was lost.
+
 If the .eml file exists in the Data root directory, the message is inserted into the delivery queue. hMailServer parses the To and CC headers of the email to determine who the message should be delivered to. To prevent the email from being re-sent to recipients, hMailServer only sends the message to local recipients.
 
 ## How do I run it?
 
 1. Back up your system. DDS makes a relatively large amount of changes to the database. Because of this, it's recommended that you backup everything prior to running DDS.
 2. Locate DataDirectorySynchronizer.exe in the Addons folder and run it.
-3. Click "Next" to start the synchronization.
+3. Select the domains you want to synchronize. If you want messages in public folders to be synchronized as well, make sure that "Include public folders" is selected and enter the name of the public IMAP folder in which messages found in the public folder should be placed. The folder is created if it doesn't exist and defaults to Imported.
+4. Click "Next" to start the synchronization.
 
 ### What is imported?
 
@@ -40,6 +43,7 @@ If the .eml file exists in the Data root directory, the message is inserted into
 
 - Files located in the root data folder will be delivered to local recipients in the To and CC headers. The original recipient information, from the SMTP envelope, is not available in the .EML files. Hence, the To/CC headers are used. E-mail are only delivered to local recipients to prevent mail from being re-sent to external addresses.
 - Files located in data folder sub directories, such as domain\username will be connected to that user in the database.
+- Files located in the public folder, such as #Public, will be placed in the public IMAP folder you selected when you started the synchronization. Since the public IMAP folder isn't part of the path on disk, all messages found in the public folder are placed in that single folder.
 - Files imported directly to user accounts won't be treated by filters, rules, virus scanning features in hMailServer
 
 ### What effect does it have on production?

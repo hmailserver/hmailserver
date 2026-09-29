@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
-#include "TestIPV6.h"
+#include "TestIPv6.h"
 
 #include "../TCPIP/TCPServer.h"
 #include "../../SMTP/SMTPConnection.h"

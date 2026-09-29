@@ -13,6 +13,8 @@
 
 #include "../Common/Persistence/PersistentMessage.h"
 
+#include "SRS/SenderRewriteScheme.h"
+
 
 #include "RecipientParser.h"
 
@@ -90,8 +92,11 @@ namespace HM
       // Create a copy of the message
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToQueue(pRecipientAccount, pOriginalMessage);
 
-      if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !pNewMessage->GetFromAddress().IsEmpty())
-         pNewMessage->SetFromAddress(pRecipientAccount->GetAddress());
+      const String forwardingAccount = pRecipientAccount->GetAddress();
+
+      SenderRewriteScheme::ApplyToForwardedMessage(pNewMessage, forwardingAccount,
+                                                   StringParser::ExtractDomain(forwardingAccount),
+                                                   pRecipientAccount->GetForwardAddress());
 
       pNewMessage->SetState(Message::Delivering);
 

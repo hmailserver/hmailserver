@@ -1,10 +1,10 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "DKIMParameters.h"
-#include "../../MIME/MimeCode.h"
+#include "../../Mime/MimeCode.h"
 
 
 #ifdef _DEBUG

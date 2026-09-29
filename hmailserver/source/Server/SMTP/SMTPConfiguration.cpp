@@ -5,6 +5,8 @@
 #include "SMTPConfiguration.h"
 #include "SMTPDeliveryManager.h"
 
+#include "SRS/SRS.h"
+
 #include "../Common/Application/Property.h"
 
 #include "../Common/BO/Routes.h"
@@ -37,6 +39,8 @@ namespace HM
 
       routes_ = std::shared_ptr<Routes> (new Routes());
       routes_->Refresh();
+
+      EnsureSRSSecretExists_();
 
       return true;
    }
@@ -306,6 +310,114 @@ namespace HM
    SMTPConfiguration::GetAddDeliveredToHeader() 
    {
       return GetSettings_()->GetBool(PROPERTY_ADDDELIVEREDTOHEADER);
+   }
+
+   void
+   SMTPConfiguration::SetSRSEnabled(bool newValue)
+   {
+      GetSettings_()->SetBool(PROPERTY_SRS_ENABLED, newValue);
+   }
+
+   bool
+   SMTPConfiguration::GetSRSEnabled()
+   {
+      return GetSettings_()->GetBool(PROPERTY_SRS_ENABLED);
+   }
+
+   void
+   SMTPConfiguration::SetSRSSecret(const String &newValue)
+   {
+      GetSettings_()->SetString(PROPERTY_SRS_SECRET, newValue);
+   }
+
+   bool
+   SMTPConfiguration::RotateSRSSecret()
+   {
+      // Every address handed out under the old secret stops being reversible, so this is
+      // asked for rather than arrived at: clearing the secret used to do it, which left no
+      // way to tell a deliberate rotation from a mistake.
+      AnsiString generatedSecret = SRS::GenerateSecret();
+
+      if (generatedSecret.IsEmpty())
+         return false;
+
+      GetSettings_()->SetString(PROPERTY_SRS_SECRET, generatedSecret);
+
+      return true;
+   }
+
+   String
+   SMTPConfiguration::GetSRSSecret()
+   {
+      return GetSettings_()->GetString(PROPERTY_SRS_SECRET);
+   }
+
+   void
+   SMTPConfiguration::SetSRSMaxAgeDays(int newValue)
+   {
+      GetSettings_()->SetLong(PROPERTY_SRS_MAXAGEDAYS, newValue);
+   }
+
+   int
+   SMTPConfiguration::GetSRSMaxAgeDays()
+   {
+      int value = GetSettings_()->GetLong(PROPERTY_SRS_MAXAGEDAYS);
+
+      if (value <= 0)
+         return SRS::DefaultMaxAgeDays;
+
+      // Clamped the way SRS clamps it, so that what is reported here is what the server
+      // actually goes by.
+      return SRS::ClampMaxAgeDays(value);
+   }
+
+   void
+   SMTPConfiguration::SetSRSHashLength(int newValue)
+   {
+      GetSettings_()->SetLong(PROPERTY_SRS_HASHLENGTH, newValue);
+   }
+
+   int
+   SMTPConfiguration::GetSRSHashLength()
+   {
+      int value = GetSettings_()->GetLong(PROPERTY_SRS_HASHLENGTH);
+
+      if (value <= 0)
+         return SRS::DefaultHashLength;
+
+      return SRS::ClampHashLength(value);
+   }
+
+   void
+   SMTPConfiguration::EnsureSRSSecretExists_()
+   {
+      // The secret is what tells an address this server has handed out from one someone
+      // else has made up, so every installation needs one of its own. It is generated
+      // once, on the first start after the setting appears in the database, and then
+      // left alone: changing it invalidates every address already out there.
+      //
+      // Servers sharing a database share the secret, which is what a set-up where mail
+      // for one domain arrives at more than one of them needs.
+      if (!GetSRSSecret().IsEmpty())
+         return;
+
+      AnsiString generatedSecret = SRS::GenerateSecret();
+
+      if (generatedSecret.IsEmpty())
+         return;
+
+      // Two servers sharing a database and starting together both find it empty and both
+      // generate one. The write only takes for the first of them to reach the database,
+      // and both go on with the secret it stored rather than one of them signing addresses
+      // the other cannot reverse.
+      if (GetSettings_()->InitializeStringIfEmpty(PROPERTY_SRS_SECRET, generatedSecret).IsEmpty())
+      {
+         // A database which cannot be written to, or cannot be read back. Nothing can be
+         // rewritten or reversed without a secret, and the alternative to saying so here is
+         // an error for every message the server handles from now on.
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5734, "SMTPConfiguration::EnsureSRSSecretExists_",
+            "Failed to store an SRS secret in the database. SRS addresses can neither be created nor reversed until one is set.");
+      }
    }
 
    void 

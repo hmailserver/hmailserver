@@ -1,7 +1,7 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "SpamTestSPF.h"
 
 #include "SpamTestData.h"
@@ -51,10 +51,10 @@ namespace HM
 
       std::shared_ptr<SenderAuthentication> senderAuthentication = pTestData->GetSenderAuthentication();
 
-      SPF::Result result = senderAuthentication->EvaluateSPF(pTestData);
+      SPFResult result = senderAuthentication->EvaluateSPF(pTestData);
       String sExplanation = senderAuthentication->GetSPFExplanation();
 
-      if (result == SPF::Fail)
+      if (result == SPFResult::Fail)
       {
          // Blocked by SPF.s
          if (!sExplanation.IsEmpty())
@@ -66,7 +66,7 @@ namespace HM
          std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
          setSpamTestResults.insert(pResult);
       }      
-      else if (result == SPF::Pass)
+      else if (result == SPFResult::Pass)
       {
          std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Pass, 0, ""));
          setSpamTestResults.insert(pResult);

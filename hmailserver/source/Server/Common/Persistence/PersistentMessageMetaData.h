@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "..\BO\MessageMetaData.h"
+#include "../BO/MessageMetaData.h"
 
 namespace HM
 {

@@ -1,14 +1,14 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "MessageIndexer.h"
 
 #include "../Application/ExceptionHandler.h"
 #include "../BO/Message.h"
 #include "../BO/MessageMetaData.h"
-#include "../MIME/MIME.h"
+#include "../Mime/Mime.h"
 #include "../Util/Time.h"
 #include "../Persistence/PersistentMessageMetaData.h"
 #include "../Persistence/PersistentMessage.h"

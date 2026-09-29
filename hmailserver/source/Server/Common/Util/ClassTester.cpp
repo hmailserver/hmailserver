@@ -17,11 +17,17 @@
 #include "../TCPIP/DNSResolverWinApi.h"
 #include "Time.h"
 #include "Utilities.h"
-#include "Parsing\AddresslistParser.h"
+#include "Parsing/AddresslistParser.h"
 #include "../../IMAP/IMAPSimpleCommandParser.h"
+#include "../../IMAP/IMAPCommandRangeActionTester.h"
+#include "../Persistence/UIDValidityGeneratorTester.h"
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"
-#include "../../SMTP/SPF/SPF.h"
+#include "../../SMTP/SPF/Conformance/SPFConformanceTester.h"
+#include "../../SMTP/SPF/SPFEvaluatorTester.h"
+#include "../../SMTP/SPF/SPFMacroExpanderTester.h"
+#include "../../SMTP/SPF/SPFRecordTester.h"
+#include "../../SMTP/SRS/SRSTester.h"
 #include "../AntiSpam/DMARC/DMARCTester.h"
 #include "PublicSuffixListTester.h"
 #include "../../SMTP/BLCheck.h"
@@ -41,6 +47,33 @@
 
 namespace HM
 {
+   namespace
+   {
+      // Writes each failure where a debugger will show it, then fails the run.
+      //
+      // A logic_error rather than an Assert, which throws nothing and so
+      // terminates: the regression suite runs these tests through the COM API,
+      // which catches an exception and reports it, and terminating there takes
+      // the server down and fails everything after it instead of saying what
+      // went wrong.
+      void ReportFailures_(const AnsiString &what, const std::vector<AnsiString> &failures)
+      {
+         if (failures.empty())
+            return;
+
+         for (AnsiString failure : failures)
+         {
+            String message = _T("hMailServer: FAILED: ");
+            message += String(failure);
+            message += _T("\n");
+
+            OutputDebugString(message);
+         }
+
+         throw std::logic_error(Formatter::FormatAsAnsi("{0} check(s) against {1} failed. See the debug output for which.",
+                                                        (int) failures.size(), what));
+      }
+   }
 
    ClassTester::ClassTester()
    {
@@ -106,10 +139,29 @@ namespace HM
       BLCheckTester blchecktester;
       blchecktester.Test();
 
-      OutputDebugString(_T("hMailServer: Testing SPF\n"));
-      SPFTester *pSPF = new SPFTester();
-      pSPF->Test();
-      delete pSPF;
+      // The SPF record grammar, then the macro expansion of RFC 7208 section 7,
+      // and then the RFC 7208 conformance suite. Every failure is reported before
+      // the run is failed, because a suite which stops at the first of 203 cases
+      // says much less than one which lists them all.
+      OutputDebugString(_T("hMailServer: Testing the SPF record grammar\n"));
+      SPFRecordTester spfRecordTester;
+      ReportFailures_("the SPF record grammar", spfRecordTester.Run());
+
+      OutputDebugString(_T("hMailServer: Testing SPF macro expansion\n"));
+      SPFMacroExpanderTester spfMacroExpanderTester;
+      ReportFailures_("SPF macro expansion", spfMacroExpanderTester.Run());
+
+      OutputDebugString(_T("hMailServer: Testing SPF evaluation\n"));
+      SPFEvaluatorTester spfEvaluatorTester;
+      ReportFailures_("SPF evaluation", spfEvaluatorTester.Run());
+
+      OutputDebugString(_T("hMailServer: Testing SPF conformance\n"));
+      SPFConformance::SPFConformanceTester spfConformanceTester;
+      ReportFailures_("the RFC 7208 conformance suite", spfConformanceTester.Run());
+
+      OutputDebugString(_T("hMailServer: Testing SRS\n"));
+      SRSTester srsTester;
+      srsTester.Test();
 
       OutputDebugString(_T("hMailServer: Testing public suffix list\n"));
       PublicSuffixListTester publicSuffixListTester;
@@ -127,7 +179,6 @@ namespace HM
       PasswordHasherTester passwordHasherTester;
       passwordHasherTester.Test();
 
-
       OutputDebugString(_T("hMailServer: Testing RegularExpressionTester\n"));
       RegularExpressionTester *pRegExTest = new RegularExpressionTester();
       pRegExTest->Test();
@@ -137,7 +188,7 @@ namespace HM
       Base64Tester base64Tester;
       base64Tester.Test();
 
-      OutputDebugString(_T("hMailServer: Testing Base64\n"));
+      OutputDebugString(_T("hMailServer: Testing ModifiedUTF7Tester\n"));
       ModifiedUTF7Tester modifiedUTF7Tester;
       modifiedUTF7Tester.Test();
 
@@ -150,7 +201,6 @@ namespace HM
       CharsetTester *pCharsetTester = new CharsetTester;
       pCharsetTester->Test();
       delete pCharsetTester;
-
 
       OutputDebugString(_T("hMailServer: Testing LocalIPAddresses\n"));
       LocalIPAddressesTester *pTest4 = new LocalIPAddressesTester();
@@ -167,9 +217,6 @@ namespace HM
       pTimeT->Test();
       delete pTimeT;
 
-
-
-
       OutputDebugString(_T("hMailServer: Testing BlowFishEncryptorTester\n"));
       BlowFishEncryptorTester *pTest3 = new BlowFishEncryptorTester();
       pTest3->Test();
@@ -180,13 +227,17 @@ namespace HM
       pTest->Test();
       delete pTest;
 
-      
+      OutputDebugString(_T("hMailServer: Testing IMAP message sets\n"));
+      IMAPCommandRangeActionTester rangeActionTester;
+      ReportFailures_("IMAP message sets", rangeActionTester.Run());
+
+      OutputDebugString(_T("hMailServer: Testing UIDVALIDITY counters\n"));
+      UIDValidityGeneratorTester uidValidityTester;
+      ReportFailures_("UIDVALIDITY counters", uidValidityTester.Run());
 
       OutputDebugString(_T("hMailServer: Testing script string literals\n"));
       ScriptServerTester scriptServerTester;
-      std::vector<AnsiString> scriptServerFailures = scriptServerTester.Run();
-      if (!scriptServerFailures.empty())
-         throw std::logic_error(scriptServerFailures[0]);
+      ReportFailures_("script string literals", scriptServerTester.Run());
    }
 
    void 

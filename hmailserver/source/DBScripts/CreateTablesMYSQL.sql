@@ -16,6 +16,8 @@ drop table if exists hm_message_metadata;
 
 drop table if exists hm_dbversion;
 
+drop table if exists hm_uidvalidity;
+
 drop table if exists hm_distributionlists;
 
 drop table if exists hm_distributionlistsrecipients;
@@ -197,6 +199,12 @@ create table hm_dbversion
 	value int not null
 ) DEFAULT CHARSET=utf8;
 
+create table hm_uidvalidity 
+(
+	uidvalidityaccountid bigint not null primary key,
+	uidvalidityvalue bigint not null
+) DEFAULT CHARSET=utf8;
+
 create table hm_distributionlists 
 (
 	distributionlistid int auto_increment not null, primary key(distributionlistid), unique(distributionlistid),
@@ -239,7 +247,8 @@ create table hm_imapfolders
   folderissubscribed tinyint unsigned NOT NULL,
   foldercreationtime datetime NOT NULL,
   foldercurrentuid bigint NOT NULL,
-  folderspecialuse int NOT NULL
+  folderspecialuse int NOT NULL,
+  folderuidvalidity bigint NOT NULL
 ) DEFAULT CHARSET=utf8;
 
 CREATE INDEX idx_hm_imapfolders ON hm_imapfolders (folderaccountid);
@@ -739,6 +748,14 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('AS
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('ASAddAuthResultsHeader', '', 0);
 
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSEnabled', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSSecret', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSMaxAgeDays', '', 21);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('SRSHashLength', '', 8);
+
 insert into hm_settings (settingname, settingstring, settinginteger) values ('AutoBanOnLogonFailureEnabled', '', 1);
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('MaxInvalidLogonAttempts', '', 3);
@@ -805,4 +822,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5711);
+insert into hm_dbversion values (5713);

@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "../common/Util/TransparentTransmissionBuffer.h"
-#include "../common/BO/Message.h"
-#include "../common/TCPIP/TCPConnection.h"
+#include "../Common/Util/TransparentTransmissionBuffer.h"
+#include "../Common/BO/Message.h"
+#include "../Common/TCPIP/TCPConnection.h"
 
 
 namespace HM

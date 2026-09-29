@@ -61,6 +61,7 @@ public:
    STDMETHOD(RunTestSuite)(BSTR sTestPassword);
    STDMETHOD(IsLocalHost)(BSTR sDomainName, VARIANT_BOOL *bIsValid);
    STDMETHOD(ImportMessageFromFileToIMAPFolder)(/*[in]*/ BSTR sFilename, long lAccountID, BSTR sIMAPFolder, /*[out, retval]*/VARIANT_BOOL *bIsSuccessful);
+   STDMETHOD(ImportMessageFromFileToPublicIMAPFolder)(/*[in]*/ BSTR sFilename, BSTR sIMAPFolder, /*[out, retval]*/VARIANT_BOOL *bIsSuccessful);
    STDMETHOD(IsStrongPassword)(BSTR Username, BSTR Password, VARIANT_BOOL *bIsValid);
    STDMETHOD(CriteriaMatch)(BSTR MatchValue, eRuleMatchType, BSTR TestValue,  /*[out, retval]*/ VARIANT_BOOL *bIsValid);
    STDMETHOD(IsValidIPAddress)(/*[in]*/ BSTR IPAddress, /*[out, retval]*/ VARIANT_BOOL *bIsValid);

@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\IPAddress.h"
+#include "stdafx.h"
+#include "./IPAddress.h"
 #include "../Util/Assert.h"
 
 #ifdef _DEBUG

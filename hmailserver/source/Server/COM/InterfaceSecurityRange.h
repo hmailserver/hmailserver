@@ -7,7 +7,7 @@
 #include "../hMailServer/hMailServer.h"
 
 
-#include "../Common/bo/SecurityRange.h"
+#include "../Common/BO/SecurityRange.h"
 
 namespace HM
 {  

@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\regularexpression.h"
+#include "stdafx.h"
+#include "./RegularExpression.h"
 
 #include <Boost/Regex.hpp>
 using namespace boost;

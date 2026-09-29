@@ -5,7 +5,7 @@
 
 #include "Collection.h"
 
-#include "..\Persistence\PersistentRuleCriteria.h"
+#include "../Persistence/PersistentRuleCriteria.h"
 #include "RuleCriteria.h"
 
 namespace HM

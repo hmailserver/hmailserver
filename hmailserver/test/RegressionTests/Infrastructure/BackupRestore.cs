@@ -919,6 +919,173 @@ namespace RegressionTests.Infrastructure
       }
 
       [Test]
+      [Description("Issue #163. A message file deleted while the backup copies the data directory made " +
+                   "the backup task throw. The backup never finished and the backup manager stayed " +
+                   "running, so no later backup could start.")]
+      public void TestBackupWhenFilesAreDeletedDuringBackup()
+      {
+         _backupMessages = true;
+
+         LogHandler.DeleteErrorLog();
+
+         // The directory listing is fetched in batches, so a file that is deleted after its batch
+         // was read is still handed to the copy. Deleting from the end while the backup copies from
+         // the start guarantees that the two meet inside a batch.
+         var sourceDir = Path.Combine(_application.Settings.Directories.DataDirectory,
+            "BackupTest-" + TestSetup.UniqueString());
+         Directory.CreateDirectory(sourceDir);
+
+         var sourceFiles = new List<string>();
+         for (var i = 0; i < 2000; i++)
+         {
+            var file = Path.Combine(sourceDir, i.ToString("D5") + ".eml");
+            File.WriteAllText(file, "Test");
+            sourceFiles.Add(file);
+         }
+
+         var copiedDir = Path.Combine(_backupDir, "DataBackup", Path.GetFileName(sourceDir));
+
+         try
+         {
+            var backupSettings = _application.Settings.Backup;
+            backupSettings.BackupDomains = true;
+            backupSettings.BackupMessages = true;
+            backupSettings.BackupSettings = false;
+            backupSettings.CompressDestinationFiles = false;
+            backupSettings.Destination = _backupDir;
+
+            CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+
+            _application.BackupManager.StartBackup();
+
+            var waitUntil = DateTime.Now.AddSeconds(30);
+            while (!Directory.Exists(copiedDir) || Directory.GetFiles(copiedDir).Length == 0)
+            {
+               Assert.Less(DateTime.Now, waitUntil, "The backup has not started copying files.");
+               Thread.Sleep(1);
+            }
+
+            for (var i = sourceFiles.Count - 1; i >= 0; i--)
+            {
+               try
+               {
+                  File.Delete(sourceFiles[i]);
+               }
+               catch (IOException)
+               {
+                  // The backup is copying this file right now.
+               }
+            }
+
+            Assert.IsTrue(WaitForBackupCompletion(),
+               TestSetup.ReadExistingTextFile(backupSettings.LogFile));
+
+            CustomAsserts.AssertNoReportedError();
+
+            // The backup manager must be free for a new backup.
+            CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+            Assert.IsTrue(BackupEnvironment());
+         }
+         finally
+         {
+            Directory.Delete(sourceDir, true);
+         }
+      }
+
+      [Test]
+      [Description("Issue #163. When the backup task threw, the backup manager was never told that the " +
+                   "task had stopped. Every later backup was refused as already started.")]
+      public void TestBackupCanBeStartedAfterBackupTaskFails()
+      {
+         _backupMessages = true;
+
+         LogHandler.DeleteErrorLog();
+
+         // A directory the server cannot list makes the data directory copy throw.
+         var sourceDir = Path.Combine(_application.Settings.Directories.DataDirectory,
+            "BackupTest-" + TestSetup.UniqueString());
+         var lockedDir = Path.Combine(sourceDir, "Locked");
+         Directory.CreateDirectory(lockedDir);
+
+         var denyEveryone = new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
+            FileSystemRights.FullControl, AccessControlType.Deny);
+         var lockedDirInfo = new DirectoryInfo(lockedDir);
+         DenyAccess(lockedDirInfo, denyEveryone);
+
+         try
+         {
+            var backupSettings = _application.Settings.Backup;
+            backupSettings.BackupDomains = true;
+            backupSettings.BackupMessages = true;
+            backupSettings.BackupSettings = false;
+            backupSettings.CompressDestinationFiles = false;
+            backupSettings.Destination = _backupDir;
+
+            CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+
+            _application.BackupManager.StartBackup();
+
+            Assert.IsFalse(WaitForBackupCompletion());
+
+            var backupLog = TestSetup.ReadExistingTextFile(backupSettings.LogFile);
+            Assert.IsTrue(backupLog.Contains("BACKUP ERROR:"), backupLog);
+
+            LogHandler.DeleteErrorLog();
+
+            AllowAccess(lockedDirInfo, denyEveryone);
+            Directory.Delete(sourceDir, true);
+
+            // The failed backup must not block the next one.
+            CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+            Assert.IsTrue(BackupEnvironment(), TestSetup.ReadExistingTextFile(backupSettings.LogFile));
+            CustomAsserts.AssertNoReportedError();
+         }
+         finally
+         {
+            if (Directory.Exists(sourceDir))
+            {
+               AllowAccess(lockedDirInfo, denyEveryone);
+               Directory.Delete(sourceDir, true);
+            }
+         }
+      }
+
+      [Test]
+      [Description("Issue #234. An uncompressed backup leaves the DataBackup directory in the destination. " +
+                   "The next backup to the same destination failed on the first file that already existed.")]
+      public void TestUncompressedBackupTwiceToSameDirectory()
+      {
+         _backupMessages = true;
+
+         LogHandler.DeleteErrorLog();
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_application.Domains[0], "test@example.test", "test");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Message 1 Subject", "Message 1 Body");
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         var backupSettings = _application.Settings.Backup;
+         backupSettings.BackupDomains = true;
+         backupSettings.BackupMessages = true;
+         backupSettings.BackupSettings = false;
+         backupSettings.CompressDestinationFiles = false;
+         backupSettings.Destination = _backupDir;
+
+         for (var run = 1; run <= 2; run++)
+         {
+            CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+
+            _application.BackupManager.StartBackup();
+
+            Assert.IsTrue(WaitForBackupCompletion(),
+               "Backup run " + run + ": " + TestSetup.ReadExistingTextFile(backupSettings.LogFile));
+         }
+
+         Assert.IsTrue(Directory.Exists(Path.Combine(_backupDir, "DataBackup", "example.test")));
+
+         CustomAsserts.AssertNoReportedError();
+      }
+
+      [Test]
       public void TestBackupToInaccessibleDirectory()
       {
          _backupMessages = false;
@@ -980,6 +1147,48 @@ namespace RegressionTests.Infrastructure
 
             Directory.Delete(inaccessibleParent, true);
          }
+      }
+
+      [Test]
+      [Description("The backup log reported a failed backup before the backup manager was told that " +
+                   "the backup had stopped. A backup started at that point was refused as already started.")]
+      public void TestBackupCanBeStartedWhenFailureIsLogged()
+      {
+         _backupMessages = false;
+
+         LogHandler.DeleteErrorLog();
+         EnableSlowBackupFailedEvent();
+
+         var backupSettings = _application.Settings.Backup;
+         backupSettings.Destination = Path.Combine(_backupDir, "Missing");
+
+         CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+
+         _application.BackupManager.StartBackup();
+         Assert.IsFalse(WaitForBackupCompletion());
+
+         CustomAsserts.AssertReportedError("HM5014", "The specified backup directory is not accessible");
+
+         CustomAsserts.AssertDeleteFile(backupSettings.LogFile);
+         Assert.IsTrue(BackupEnvironment(), TestSetup.ReadExistingTextFile(backupSettings.LogFile));
+      }
+
+      /// <summary>
+      /// Makes the OnBackupFailed event take a few seconds, so the backup is still finishing when
+      /// the backup log says that it failed.
+      /// </summary>
+      private void EnableSlowBackupFailedEvent()
+      {
+         var script =
+            "Sub OnBackupFailed(reason)\r\n" +
+            "   Dim start : start = Timer\r\n" +
+            "   Do While Timer < start + 3 : Loop\r\n" +
+            "End Sub\r\n";
+
+         var scripting = _application.Settings.Scripting;
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+         scripting.Enabled = true;
+         scripting.Reload();
       }
 
       /// <summary>

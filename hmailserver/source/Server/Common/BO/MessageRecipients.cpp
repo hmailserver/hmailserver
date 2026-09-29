@@ -1,9 +1,9 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\messagerecipients.h"
-#include ".\MessageRecipient.h"
+#include "stdafx.h"
+#include "./MessageRecipients.h"
+#include "./MessageRecipient.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

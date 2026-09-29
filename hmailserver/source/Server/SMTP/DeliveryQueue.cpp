@@ -3,7 +3,7 @@
 // Created: 2005-08-02
 // Purpose: To offer queue manipiulation to the COM API.
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "DeliveryQueue.h"
 #include "SMTPDeliveryManager.h"

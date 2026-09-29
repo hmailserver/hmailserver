@@ -7,6 +7,7 @@
 
 namespace HM
 {
+   class Message;
    class MessageData;
 
    class MailImporter
@@ -18,6 +19,9 @@ namespace HM
       static bool Import (const String &originalFullPath, int iAccountID, const String &sIMAPFolder);
       // Imports a message from file to the database.
 
+      static bool ImportToPublicFolder (const String &originalFullPath, const String &sIMAPFolder);
+      // Imports a message stored below the public folder on disk into a public IMAP folder.
+
    private:
 
       static bool ReplaceMessagePath_(__int64 messageID, const String &messagePath);
@@ -25,6 +29,8 @@ namespace HM
       static String GetInternalDate_DatePlusTimeZone(DateTime dtTime);
       static bool MoveToNamedSubdirectory_(const String &sourceFile, String &resultFile, String &newFullPath);
       static bool GetRootLevelDirectory_(const String &fullPath, String &rootLevel);
+      static bool GetPublicIMAPFolderPath_(const String &sIMAPFolder, String &publicIMAPFolder);
+      static bool ConnectToPublicIMAPFolder_(std::shared_ptr<Message> message, const String &publicIMAPFolder);
    };
 
 #ifdef _DEBUG

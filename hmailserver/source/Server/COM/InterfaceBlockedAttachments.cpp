@@ -3,9 +3,9 @@
 
 #include "stdafx.h"
 #include "COMError.h"
-#include "..\COM\InterfaceBlockedAttachments.h"
+#include "../COM/InterfaceBlockedAttachments.h"
 
-#include "..\Common\BO\BlockedAttachment.h"
+#include "../Common/BO/BlockedAttachment.h"
 #include "InterfaceBlockedAttachment.h"
 
 void 

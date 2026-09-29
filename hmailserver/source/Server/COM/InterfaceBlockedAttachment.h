@@ -8,8 +8,8 @@
 
 #include "COMCollection.h"
 
-#include "..\Common\BO\BlockedAttachment.h"
-#include "..\Common\BO\BlockedAttachments.h"
+#include "../Common/BO/BlockedAttachment.h"
+#include "../Common/BO/BlockedAttachments.h"
 
 
 #if defined(_WIN32_WCE) && !defined(_CE_DCOM) && !defined(_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA)

@@ -11,6 +11,11 @@
 #include "IMAPSimpleCommandParser.h"
 #include "../Common/BO/ACLPermission.h"
 #include "../Common/Tracking/ChangeNotification.h"
+#include "../Common/Tracking/NotificationServer.h"
+#include "../Common/BO/Messages.h"
+#include "IMAPFolderView.h"
+#include "IMAPNotificationClient.h"
+#include "../Common/Util/FileUtilities.h"
 
 
 #include "MessagesContainer.h"
@@ -24,16 +29,87 @@ namespace HM
 {
    IMAPCopy::IMAPCopy()
    {
-      
+
+   }
+
+   String
+   IMAPCopy::GetResponseCode() const
+   {
+      // A client that can't read the destination must not learn its UIDs (RFC 4315 6).
+      if (source_uids_.empty() || !destination_readable_)
+         return String();
+
+      String sResponseCode;
+      sResponseCode.Format(_T("[COPYUID %u "), destination_folder_->GetUIDValidity());
+      sResponseCode += FormatUIDSet_(source_uids_);
+      sResponseCode += _T(" ");
+      sResponseCode += FormatUIDSet_(destination_uids_);
+      sResponseCode += _T("] ");
+
+      return sResponseCode;
+   }
+
+   String
+   IMAPCopy::GetUntaggedResponse(std::shared_ptr<IMAPConnection> pConnection)
+   {
+      if (copied_message_ids_.empty())
+         return String();
+
+      auto current_folder = pConnection->GetCurrentFolder();
+      if (!current_folder || current_folder->GetID() != destination_folder_->GetID())
+         return String();
+
+      std::shared_ptr<Messages> messages = destination_folder_->GetMessages();
+
+      // The copies are appended at the end, so this session's existing numbering is unaffected.
+      auto view = pConnection->GetCurrentFolderView();
+      if (view)
+         view->AppendNewMessages(messages);
+
+      int message_count = view ? view->GetMessageCount() : messages->GetCount();
+
+      return IMAPNotificationClient::GenerateExistsString(message_count) +
+             IMAPNotificationClient::GenerateRecentString((int) pConnection->GetRecentMessageCount());
+   }
+
+   String
+   IMAPCopy::FormatUIDSet_(const std::vector<unsigned int> &uids)
+   {
+      // The order must be kept, since the two sets correspond element by element. So only
+      // ascending runs of consecutive UIDs are written as ranges.
+      String sResult;
+
+      size_t start = 0;
+      while (start < uids.size())
+      {
+         size_t end = start;
+         while (end + 1 < uids.size() && uids[end + 1] == uids[end] + 1)
+            end++;
+
+         String sPart;
+         if (end > start)
+            sPart.Format(_T("%u:%u"), uids[start], uids[end]);
+         else
+            sPart.Format(_T("%u"), uids[start]);
+
+         if (!sResult.IsEmpty())
+            sResult += _T(",");
+
+         sResult += sPart;
+
+         start = end + 1;
+      }
+
+      return sResult;
    }
 
 
    IMAPResult
-   IMAPCopy::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pOldMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
+   IMAPCopy::Prepare(std::shared_ptr<IMAPConnection> pConnection, const std::shared_ptr<IMAPCommandArgument> pArgument)
    {
-      if (!pArgument || !pOldMessage)
+      if (!pArgument)
          return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
-      
+
       std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
       pParser->Parse(pArgument);
@@ -50,33 +126,95 @@ namespace HM
          IMAPFolder::UnescapeFolderString(sFolderName);
       }
 
-      std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
-      if (!pFolder)
-         return IMAPResult(IMAPResult::ResultBad, "The folder could not be found.");
+      destination_folder_ = pConnection->GetFolderByFullPath(sFolderName);
+      if (!destination_folder_)
+         return IMAPResult(IMAPResult::ResultNo, "[TRYCREATE] The folder could not be found.");
 
+      // A permission failure is NO. BAD is only for syntax errors.
+      if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionInsert))
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Insert permission denied (Required for COPY command).");
+
+      can_write_seen_ = pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteSeen);
+      can_write_deleted_ = pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteDeleted);
+      can_write_others_ = pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteOthers);
+
+      return IMAPResult();
+   }
+
+   IMAPResult
+   IMAPCopy::SourceMessageGone_(std::shared_ptr<IMAPConnection> pConnection, std::shared_ptr<Message> pOldMessage)
+   {
+      pConnection->GetCurrentFolderView()->MarkVanished(pOldMessage->GetID());
+
+      // UID COPY ignores messages that no longer exist (RFC 3501 6.4.8).
+      if (GetIsUID())
+         return IMAPResult();
+
+      return IMAPResult(IMAPResult::ResultNo, "[EXPUNGEISSUED] Some of the messages no longer exist.");
+   }
+
+   IMAPResult
+   IMAPCopy::DoAction(std::shared_ptr<IMAPConnection> pConnection, int messageIndex, std::shared_ptr<Message> pOldMessage, const std::shared_ptr<IMAPCommandArgument> pArgument)
+   {
+      if (!pOldMessage || !destination_folder_)
+         return IMAPResult(IMAPResult::ResultBad, "Invalid parameters");
+
+      std::shared_ptr<IMAPFolder> pFolder = destination_folder_;
       std::shared_ptr<const Account> pAccount = pConnection->GetAccount();
 
       if (!pFolder->IsPublicFolder())
       {
          if (!pAccount->SpaceAvailable(pOldMessage->GetSize()))
-            return IMAPResult(IMAPResult::ResultNo, "Your quota has been exceeded.");
+            return IMAPResult(IMAPResult::ResultNo, "[OVERQUOTA] Your quota has been exceeded.");
       }
 
-      // Check if the user has permission to copy to this destination folder
-      if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionInsert))
-         return IMAPResult(IMAPResult::ResultBad, "ACL: Insert permission denied (Required for COPY command).");
-
-      std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder);
+      // A missing source file is handled below, since it's expected when the message was deleted
+      // during the COPY. Other failures are logged by the copy.
+      std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToIMAPFolder(pAccount, pOldMessage, pFolder, false);
 
       if (!pNewMessage)
-         return IMAPResult(IMAPResult::ResultBad, "Failed to copy message");
+      {
+         String sFileName = PersistentMessage::GetFileName(pAccount, pOldMessage);
 
-      // Check if the user has access to set the Seen flag, otherwise 
-      if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionWriteSeen))
-         pNewMessage->SetFlagSeen(false);  
+         if (!FileUtilities::Exists(sFileName))
+         {
+            // Deleted since the set was resolved, by another session or outside IMAP.
+            bool exists = true;
+            if (PersistentMessage::GetExists(pOldMessage->GetID(), exists) && !exists)
+               return SourceMessageGone_(pConnection, pOldMessage);
+
+            // The message is still there, but its file is not.
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5026, "IMAPCopy::DoAction", "Message copy failed because message file " + sFileName + " did not exist.");
+         }
+
+         return IMAPResult(IMAPResult::ResultNo, "Failed to copy message.");
+      }
+
+      // Flags the user lacks the right to set are left unset (RFC 4314 4).
+      if (!can_write_seen_)
+         pNewMessage->SetFlagSeen(false);
+
+      if (!can_write_deleted_)
+         pNewMessage->SetFlagDeleted(false);
+
+      if (!can_write_others_)
+      {
+         pNewMessage->SetFlagDraft(false);
+         pNewMessage->SetFlagAnswered(false);
+         pNewMessage->SetFlagFlagged(false);
+      }
 
       if (!PersistentMessage::SaveObject(pNewMessage))
-         return IMAPResult(IMAPResult::ResultBad, "Failed to save copy of message.");
+      {
+         // The file was copied, but no message refers to it.
+         PersistentMessage::DeleteFile(pAccount, pNewMessage);
+         return IMAPResult(IMAPResult::ResultNo, "Failed to save copy of message.");
+      }
+
+      destination_readable_ = pConnection->CheckPermission(pFolder, ACLPermission::PermissionRead);
+      source_uids_.push_back(pOldMessage->GetUID());
+      destination_uids_.push_back(pNewMessage->GetUID());
+      copied_message_ids_.insert(pNewMessage->GetID());
 
       MessagesContainer::Instance()->SetFolderNeedsRefresh(pFolder->GetID());
 
@@ -88,5 +226,30 @@ namespace HM
       pConnection->SetDelayedChangeNotification(pNotification);
 
       return IMAPResult();
+   }
+
+   void
+   IMAPCopy::RollBack(std::shared_ptr<IMAPConnection> pConnection)
+   {
+      if (copied_message_ids_.empty())
+         return;
+
+      pConnection->SetDelayedChangeNotification(std::shared_ptr<ChangeNotification>());
+
+      auto messages = MessagesContainer::Instance()->GetMessages(destination_folder_->GetAccountID(), destination_folder_->GetID());
+      auto deleted_message_ids = messages->DeleteMessagesById(copied_message_ids_);
+
+      // Other sessions may already have been told about the copies.
+      if (!deleted_message_ids.empty())
+      {
+         std::shared_ptr<ChangeNotification> pNotification =
+            std::shared_ptr<ChangeNotification>(new ChangeNotification(destination_folder_->GetAccountID(), destination_folder_->GetID(), ChangeNotification::NotificationMessageDeleted, deleted_message_ids));
+
+         Application::Instance()->GetNotificationServer()->SendNotification(pConnection->GetNotificationClient(), pNotification);
+      }
+
+      source_uids_.clear();
+      destination_uids_.clear();
+      copied_message_ids_.clear();
    }
 }

@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\ExternalFetchManager.h"
+#include "stdafx.h"
+#include "./ExternalFetchManager.h"
 
 #include "../Common/BO/FetchAccounts.h"
 #include "../Common/BO/FetchAccount.h"
@@ -10,13 +10,13 @@
 
 #include "ExternalFetchTask.h"
 
-#include "../COmmon/Threading/WorkQueueManager.h"
+#include "../Common/Threading/WorkQueueManager.h"
 
-#include "../COmmon/BO/Account.h"
+#include "../Common/BO/Account.h"
 
-#include "../COmmon/BO/Domain.h"
+#include "../Common/BO/Domain.h"
 
-#include "../COmmon/Cache/CacheContainer.h"
+#include "../Common/Cache/CacheContainer.h"
 
 
 #ifdef _DEBUG

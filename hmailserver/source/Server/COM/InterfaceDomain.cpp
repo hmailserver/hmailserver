@@ -10,14 +10,14 @@
 #include "InterfaceDomainAliases.h"
 #include "InterfaceDistributionLists.h"
 
-#include "../Common/Bo/Accounts.h"
-#include "../Common/Bo/DistributionLists.h"
-#include "../Common/Bo/Domain.h"
-#include "../Common/Bo/DomainAliases.h"
+#include "../Common/BO/Accounts.h"
+#include "../Common/BO/DistributionLists.h"
+#include "../Common/BO/Domain.h"
+#include "../Common/BO/DomainAliases.h"
 #include "../Common/BO/Domains.h"
 
-#include "../Common/persistence/PersistentDomain.h"
-#include "../Common/persistence/PersistenceMode.h"
+#include "../Common/Persistence/PersistentDomain.h"
+#include "../Common/Persistence/PersistenceMode.h"
 
 #include "InterfaceDomains.h"
 

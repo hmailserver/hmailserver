@@ -1,6 +1,5 @@
 [Setup]
 AppName=hMailServer
-AppCopyright=Copyright (C) 2008
 DefaultDirName={commonpf}\hMailServer
 DefaultGroupName=hMailServer
 PrivilegesRequired=admin

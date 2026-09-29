@@ -78,6 +78,9 @@ namespace hMailServer.Administrator
             textRuleLoopLimit.Number = settings.RuleLoopLimit;
             textMaxNumberOfMXHosts.Number = settings.MaxNumberOfMXHosts;
 
+            checkSRSEnabled.Checked = settings.SRSEnabled;
+            textSRSMaxAgeDays.Number = settings.SRSMaxAgeDays;
+
             EnableDisable();
 
             Marshal.ReleaseComObject(settings);
@@ -118,6 +121,9 @@ namespace hMailServer.Administrator
             settings.RuleLoopLimit = textRuleLoopLimit.Number;
             settings.MaxNumberOfMXHosts = textMaxNumberOfMXHosts.Number;
 
+            settings.SRSEnabled = checkSRSEnabled.Checked;
+            settings.SRSMaxAgeDays = textSRSMaxAgeDays.Number;
+
             DirtyChecker.SetClean(this);
 
             Marshal.ReleaseComObject(settings);
@@ -131,6 +137,8 @@ namespace hMailServer.Administrator
             textSMTPRelayerPassword.Enabled = chkSMTPRelayerRequiresAuth.Checked;
 
             textMaxNumberOfInvalidCommands.Enabled = checkDisconnectInvalidClients.Checked;
+
+            textSRSMaxAgeDays.Enabled = checkSRSEnabled.Checked;
         }
 
         public void LoadResources()
@@ -144,6 +152,11 @@ namespace hMailServer.Administrator
         }
 
         private void checkDisconnectInvalidClients_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisable();
+        }
+
+        private void checkSRSEnabled_CheckedChanged(object sender, EventArgs e)
         {
             EnableDisable();
         }

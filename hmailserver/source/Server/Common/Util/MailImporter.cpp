@@ -1,21 +1,22 @@
 // Copyright (c) 2006 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "MailImporter.h"
-#include "..\BO\Message.h"
-#include "..\BO\MessageData.h"
-#include "..\BO\MessageRecipients.h"
-#include "..\Cache/CacheContainer.h"
-#include "..\Util\Time.h"
-#include "..\Util\Utilities.h"
+#include "../BO/Message.h"
+#include "../BO/MessageData.h"
+#include "../BO/MessageRecipients.h"
+#include "../Cache/CacheContainer.h"
+#include "../Util/Time.h"
+#include "../Util/Utilities.h"
 
-#include "..\Persistence\PersistentMessage.h"
+#include "../Persistence/PersistentMessage.h"
 
-#include "Parsing\AddresslistParser.h"
-#include "..\..\SMTP\RecipientParser.h"
-#include "..\..\IMAP\IMAPConfiguration.h"
-#include "..\..\IMAP\IMAPFolderContainer.h"
+#include "Parsing/AddresslistParser.h"
+#include "../../SMTP/RecipientParser.h"
+#include "../../IMAP/IMAPConfiguration.h"
+#include "../../IMAP/IMAPFolderContainer.h"
+#include "../../IMAP/IMAPFolderUtilities.h"
 #include "../../IMAP/MessagesContainer.h"
 
 #include "MessageUtilities.h"
@@ -80,10 +81,19 @@ namespace HM
 
       // The message isn't referenced in the database. If it's stored in the public folder, we
       // have no way of telling which public IMAP folder it belongs to - the folder isn't part
-      // of the path on disk. Rather than guessing, we leave the file alone.
+      // of the path on disk. Rather than guessing, we require the caller to tell us which
+      // folder to place the message in. If it doesn't, we leave the file alone.
       String publicFolderPath = FileUtilities::Combine(dataDirectory, IMAPConfiguration::GetPublicFolderDiskName());
 
-      if (originalFullPath.StartsWith(publicFolderPath + FileUtilities::PathSeparator))
+      bool isPublicFolderMessage = originalFullPath.StartsWith(publicFolderPath + FileUtilities::PathSeparator);
+
+      if (isPublicFolderMessage && (iAccountID != 0 || sIMAPFolder.IsEmpty()))
+         return false;
+
+      // Make sure the name of the public IMAP folder is valid before the file is moved below.
+      // If it isn't, the file should be left where it is.
+      String publicIMAPFolder;
+      if (isPublicFolderMessage && !GetPublicIMAPFolderPath_(sIMAPFolder, publicIMAPFolder))
          return false;
 
       String newFullPath = originalFullPath;
@@ -98,7 +108,12 @@ namespace HM
             return false;
       }
 
-      if (iAccountID > 0)
+      if (isPublicFolderMessage)
+      {
+         // The file is stored below the public folder, which is where messages in public
+         // folders are supposed to be stored. There's nothing more to verify.
+      }
+      else if (iAccountID > 0)
       {
          // Make sure we're really placing the file into an account.
          int domainSlashPos = originalFullPath.Find(_T("\\"), dataDirectory.GetLength()+1);
@@ -148,7 +163,16 @@ namespace HM
          pMessage->SetFromAddress(sAddress);
       }
 
-      if (iAccountID == 0)
+      if (isPublicFolderMessage)
+      {
+         // Messages in public folders aren't owned by an account, which is why no account is
+         // connected to the message here.
+         pMessage->SetState(Message::Delivered);
+
+         if (!ConnectToPublicIMAPFolder_(pMessage, publicIMAPFolder))
+            return false;
+      }
+      else if (iAccountID == 0)
       {
          // Since this message is supposed to be delivered, we need
          // to parse the sender and recipients
@@ -213,7 +237,95 @@ namespace HM
       if (!PersistentMessage::SaveObject(pMessage))
          return false;
 
+      if (isPublicFolderMessage)
+      {
+         // Make sure that clients which are already browsing the folder see the message.
+         MessagesContainer::Instance()->SetFolderNeedsRefresh(pMessage->GetFolderID());
+      }
+
       return true;
+   }
+
+   bool
+   MailImporter::ImportToPublicFolder(const String &originalFullPath, const String &sIMAPFolder)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Imports a message stored below the public folder on disk into a public IMAP folder. The
+   // name of the folder is given relative to the public folder, such as Share1.Sub1, but may
+   // also contain the name of the public folder itself, such as #Public.Share1.Sub1.
+   //---------------------------------------------------------------------------()
+   {
+      if (sIMAPFolder.IsEmpty())
+         return false;
+
+      // Messages in public folders are always stored below the public folder on disk. If the
+      // file isn't, it's not a message in a public folder and we shouldn't treat it as one.
+      String dataDirectory = IniFileSettings::Instance()->GetDataDirectory();
+      String publicFolderPath = FileUtilities::Combine(dataDirectory, IMAPConfiguration::GetPublicFolderDiskName());
+
+      if (!originalFullPath.StartsWith(publicFolderPath + FileUtilities::PathSeparator))
+         return false;
+
+      return Import(originalFullPath, 0, sIMAPFolder);
+   }
+
+   bool
+   MailImporter::GetPublicIMAPFolderPath_(const String &sIMAPFolder, String &publicIMAPFolder)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Validates the name of a public IMAP folder and returns its full path, including the name
+   // of the public folder. The given name may either be relative to the public folder, such as
+   // Share1.Sub1, or contain the name of the public folder, such as #Public.Share1.Sub1.
+   //---------------------------------------------------------------------------()
+   {
+      String hierarchyDelimiter = Configuration::Instance()->GetIMAPConfiguration()->GetHierarchyDelimiter();
+      String publicFolderName = Configuration::Instance()->GetIMAPConfiguration()->GetIMAPPublicFolderName();
+
+      String folderName = sIMAPFolder;
+
+      // A leading hierarchy delimiter isn't part of the folder name. This is how the folder is
+      // treated when it's given in a rule as well.
+      if (folderName.StartsWith(hierarchyDelimiter))
+         folderName = folderName.Mid(hierarchyDelimiter.GetLength());
+
+      std::vector<String> folderPath = StringParser::SplitString(folderName, hierarchyDelimiter);
+
+      if (!IMAPFolderUtilities::IsPublicFolder(folderPath))
+         folderPath.insert(folderPath.begin(), publicFolderName);
+
+      // A message can't be placed in the public folder itself - only in a folder below it.
+      if (folderPath.size() < 2)
+         return false;
+
+      // Don't accept a folder name such as Share1..Sub1, since that would result in a folder
+      // without a name being created.
+      for (const String &folderLevel : folderPath)
+      {
+         if (folderLevel.IsEmpty())
+            return false;
+      }
+
+      publicIMAPFolder = StringParser::JoinVector(folderPath, hierarchyDelimiter);
+      return true;
+   }
+
+   bool
+   MailImporter::ConnectToPublicIMAPFolder_(std::shared_ptr<Message> message, const String &publicIMAPFolder)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Connects the message to a public IMAP folder, creating the folder if it doesn't exist.
+   //---------------------------------------------------------------------------()
+   {
+      __int64 resultAccount = 0;
+      __int64 resultFolder = 0;
+
+      // Public folders aren't owned by an account, which is why no account is given here. As a
+      // result of this, no ACL permissions are checked - only server administrators are able to
+      // import messages.
+      if (!MessageUtilities::MoveToIMAPFolder(message, 0, publicIMAPFolder, true, true, resultAccount, resultFolder))
+         return false;
+
+      return resultFolder != 0;
    }
 
    bool 

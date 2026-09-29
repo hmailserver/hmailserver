@@ -13,7 +13,7 @@ namespace VolumeTests
       [SetUp]
       public new void SetUp()
       {
-         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "pop3@example.test", "test");
       }
       
       /// <summary>
@@ -24,7 +24,7 @@ namespace VolumeTests
       {
          Send100MBMessage();
 
-         Pop3ClientSimulator.AssertMessageCount("test@example.test", "test", 1);
+         Pop3ClientSimulator.AssertMessageCount("pop3@example.test", "test", 1);
 
          TcpConnection socket = new TcpConnection();
          socket.Connect(110);
@@ -32,7 +32,7 @@ namespace VolumeTests
          // Receive welcome message.
          socket.Receive();
 
-         socket.Send("USER " + "test@example.test" + "\r\n");
+         socket.Send("USER " + "pop3@example.test" + "\r\n");
          socket.ReadUntil("+OK");
 
          socket.Send("PASS " + "test" + "\r\n");
@@ -92,9 +92,9 @@ namespace VolumeTests
 
          sb.Append(Environment.NewLine);
 
-         socket.Send("MAIL FROM: test@example.test\r\n");
+         socket.Send("MAIL FROM: pop3@example.test\r\n");
          socket.Receive();
-         socket.Send("RCPT TO: test@example.test\r\n");
+         socket.Send("RCPT TO: pop3@example.test\r\n");
          socket.Receive();
          socket.Send("DATA\r\n");
          socket.Receive();

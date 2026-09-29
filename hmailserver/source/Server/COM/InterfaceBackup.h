@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "..\hMailServer\resource.h"       // main symbols
+#include "../hMailServer/resource.h"       // main symbols
 
-#include "..\hMailServer\hMailServer.h"
+#include "../hMailServer/hMailServer.h"
 
 
 // InterfaceBackup

@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\fileutilities.h"
+#include "stdafx.h"
+#include "./FileUtilities.h"
 
 #include "FileInfo.h"
 #include "File.h"
@@ -81,7 +81,7 @@ namespace HM
    }
 
    bool
-   FileUtilities::Copy(const String &sFrom, const String &sTo, bool bCreateMissingDirectories)
+   FileUtilities::Copy(const String &sFrom, const String &sTo, bool bCreateMissingDirectories, bool bReportMissingSource)
    {
       const int iMaxNumberOfTries = 5;
 
@@ -103,13 +103,17 @@ namespace HM
             return true;
          }
 
-         // We failed to delete the file. 
+         // Retrying only helps if the file is locked, not if it's gone.
+         bool source_missing = !Exists(sFrom);
 
-         if (i == iMaxNumberOfTries)
+         if (source_missing && !bReportMissingSource)
+            return false;
+
+         if (i == iMaxNumberOfTries || source_missing)
          {
             // We still couldn't copy the file. Lets give up and report in windows event log and hMailServer application log
             String sErrorMessage;
-            sErrorMessage.Format(_T("Could not copy the file %s to %s. Tried 5 times without success."), sFrom.c_str(), sTo.c_str());
+            sErrorMessage.Format(_T("Could not copy the file %s to %s. Tried %d times without success."), sFrom.c_str(), sTo.c_str(), i);
             ErrorManager::Instance()->ReportError(ErrorManager::High, 5048, "File::Copy", sErrorMessage, error_code);
             return false;
          }
@@ -402,7 +406,19 @@ namespace HM
          }
          else
          {
-            boost::filesystem::copy_file(current, sTo / current.filename());
+            boost::system::error_code error_code;
+            boost::filesystem::copy_file(current, sTo / current.filename(), boost::filesystem::copy_options::overwrite_existing, error_code);
+
+            // A file deleted after the directory was listed is expected, such as a delivered message.
+            if (error_code == boost::system::errc::no_such_file_or_directory)
+               continue;
+
+            if (error_code)
+            {
+               errorMessage = Formatter::Format("Could not copy the file {0} to {1}. Error: {2}",
+                  String(current.c_str()), String((sTo / current.filename()).c_str()), String(error_code.message()));
+               return false;
+            }
          }
       }
 

@@ -1,8 +1,8 @@
 // Copyright (c) 2005 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 // Created 2005-07-21
-#include "StdAfx.h"
-#include ".\task.h"
+#include "stdafx.h"
+#include "./Task.h"
 #include <boost/thread/thread.hpp>
 
 #ifdef _DEBUG

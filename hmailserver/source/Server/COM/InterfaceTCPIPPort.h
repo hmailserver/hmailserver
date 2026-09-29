@@ -8,8 +8,8 @@
 
 #include "COMCollection.h"
 
-#include "..\Common\BO\TCPIPPort.h"
-#include "..\Common\BO\TCPIPPorts.h"
+#include "../Common/BO/TCPIPPort.h"
+#include "../Common/BO/TCPIPPorts.h"
 
 
 #if defined(_WIN32_WCE) && !defined(_CE_DCOM) && !defined(_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA)

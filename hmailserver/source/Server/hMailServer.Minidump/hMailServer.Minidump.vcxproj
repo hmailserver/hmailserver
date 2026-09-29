@@ -103,6 +103,9 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="hMailServer.Minidump.rc" />
+  </ItemGroup>
+  <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

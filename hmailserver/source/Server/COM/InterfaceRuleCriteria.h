@@ -5,7 +5,7 @@
 
 #include "../hMailServer/resource.h"    // main symbols
 
-#include "../hMaiLServer/hMailServer.h"
+#include "../hMailServer/hMailServer.h"
 
 #include "COMCollection.h"
 

@@ -3,11 +3,11 @@
 
 #include "stdafx.h"
 #include "COMError.h"
-#include "..\COM\InterfaceServerMessages.h"
+#include "../COM/InterfaceServerMessages.h"
 
-#include "..\Common\BO\ServerMessage.h"
+#include "../Common/BO/ServerMessage.h"
 #include "InterfaceServerMessage.h"
-#include "../common/Persistence/PersistentServerMessage.h"
+#include "../Common/Persistence/PersistentServerMessage.h"
 
 bool 
 InterfaceServerMessages::LoadSettings()

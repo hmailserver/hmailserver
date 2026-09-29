@@ -18,13 +18,13 @@
 
 #include "COMError.h"
 
-#include "../common/Application/IniFileSettings.h"
+#include "../Common/Application/IniFileSettings.h"
 
-#include "../common/util/ServiceManager.h"
-#include "../common/util/ServerStatus.h"
+#include "../Common/Util/ServiceManager.h"
+#include "../Common/Util/ServerStatus.h"
 
-#include "../common/BO/Rules.h"
-#include "../common/BO/Domains.h"
+#include "../Common/BO/Rules.h"
+#include "../Common/BO/Domains.h"
 
 #include "COMAuthentication.h"
 

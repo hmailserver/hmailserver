@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "loggerfile.h"
+#include "LoggerFile.h"
 #include "../Util/Time.h"
 
 HIS_LoggerFile::HIS_LoggerFile(int iLogSetting)

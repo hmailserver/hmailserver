@@ -11,6 +11,7 @@
 #include "IMAPCopy.h"
 #include "IMAPStore.h"
 #include "IMAPCommandSearch.h"
+#include "IMAPCommandExpunge.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -84,6 +85,18 @@ namespace HM
 
          return result;
       }
+      else if (sTypeOfUID.CompareNoCase(_T("EXPUNGE")) == 0)
+      {
+         if (pParser->WordCount() != 3)
+            return IMAPResult(IMAPResult::ResultBad, "Command requires 1 parameter.");
+
+         // The parser strips parentheses, but a sequence set is never parenthesized.
+         if (pParser->Word(2)->Paranthezied() || pParser->Word(2)->Clammerized())
+            return IMAPResult(IMAPResult::ResultBad, "Incorrect message set.");
+
+         auto pCommand = std::make_shared<IMAPCommandEXPUNGE>(pParser->Word(2)->Value());
+         return pCommand->ExecuteCommand(pConnection, pArgument);
+      }
       else if (sTypeOfUID.CompareNoCase(_T("SORT")) == 0)
       {
          std::shared_ptr<IMAPCommandSEARCH> pCommand = std::shared_ptr<IMAPCommandSEARCH> (new IMAPCommandSEARCH(true));
@@ -114,9 +127,6 @@ namespace HM
       if (sMailNo.IsEmpty())
          return IMAPResult(IMAPResult::ResultBad, "No mail number specified");
 
-      if (!StringParser::ValidateString(sMailNo, "01234567890,.:*"))
-         return IMAPResult(IMAPResult::ResultBad, "Incorrect mail number");
-
       // Set the command to execute as argument
       pArgument->Command(sShowPart);
 
@@ -125,7 +135,7 @@ namespace HM
       IMAPResult result = command_->DoForMails(pConnection, sMailNo, pArgument);
 
       if (result.GetResult() == IMAPResult::ResultOK)
-         pConnection->SendAsciiData(pArgument->Tag() + " OK UID completed\r\n");
+         pConnection->SendAsciiData(command_->GetUntaggedResponse(pConnection) + pArgument->Tag() + " OK " + command_->GetResponseCode() + "UID completed\r\n");
 
       return result;
    }

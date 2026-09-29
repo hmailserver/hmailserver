@@ -1,12 +1,12 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
-#include ".\PersistentGreyList.h"
-#include "..\BO\GreyListTriplet.h"
-#include "..\SQL\DALConnection.h"
-#include "..\SQL\IPAddressSQLHelper.h"
+#include "./PersistentGreyList.h"
+#include "../BO/GreyListTriplet.h"
+#include "../SQL/DALConnection.h"
+#include "../SQL/IPAddressSQLHelper.h"
 
 
 #ifdef _DEBUG

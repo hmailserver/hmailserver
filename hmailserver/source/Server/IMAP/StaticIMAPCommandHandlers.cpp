@@ -18,7 +18,7 @@
 #include "IMAPCommandStatus.h"
 #include "IMAPCommandRename.h"
 #include "IMAPCommandList.h"
-#include "IMAPCommandLsub.h"
+#include "IMAPCommandLSUB.h"
 #include "IMAPCommandCopy.h"
 #include "IMAPCommandFetch.h"
 #include "IMAPCommandCapability.h"

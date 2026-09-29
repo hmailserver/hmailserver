@@ -67,7 +67,7 @@ namespace RegressionTests.IMAP
          simulator.SendRaw("WOOOT\r\n");
          result = simulator.Receive();
 
-         Assert.AreEqual("A01 OK APPEND completed\r\n", result);
+         StringAssert.IsMatch(@"^A01 OK \[APPENDUID \d+ \d+\] APPEND completed\r\n$", result);
       }
 
       [Test]
@@ -95,7 +95,7 @@ namespace RegressionTests.IMAP
          simulator.SendRaw("WOOOT\r\n");
          result = simulator.Receive();
 
-         Assert.AreEqual("A01 OK APPEND completed\r\n", result);
+         StringAssert.IsMatch(@"^A01 OK \[APPENDUID \d+ \d+\] APPEND completed\r\n$", result);
 
          var date = Convert.ToDateTime(account.IMAPFolders.get_ItemByName("MONK").Messages[0].InternalDate);
 
@@ -129,7 +129,7 @@ namespace RegressionTests.IMAP
          simulator.SendRaw("WOOOT\r\n");
          result = simulator.Receive();
 
-         Assert.AreEqual("A01 OK APPEND completed\r\n", result);
+         StringAssert.IsMatch(@"^A01 OK \[APPENDUID \d+ \d+\] APPEND completed\r\n$", result);
       }
 
       [Test]
@@ -157,7 +157,7 @@ namespace RegressionTests.IMAP
          simulator.SendRaw("WOOOT\r\n");
          result = simulator.Receive();
 
-         Assert.AreEqual("A01 OK APPEND completed\r\n", result);
+         StringAssert.IsMatch(@"^A01 OK \[APPENDUID \d+ \d+\] APPEND completed\r\n$", result);
       }
 
       [Test]
@@ -584,6 +584,8 @@ namespace RegressionTests.IMAP
          simulator.Connect();
 
          var sCapabilities = simulator.GetCapabilities();
+
+         Assert.IsTrue(sCapabilities.Contains(" UIDPLUS"), sCapabilities);
 
          if (sCapabilities.IndexOf(" IDLE") == -1 ||
              sCapabilities.IndexOf(" QUOTA") == -1 ||

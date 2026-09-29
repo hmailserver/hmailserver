@@ -12,7 +12,7 @@ if (-not $msbuild) {
     exit 2
 }
 
-$solutionRelative = "..\hmailserver\test\RegressionTests\RegressionTests.sln"
+$solutionRelative = "..\hmailserver\test\hMailServer Tests.sln"
 try {
     $solution = Resolve-Path (Join-Path $scriptRoot $solutionRelative) -ErrorAction Stop
 } catch {
@@ -20,21 +20,17 @@ try {
     exit 1
 }
 
-$logsDir = Join-Path $scriptRoot "..\logs"
-if (-not (Test-Path $logsDir)) { New-Item -Path $logsDir -ItemType Directory -Force | Out-Null }
-
 Write-Host "Using MSBuild: $msbuild"
 Write-Host "Building solution: $solution"
 Write-Host "Configuration: $Configuration"
 
 $msbuildArgs = @(
-    $solution
+    "$solution"
     '/m'
     "/p:Configuration=$Configuration"
     '/p:Platform=x64'
 )
 
-# Run MSBuild and tee output to log
 & "$msbuild" @msbuildArgs *>&1
 
 $exitCode = $LASTEXITCODE
@@ -42,4 +38,4 @@ if ($exitCode -ne 0) {
     exit $exitCode
 }
 
-Write-Host "Build succeeded. Build log: $msbuildLog"
+Write-Host "Build succeeded."

@@ -7,15 +7,15 @@
 
 #include "DeliveryTask.h"
 
-#include "../common/Application/IniFileSettings.h"
-#include "../common/Application/Property.h"
-#include "../common/Util/ServerStatus.h"
-#include "../common/Persistence/PersistentMessage.h"
+#include "../Common/Application/IniFileSettings.h"
+#include "../Common/Application/Property.h"
+#include "../Common/Util/ServerStatus.h"
+#include "../Common/Persistence/PersistentMessage.h"
 
-#include "../common/BO/Message.h"
+#include "../Common/BO/Message.h"
 
 
-#include "../common/Cache/MessageCache.h"
+#include "../Common/Cache/MessageCache.h"
 
 #include "../Common/Threading/WorkQueueManager.h"
 

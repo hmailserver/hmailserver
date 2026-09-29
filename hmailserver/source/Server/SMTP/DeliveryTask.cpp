@@ -1,7 +1,7 @@
 // Copyright (c) 2005 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "DeliveryTask.h"
 #include "SMTPDeliverer.h"

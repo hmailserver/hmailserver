@@ -6,7 +6,7 @@
 
 #include "../hMailServer/hMailServer.h"
 
-#include "../common/bo/RouteAddresses.h"
+#include "../Common/BO/RouteAddresses.h"
 
 class ATL_NO_VTABLE InterfaceRouteAddresses : 
 	public CComObjectRootEx<CComSingleThreadModel>,

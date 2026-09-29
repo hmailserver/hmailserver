@@ -1,14 +1,14 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "PersistentACLPermission.h"
 
-#include "..\Application\ACLManager.h"
-#include "..\BO\ACLPermission.h"
-#include "..\BO\ACLPermissions.h"
-#include "..\SQL\SQLStatement.h"
+#include "../Application/ACLManager.h"
+#include "../BO/ACLPermission.h"
+#include "../BO/ACLPermissions.h"
+#include "../SQL/SQLStatement.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

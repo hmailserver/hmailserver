@@ -2,8 +2,8 @@
 // http://www.hmailserver.com
 // Created 2005-10-05
 
-#include "StdAfx.h"
-#include ".\transparenttransmissionbuffer.h"
+#include "stdafx.h"
+#include "./TransparentTransmissionBuffer.h"
 
 #include "ByteBuffer.h"
 

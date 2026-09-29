@@ -78,6 +78,10 @@ namespace hMailServer.Administrator
          this.checkAddDeliveredToHeader = new hMailServer.Administrator.Controls.ucCheckbox();
          this.textMaxSMTPRecipientsInBatch = new hMailServer.Shared.ucText();
          this.textBindToLocalIP = new hMailServer.Shared.ucText();
+         this.labelSenderRewritingScheme = new System.Windows.Forms.Label();
+         this.checkSRSEnabled = new hMailServer.Administrator.Controls.ucCheckbox();
+         this.labelSRSMaxAgeDays = new System.Windows.Forms.Label();
+         this.textSRSMaxAgeDays = new hMailServer.Shared.ucText();
          this.tabControl.SuspendLayout();
          this.tabPage1.SuspendLayout();
          this.tabPage2.SuspendLayout();
@@ -479,6 +483,10 @@ namespace hMailServer.Administrator
          // 
          // tabPage5
          // 
+         this.tabPage5.Controls.Add(this.textSRSMaxAgeDays);
+         this.tabPage5.Controls.Add(this.labelSRSMaxAgeDays);
+         this.tabPage5.Controls.Add(this.checkSRSEnabled);
+         this.tabPage5.Controls.Add(this.labelSenderRewritingScheme);
          this.tabPage5.Controls.Add(this.chkSmtpDeliveryConnectionSecurity);
          this.tabPage5.Controls.Add(this.textMaxNumberOfMXHosts);
          this.tabPage5.Controls.Add(this.labelMaxNumberOfMXHosts);
@@ -507,6 +515,46 @@ namespace hMailServer.Administrator
          this.chkSmtpDeliveryConnectionSecurity.TabIndex = 41;
          this.chkSmtpDeliveryConnectionSecurity.Text = "Use STARTTLS if available";
          this.chkSmtpDeliveryConnectionSecurity.UseVisualStyleBackColor = true;
+         // 
+         // labelSenderRewritingScheme
+         // 
+         this.labelSenderRewritingScheme.AutoSize = true;
+         this.labelSenderRewritingScheme.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.labelSenderRewritingScheme.Location = new System.Drawing.Point(12, 318);
+         this.labelSenderRewritingScheme.Name = "labelSenderRewritingScheme";
+         this.labelSenderRewritingScheme.Size = new System.Drawing.Size(163, 13);
+         this.labelSenderRewritingScheme.TabIndex = 42;
+         this.labelSenderRewritingScheme.Text = "Sender Rewriting Scheme (SRS)";
+         // 
+         // checkSRSEnabled
+         // 
+         this.checkSRSEnabled.AutoSize = true;
+         this.checkSRSEnabled.Location = new System.Drawing.Point(33, 338);
+         this.checkSRSEnabled.Name = "checkSRSEnabled";
+         this.checkSRSEnabled.Size = new System.Drawing.Size(238, 17);
+         this.checkSRSEnabled.TabIndex = 43;
+         this.checkSRSEnabled.Text = "Rewrite sender when forwarding to other servers";
+         this.checkSRSEnabled.UseVisualStyleBackColor = true;
+         this.checkSRSEnabled.CheckedChanged += new System.EventHandler(this.checkSRSEnabled_CheckedChanged);
+         // 
+         // labelSRSMaxAgeDays
+         // 
+         this.labelSRSMaxAgeDays.AutoSize = true;
+         this.labelSRSMaxAgeDays.Location = new System.Drawing.Point(31, 362);
+         this.labelSRSMaxAgeDays.Name = "labelSRSMaxAgeDays";
+         this.labelSRSMaxAgeDays.Size = new System.Drawing.Size(160, 13);
+         this.labelSRSMaxAgeDays.TabIndex = 44;
+         this.labelSRSMaxAgeDays.Text = "Number of days addresses are valid";
+         // 
+         // textSRSMaxAgeDays
+         // 
+         this.textSRSMaxAgeDays.Location = new System.Drawing.Point(33, 378);
+         this.textSRSMaxAgeDays.Name = "textSRSMaxAgeDays";
+         this.textSRSMaxAgeDays.Number = 0;
+         this.textSRSMaxAgeDays.Number64 = ((long)(0));
+         this.textSRSMaxAgeDays.Numeric = true;
+         this.textSRSMaxAgeDays.Size = new System.Drawing.Size(109, 20);
+         this.textSRSMaxAgeDays.TabIndex = 45;
          // 
          // textMaxNumberOfMXHosts
          // 
@@ -641,6 +689,10 @@ namespace hMailServer.Administrator
        private System.Windows.Forms.TabPage tabPage2;
        private System.Windows.Forms.TabPage tabPage4;
        private System.Windows.Forms.TabPage tabPage5;
+       private System.Windows.Forms.Label labelSenderRewritingScheme;
+       private hMailServer.Administrator.Controls.ucCheckbox checkSRSEnabled;
+       private System.Windows.Forms.Label labelSRSMaxAgeDays;
+       private hMailServer.Shared.ucText textSRSMaxAgeDays;
        private hMailServer.Shared.ucText textMaxMessageSize;
        private System.Windows.Forms.Label labelMaxMessageSize;
        private hMailServer.Shared.ucText textWelcomeMessage;

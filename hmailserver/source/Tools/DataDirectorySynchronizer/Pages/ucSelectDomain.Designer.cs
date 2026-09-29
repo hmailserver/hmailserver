@@ -34,6 +34,8 @@
          this.buttonSelectAll = new System.Windows.Forms.Button();
          this.buttonSelectNone = new System.Windows.Forms.Button();
          this.checkPublicFolders = new System.Windows.Forms.CheckBox();
+         this.labelPublicFolderImportPath = new System.Windows.Forms.Label();
+         this.comboPublicFolderImportPath = new System.Windows.Forms.ComboBox();
          this.SuspendLayout();
          // 
          // labelSelectDomain
@@ -56,7 +58,7 @@
          this.listViewDomains.FullRowSelect = true;
          this.listViewDomains.Location = new System.Drawing.Point(28, 50);
          this.listViewDomains.Name = "listViewDomains";
-         this.listViewDomains.Size = new System.Drawing.Size(532, 218);
+         this.listViewDomains.Size = new System.Drawing.Size(532, 185);
          this.listViewDomains.TabIndex = 7;
          this.listViewDomains.UseCompatibleStateImageBehavior = false;
          this.listViewDomains.View = System.Windows.Forms.View.Details;
@@ -69,7 +71,7 @@
          // buttonSelectAll
          // 
          this.buttonSelectAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-         this.buttonSelectAll.Location = new System.Drawing.Point(29, 274);
+         this.buttonSelectAll.Location = new System.Drawing.Point(29, 241);
          this.buttonSelectAll.Name = "buttonSelectAll";
          this.buttonSelectAll.Size = new System.Drawing.Size(131, 28);
          this.buttonSelectAll.TabIndex = 8;
@@ -80,7 +82,7 @@
          // buttonSelectNone
          // 
          this.buttonSelectNone.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-         this.buttonSelectNone.Location = new System.Drawing.Point(166, 274);
+         this.buttonSelectNone.Location = new System.Drawing.Point(166, 241);
          this.buttonSelectNone.Name = "buttonSelectNone";
          this.buttonSelectNone.Size = new System.Drawing.Size(131, 28);
          this.buttonSelectNone.TabIndex = 9;
@@ -92,17 +94,39 @@
          // 
          this.checkPublicFolders.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
          this.checkPublicFolders.AutoSize = true;
-         this.checkPublicFolders.Location = new System.Drawing.Point(310, 282);
+         this.checkPublicFolders.Location = new System.Drawing.Point(310, 249);
          this.checkPublicFolders.Name = "checkPublicFolders";
          this.checkPublicFolders.Size = new System.Drawing.Size(140, 17);
          this.checkPublicFolders.TabIndex = 10;
          this.checkPublicFolders.Text = "Include public folders";
          this.checkPublicFolders.UseVisualStyleBackColor = true;
+         this.checkPublicFolders.CheckedChanged += new System.EventHandler(this.checkPublicFolders_CheckedChanged);
+         // 
+         // labelPublicFolderImportPath
+         // 
+         this.labelPublicFolderImportPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+         this.labelPublicFolderImportPath.AutoSize = true;
+         this.labelPublicFolderImportPath.Location = new System.Drawing.Point(25, 277);
+         this.labelPublicFolderImportPath.Name = "labelPublicFolderImportPath";
+         this.labelPublicFolderImportPath.Size = new System.Drawing.Size(377, 13);
+         this.labelPublicFolderImportPath.TabIndex = 11;
+         this.labelPublicFolderImportPath.Text = "Place messages found in the public folder in this public IMAP folder:";
+         // 
+         // comboPublicFolderImportPath
+         // 
+         this.comboPublicFolderImportPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+         this.comboPublicFolderImportPath.FormattingEnabled = true;
+         this.comboPublicFolderImportPath.Location = new System.Drawing.Point(28, 293);
+         this.comboPublicFolderImportPath.Name = "comboPublicFolderImportPath";
+         this.comboPublicFolderImportPath.Size = new System.Drawing.Size(350, 21);
+         this.comboPublicFolderImportPath.TabIndex = 12;
          // 
          // ucSelectDomain
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+         this.Controls.Add(this.comboPublicFolderImportPath);
+         this.Controls.Add(this.labelPublicFolderImportPath);
          this.Controls.Add(this.checkPublicFolders);
          this.Controls.Add(this.buttonSelectNone);
          this.Controls.Add(this.buttonSelectAll);
@@ -123,5 +147,7 @@
       private System.Windows.Forms.Button buttonSelectAll;
       private System.Windows.Forms.Button buttonSelectNone;
       private System.Windows.Forms.CheckBox checkPublicFolders;
+      private System.Windows.Forms.Label labelPublicFolderImportPath;
+      private System.Windows.Forms.ComboBox comboPublicFolderImportPath;
    }
 }

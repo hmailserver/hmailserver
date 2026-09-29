@@ -1,0 +1,1 @@
+v=spf1 ip4:192.0.2.225 ?include:webmail.pair.com ?include:relay.pair.com -all

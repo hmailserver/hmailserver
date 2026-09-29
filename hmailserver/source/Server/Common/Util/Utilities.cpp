@@ -222,7 +222,13 @@ namespace HM
       String sAddressPart = sFirstPart.Mid(iForPos + 4);
 
       sAddressPart.TrimLeft(_T(" \r\n\t"));
-      sAddressPart.TrimRight(_T(" \r\n\t"));
+
+      // Skip comments which may follow the address, such as TLS information.
+      int iEndPos = sAddressPart.StartsWith(_T("<")) ? sAddressPart.Find(_T(">")) : sAddressPart.FindOneOf(_T(" \r\n\t("));
+      if (iEndPos >= 0)
+         sAddressPart = sAddressPart.Mid(0, iEndPos + 1);
+
+      sAddressPart.TrimRight(_T(" \r\n\t("));
 
       sAddressPart.Replace(_T("<"), _T(""));
       sAddressPart.Replace(_T(">"), _T(""));
@@ -481,6 +487,21 @@ namespace HM
 
       hostName = Utilities::GetHostNameFromReceivedHeader(sHeader);
       if (hostName != _T("mail.lysator.liu.se"))
+         throw;
+
+      // TLS information may follow the recipient.
+      sHeader = "Received: from example.com (example.com [1.2.3.4])\r\n"
+                "\tby mail.example.test (envelope-from <sender@example.com>) with ESMTPS for <recipient@example.test>\r\n"
+                "\t(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256)\r\n"
+                "\t; Wed, 23 Sep 2026 08:21:37 +0200\r\n";
+
+      sRecipient = Utilities::GetRecipientFromReceivedHeader(sHeader);
+      if (sRecipient != _T("recipient@example.test"))
+         throw;
+
+      sHeader = "from host.edu (host.edu [1.2.3.4]) by mail.host.edu with ESMTP for tmh@host.edu (comment); Tue, 18 Mar 1997 14:39:24 -0800 (PST)";
+      sRecipient = Utilities::GetRecipientFromReceivedHeader(sHeader);
+      if (sRecipient != _T("tmh@host.edu"))
          throw;
 
       sHeader = "Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3]) "

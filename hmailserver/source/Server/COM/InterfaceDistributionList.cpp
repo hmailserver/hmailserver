@@ -5,11 +5,11 @@
 #include "InterfaceDistributionList.h"
 #include "InterfaceDistributionListRecipients.h"
 
-#include "../common/persistence/PersistentDistributionList.h"
-#include "../common/persistence/PersistentDistributionListRecipient.h"
+#include "../Common/Persistence/PersistentDistributionList.h"
+#include "../Common/Persistence/PersistentDistributionListRecipient.h"
 
-#include "../common/bo/DistributionLists.h"
-#include "../common/bo/DistributionListRecipients.h"
+#include "../Common/BO/DistributionLists.h"
+#include "../Common/BO/DistributionListRecipients.h"
 
 #include "COMError.h"
 

@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 // Created 2005-07-21
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "WorkQueue.h"
 #include "Task.h"

@@ -107,7 +107,8 @@ namespace HM
 
       bool bSubscribeToFolder = bIsPublicFolder;
 
-      pParentFolderContainer->CreatePath(pParentFolderContainer, vecFolderPath, bSubscribeToFolder);
+      if (!pParentFolderContainer->CreatePath(pParentFolderContainer, vecFolderPath, bSubscribeToFolder))
+         return IMAPResult(IMAPResult::ResultNo, "CREATE The folder could not be saved.");
 
       if (!sSpecialUse.IsEmpty())
       {
@@ -146,7 +147,7 @@ namespace HM
          if (pParentFolder)
          {
             if (!pConnection->CheckPermission(pParentFolder, ACLPermission::PermissionCreate))
-               return IMAPResult(IMAPResult::ResultNo, "ACL: Create permission denied (Required for CREATE command).");
+               return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Create permission denied (Required for CREATE command).");
          }     
 
          // Check if the user is trying to create a new root public folder, such as Public folders/Test

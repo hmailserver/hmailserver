@@ -182,15 +182,15 @@ namespace RegressionTests.IMAP
          var sim1 = SelectInbox(account);
          ExpungeMessageInSeparateSession(account, 1);
 
-         // COPY is not one of the commands during which EXPUNGE is forbidden, so the server
-         // reports the expunge first and the numbering may change - but only because the
-         // client was told. Message 2 is the third message from that point on.
+         // The expunge is held back while COPY runs, since the client sent its sequence numbers
+         // before hearing about it. So message 2 is still the second message.
          var copy = sim1.SendSingleCommand("A44 COPY 2 \"Target\"");
          Assert.IsTrue(copy.Contains("A44 OK"), copy);
+         Assert.IsFalse(copy.Contains("EXPUNGE"), "COPY reported the expunge before using the client's numbering. " + copy);
 
-
-         var expunge = copy.IndexOf("* 1 EXPUNGE", StringComparison.Ordinal);
-         Assert.IsTrue(expunge >= 0, "COPY renumbered the mailbox without reporting the expunge. " + copy);
+         // The next command reports it.
+         var noop = sim1.SendSingleCommand("A45 NOOP");
+         Assert.IsTrue(noop.Contains("* 1 EXPUNGE"), noop);
 
          sim1.Disconnect();
 
@@ -202,7 +202,7 @@ namespace RegressionTests.IMAP
          var copied = reader.Fetch("1 BODY[2]");
          reader.Disconnect();
 
-         AssertContainsAttachment(copied, MarkerThree);
+         AssertContainsAttachment(copied, MarkerTwo);
       }
 
       [Test]

@@ -2,10 +2,10 @@
 // http://www.hmailserver.com
 // Created 2005-07-21
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "MessageCache.h"
-#include "..\BO\Message.h"
+#include "../BO/Message.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

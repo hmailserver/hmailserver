@@ -2,7 +2,7 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
-#include "distributionlists.h"
+#include "DistributionLists.h"
 
 
 #ifdef _DEBUG

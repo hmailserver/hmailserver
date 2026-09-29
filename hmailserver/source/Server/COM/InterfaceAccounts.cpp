@@ -6,9 +6,9 @@
 #include "InterfaceAccounts.h"
 
 #include "InterfaceAccount.h"
-#include "../common/Persistence/PersistentAccount.h"
-#include "../common/BO/Accounts.h"
-#include "../common/BO/Account.h"
+#include "../Common/Persistence/PersistentAccount.h"
+#include "../Common/BO/Accounts.h"
+#include "../Common/BO/Account.h"
 
 #include "COMAuthentication.h"
 

@@ -1,0 +1,1 @@
+v=spf1 ip4:192.0.2.5\x0a include:spf.protection.outlook.com ~all

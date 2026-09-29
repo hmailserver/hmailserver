@@ -7,8 +7,8 @@
 
 #include "InterfaceDistributionListRecipient.h"
 
-#include "../common/BO/DistributionListRecipients.h"
-#include "../common/Persistence/PersistentDistributionListRecipient.h"
+#include "../Common/BO/DistributionListRecipients.h"
+#include "../Common/Persistence/PersistentDistributionListRecipient.h"
 
 void
 InterfaceDistributionListRecipients::Attach(std::shared_ptr<HM::DistributionListRecipients> pRecipients)

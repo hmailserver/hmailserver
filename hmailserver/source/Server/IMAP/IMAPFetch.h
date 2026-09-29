@@ -4,7 +4,7 @@
 #pragma once
 
 #include "IMAPCommandRangeAction.h"
-#include "../Common/MIME/Mime.h"
+#include "../Common/Mime/Mime.h"
 #include "IMAPFetchParser.h"
 
 namespace HM

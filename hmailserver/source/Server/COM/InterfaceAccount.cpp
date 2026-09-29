@@ -7,8 +7,8 @@
 #include "InterfaceRules.h"
 #include "InterfaceIMAPFolders.h"
 
-#include "../common/Persistence/PersistentAccount.h"
-#include "../common/BO/Accounts.h"
+#include "../Common/Persistence/PersistentAccount.h"
+#include "../Common/BO/Accounts.h"
 #include "../Common/Util/Math.h"
 #include "../Common/Util/PasswordValidator.h"
 #include "../Common/Util/Crypt.h"

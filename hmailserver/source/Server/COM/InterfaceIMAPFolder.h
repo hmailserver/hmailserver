@@ -6,8 +6,8 @@
 #include "../hMailServer/resource.h"       // main symbols
 #include "../hMailServer/hMailServer.h"
 
-#include "../common/BO/IMAPFolder.h"
-#include "../common/BO/IMAPFolders.h"
+#include "../Common/BO/IMAPFolder.h"
+#include "../Common/BO/IMAPFolders.h"
 
 #include "COMCollection.h"
 

@@ -161,6 +161,10 @@ namespace HM
       create_time_ = Time::GetDateFromSystemDate(pFolderNode->GetAttrValue(_T("CreateTime")));
       current_uid_ = _ttoi(pFolderNode->GetAttrValue(_T("CurrentUID")));
 
+      // The restored folder gets a new UIDVALIDITY when it's saved. Messages added after the
+      // backup was made had UIDs that new messages will get again, so clients must resync.
+      uid_validity_ = 0;
+
       return true;
    }
 

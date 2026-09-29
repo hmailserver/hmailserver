@@ -2,10 +2,10 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
-#include "..\COM\InterfaceServerMessage.h"
+#include "../COM/InterfaceServerMessage.h"
 
-#include "..\Common\Persistence\PersistentServerMessage.h"
-#include "..\Common\BO\ServerMessage.h"
+#include "../Common/Persistence/PersistentServerMessage.h"
+#include "../Common/BO/ServerMessage.h"
 
 #include "COMError.h"
 

@@ -1,7 +1,9 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
 using System.Collections.Generic;
+using System.Text;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
@@ -472,6 +474,104 @@ namespace RegressionTests.Security
 
             server.MessageData.Contains("Mail 1");
          }
+      }
+
+      [Test]
+      [Description("RFC 4616: AUTH PLAIN without authorization identity.")]
+      public void TestAuthPlainWithoutAuthorizationIdentity()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         Assert.IsTrue(SendAuthPlain("\0" + account.Address + "\0test").StartsWith("235"));
+      }
+
+      [Test]
+      [Description("RFC 4616: AUTH PLAIN where the authorization identity is the authenticating user.")]
+      public void TestAuthPlainWithMatchingAuthorizationIdentity()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         Assert.IsTrue(SendAuthPlain(account.Address + "\0" + account.Address + "\0test").StartsWith("235"));
+         Assert.IsTrue(SendAuthPlain(account.Address.ToUpper() + "\0" + account.Address + "\0test").StartsWith("235"));
+      }
+
+      [Test]
+      [Description("RFC 4616: AUTH PLAIN where the authorization identity is another user. Not supported.")]
+      public void TestAuthPlainWithOtherAuthorizationIdentity()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "other@example.test", "test");
+
+         Assert.IsTrue(SendAuthPlain("other@example.test\0" + account.Address + "\0test").StartsWith("535"));
+      }
+
+      [Test]
+      [Description("AUTH PLAIN where the password contains a tab character.")]
+      public void TestAuthPlainWithTabInPassword()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "te\tst");
+
+         Assert.IsTrue(SendAuthPlain("\0" + account.Address + "\0te\tst").StartsWith("235"));
+      }
+
+      [Test]
+      [Description("AUTH PLAIN messages which are not valid according to RFC 4616.")]
+      public void TestAuthPlainWithInvalidMessage()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         // Missing null characters.
+         Assert.IsTrue(SendAuthPlain(account.Address + "test").StartsWith("535"));
+         Assert.IsTrue(SendAuthPlain("\0" + account.Address + "test").StartsWith("535"));
+         // Missing user name or password.
+         Assert.IsTrue(SendAuthPlain("\0\0test").StartsWith("535"));
+         Assert.IsTrue(SendAuthPlain("\0" + account.Address + "\0").StartsWith("535"));
+      }
+
+      [Test]
+      [Description("RFC 4616: AUTH PLAIN with the message in the AUTH command itself.")]
+      public void TestAuthPlainSingleLine()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         _settings.AllowSMTPAuthPlain = true;
+
+         using (var socket = ConnectAndSayHello())
+         {
+            var message = EncodeBase64(account.Address + "\0" + account.Address + "\0test");
+            socket.Send("AUTH PLAIN " + message + "\r\n");
+            Assert.IsTrue(socket.Receive().StartsWith("235"));
+         }
+      }
+
+      private string SendAuthPlain(string message)
+      {
+         _settings.AllowSMTPAuthPlain = true;
+
+         using (var socket = ConnectAndSayHello())
+         {
+            socket.Send("AUTH PLAIN\r\n");
+            Assert.IsTrue(socket.Receive().StartsWith("334"));
+
+            socket.Send(EncodeBase64(message) + "\r\n");
+            return socket.Receive();
+         }
+      }
+
+      private TcpConnection ConnectAndSayHello()
+      {
+         var socket = new TcpConnection();
+         socket.Connect(25);
+         Assert.IsTrue(socket.Receive().StartsWith("220"));
+         socket.Send("EHLO test.com\r\n");
+         Assert.IsTrue(socket.Receive().StartsWith("250"));
+
+         return socket;
+      }
+
+      private string EncodeBase64(string s)
+      {
+         return Convert.ToBase64String(Encoding.UTF8.GetBytes(s));
       }
    }
 }

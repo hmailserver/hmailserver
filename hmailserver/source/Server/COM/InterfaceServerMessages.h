@@ -6,7 +6,7 @@
 #include "../hMailServer/resource.h"       // main symbols
 #include "../hMailServer/hMailServer.h"
 
-#include "../common/bo/ServerMessages.h"
+#include "../Common/BO/ServerMessages.h"
 
 
 #if defined(_WIN32_WCE) && !defined(_CE_DCOM) && !defined(_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA)

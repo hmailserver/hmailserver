@@ -5,7 +5,7 @@
 #include "COMError.h"
 #include "InterfaceBackupSettings.h"
 
-#include "../common/Application/IniFileSettings.h"
+#include "../Common/Application/IniFileSettings.h"
 
 InterfaceBackupSettings::InterfaceBackupSettings() :
    config_(nullptr),

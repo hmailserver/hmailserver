@@ -6,7 +6,7 @@
 
 #include "../hMailServer/hMailServer.h"
 
-#include "../common/bo/DNSBlackLists.h"
+#include "../Common/BO/DNSBlackLists.h"
 
 
 class ATL_NO_VTABLE InterfaceDNSBlackLists : 

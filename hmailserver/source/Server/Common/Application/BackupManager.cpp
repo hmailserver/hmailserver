@@ -1,7 +1,7 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "BackupManager.h"
 
@@ -11,7 +11,7 @@
 #include "../Scripting/ScriptObjectContainer.h"
 #include "../Scripting/Result.h"
 
-#include "..\Util\Compression.h"
+#include "../Util/Compression.h"
 
 #include "../Threading/WorkQueueManager.h"
 #include "BackupTask.h"

@@ -1,7 +1,7 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "DKIM.h"
 #include "DKIMParameters.h"
@@ -9,8 +9,8 @@
 #include "../../Util/Hashing/HashCreator.h"
 #include "../../Util/Encoding/Base64.h"
 #include "../../BO/Message.h"
-#include "../../MIME/MimeCode.h"
-#include "../../MIME/Mime.h"
+#include "../../Mime/MimeCode.h"
+#include "../../Mime/Mime.h"
 #include "../../TCPIP/DNSResolver.h"
 #include "../../Util/TraceHeaderWriter.h"
 #include "../../Util/FileUtilities.h"

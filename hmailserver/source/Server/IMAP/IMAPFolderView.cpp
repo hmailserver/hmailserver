@@ -80,6 +80,14 @@ namespace HM
       return (int) entries_.size();
    }
 
+   unsigned int
+   IMAPFolderView::GetHighestUID() const
+   {
+      boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+
+      return entries_.empty() ? 0 : entries_.back().uid;
+   }
+
    bool
    IMAPFolderView::GetEntryBySequence(int sequence, IMAPViewEntry &entry) const
    {

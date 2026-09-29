@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../common/TCPIP/TCPConnection.h"
+#include "../Common/TCPIP/TCPConnection.h"
 
 namespace HM
 {

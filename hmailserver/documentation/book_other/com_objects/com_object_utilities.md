@@ -44,6 +44,10 @@ The utilities object contains misc. functions used by hMailServer Administrator.
 
 <div class="api_description">Imports a message from a file on disk for delivery or to a specific account.</div>
 
+<div class="api_method_name">ImportMessageFromFileToPublicIMAPFolder(string sFilename, string sIMAPFolder)</div>
+
+<div class="api_description">Imports a message stored in the public folder on disk into a public IMAP folder. The folder name is given relative to the public folder, such as Share1.Sub1, and the folder is created if it does not exist.</div>
+
 <div class="api_method_name">IsLocalHost(string sHostname)</div>
 
 <div class="api_description">Checks if the given host name points at localhost.</div>

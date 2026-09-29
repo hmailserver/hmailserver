@@ -1,14 +1,14 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
-#include ".\ExternalFetch.h"
-#include "..\Common\BO\FetchAccount.h"
-#include "../common/Util/Event.h"
+#include "./ExternalFetch.h"
+#include "../Common/BO/FetchAccount.h"
+#include "../Common/Util/Event.h"
 #include "../Common/TCPIP/IOService.h"
 #include "../Common/TCPIP/DNSResolver.h"
-#include "../common/TCPIP/TCPConnection.h"
+#include "../Common/TCPIP/TCPConnection.h"
 #include "POP3ClientConnection.h"
 
 

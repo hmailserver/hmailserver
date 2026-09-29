@@ -7,7 +7,7 @@
 #include "StringParser.h"
 
 #include "../RegularExpression.h"
-#include "../../MIME/MimeCode.h"
+#include "../../Mime/MimeCode.h"
 #include <boost/lexical_cast.hpp>
 
 #ifdef _DEBUG
@@ -17,6 +17,33 @@
 
 namespace HM
 {
+   namespace
+   {
+      // Domain part shared by the email, account and domain name checks: an IPv4 literal,
+      // an IPv6 literal or a host name of letters, digits and hyphens (RFC 5321).
+      //
+      // Original: \[([0-9]{1,3}\.){3}[0-9]{1,3}\]|\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126}
+      //
+      // Conversion:
+      // 1) Replace \ with \\
+      // 2) Replace " with \"
+      const char *domainPattern = "\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|\\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126}";
+
+      // RFC 5321 Section 4.5.3.1.3: the maximum total length of a reverse-path
+      // or forward-path is 256 octets, which limits an email address to 254 characters.
+      const int maxEmailAddressLength = 254;
+
+      bool IsValidAddress(const String &address, const char *localPartPattern)
+      {
+         if (address.GetLength() > maxEmailAddressLength)
+            return false;
+
+         String regularExpression = String("^(") + localPartPattern + ")@(" + domainPattern + ")$";
+
+         RegularExpression regexpEvaluator;
+         return regexpEvaluator.TestExactMatch(regularExpression, address);
+      }
+   }
 
    StringParser::StringParser()
    {
@@ -55,37 +82,30 @@ namespace HM
    bool
    StringParser::IsValidEmailAddress(const String &sEmailAddress)
    {
-      // RFC 5321 Section 4.5.3.1.3: the maximum total length of a reverse-path
-      // or forward-path is 256 octets, which limits an email address to 254 characters.
-      const int maxEmailAddressLength = 254;
-      if (sEmailAddress.GetLength() > maxEmailAddressLength)
-         return false;
-
       // Note: RFC 5321 Section 4.5.3.1.1 limits the local part to 64 octets, but we
       // intentionally do not enforce this to maintain backwards compatibility with
       // existing accounts that have longer local parts.
       //
-      // Original: ^(("[^<>@\\]+")|(?!\.|.*\.(\.|@))[^<> @\\"]+)@(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
+      // Original local part: ("[^<>@\\]+")|(?!\.|.*\.(\.|@))[^<> @\\"]+
+
+      return IsValidAddress(sEmailAddress, "(\"[^<>@\\\\]+\")|(?!\\.|.*\\.(\\.|@))[^<> @\\\\\"]+");
+   }
+
+   bool
+   StringParser::IsValidAccountAddress(const String &sEmailAddress)
+   {
+      // Stricter than IsValidEmailAddress: also forbids / ? * | in the local part, since
+      // the account address is used to build file paths for message storage.
       //
-      // Conversion:
-      // 1) Replace \ with \\
-      // 2) Replace " with \"
+      // Original local part: ("[^<>@\\/\?\*|]+")|(?!\.|.*\.(\.|@))[^<> @\\/"\?\*|]+
 
-      String regularExpression = "^((\"[^<>@\\\\]+\")|(?!\\.|.*\\.(\\.|@))[^<> @\\\\\"]+)@(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|\\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
-
-      RegularExpression regexpEvaluator;
-      return regexpEvaluator.TestExactMatch(regularExpression, sEmailAddress);
+      return IsValidAddress(sEmailAddress, "(\"[^<>@\\\\/\\?\\*|]+\")|(?!\\.|.*\\.(\\.|@))[^<> @\\\\/\"\\?\\*|]+");
    }
 
    bool
    StringParser::IsValidDomainName(const String &sDomainName)
    {
-      // Original: ^(\[([0-9]{1,3}\.){3}[0-9]{1,3}\]|\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\]|(?=.{1,255}$)((?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\.(?!-|\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$
-      // Conversion:
-      // 1) Replace \ with \\
-      // 2) Replace " with \"
-
-      String regularExpression = "^(\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]|\\[IPv6:(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\\]|(?=.{1,255}$)((?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9])(|\\.(?!-|\\.)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]){1,126})$";
+      String regularExpression = String("^(") + domainPattern + ")$";
 
       RegularExpression regexpEvaluator;
       return regexpEvaluator.TestExactMatch(regularExpression, sDomainName);
@@ -642,6 +662,60 @@ namespace HM
       if (StringParser::IsValidDomainName("-example.test")) throw;                 // leading hyphen rejected
       if (StringParser::IsValidDomainName(".example.test")) throw;                 // leading dot rejected
       if (!StringParser::IsValidDomainName("sub.example.test")) throw;             // subdomain valid
+      if (!StringParser::IsValidDomainName("my-example.test")) throw;              // hyphen inside label valid
+      if (!StringParser::IsValidDomainName("internal")) throw;                     // single label valid
+      if (!StringParser::IsValidDomainName("888.test")) throw;                     // numeric label valid
+      if (StringParser::IsValidDomainName("")) throw;
+      if (StringParser::IsValidDomainName("example-.test")) throw;                 // trailing hyphen rejected
+      if (StringParser::IsValidDomainName("example..test")) throw;                 // consecutive dots rejected
+      if (StringParser::IsValidDomainName("example.test.")) throw;                 // trailing dot rejected
+      if (StringParser::IsValidDomainName("example test")) throw;
+      if (StringParser::IsValidDomainName("example\\test")) throw;
+      if (StringParser::IsValidDomainName("[1.2.3]")) throw;
+
+      // Underscores are not allowed in domains, RFC 5321 section 4.1.2.
+      if (StringParser::IsValidDomainName("internal_exchange")) throw;
+      if (StringParser::IsValidDomainName("server_one.local")) throw;
+      if (StringParser::IsValidEmailAddress("user@internal_exchange")) throw;
+      if (StringParser::IsValidEmailAddress("user@server_one.local")) throw;
+
+      // Label length: max 63 characters.
+      String label63 = String(63, _T('a'));
+      String label64 = String(64, _T('a'));
+      if (!StringParser::IsValidDomainName(label63 + _T(".test"))) throw;
+      if (StringParser::IsValidDomainName(label64 + _T(".test"))) throw;
+      if (!StringParser::IsValidEmailAddress(_T("user@") + label63 + _T(".test"))) throw;
+      if (StringParser::IsValidEmailAddress(_T("user@") + label64 + _T(".test"))) throw;
+
+      // Account addresses use the email rules, but also reject characters which
+      // are illegal in Windows file names.
+      if (!StringParser::IsValidAccountAddress("test@example.test")) throw;
+      if (!StringParser::IsValidAccountAddress("us.er@example.test")) throw;
+      if (!StringParser::IsValidAccountAddress("user+mailbox@example.test")) throw;
+      if (!StringParser::IsValidAccountAddress("!def!xyz%abc@example.test")) throw;
+      if (!StringParser::IsValidAccountAddress("_somename@example.test")) throw;
+      if (!StringParser::IsValidAccountAddress("user@my-example.test")) throw;
+      if (!StringParser::IsValidAccountAddress("user@[192.168.1.1]")) throw;
+      if (!StringParser::IsValidAccountAddress("user@[IPv6:2001:0db8:85a3:0000:0000:8a2e:0370:7334]")) throw;
+      if (!StringParser::IsValidAccountAddress("\"John Smith\"@example.test")) throw;  // quotes are rejected later, by the save check
+      if (StringParser::IsValidAccountAddress("")) throw;
+      if (StringParser::IsValidAccountAddress("user")) throw;
+      if (StringParser::IsValidAccountAddress("John Smith@example.test")) throw;
+      if (StringParser::IsValidAccountAddress(".user@example.test")) throw;
+      if (StringParser::IsValidAccountAddress("us..er@example.test")) throw;
+      if (StringParser::IsValidAccountAddress("user\\name@example.test")) throw;
+      if (StringParser::IsValidAccountAddress("user/name@example.test")) throw;
+      if (StringParser::IsValidAccountAddress("user?name@example.test")) throw;
+      if (StringParser::IsValidAccountAddress("user*name@example.test")) throw;
+      if (StringParser::IsValidAccountAddress("user|name@example.test")) throw;
+      if (StringParser::IsValidAccountAddress("\"user\\name\"@example.test")) throw;
+      if (StringParser::IsValidAccountAddress("\"user/name\"@example.test")) throw;
+      if (StringParser::IsValidAccountAddress("user@example\\test")) throw;
+      if (StringParser::IsValidAccountAddress("user@example/test")) throw;
+      if (StringParser::IsValidAccountAddress("user@internal_exchange")) throw;
+      if (StringParser::IsValidAccountAddress(_T("user@") + label64 + _T(".test"))) throw;
+      if (StringParser::IsValidAccountAddress("user@-example.test")) throw;
+      if (StringParser::IsValidAccountAddress("user@[IPv6:invalid]")) throw;
 
       if (StringParser::ExtractAddress("\"va@ff\"@test.co.uk").Compare(_T("\"va@ff\"")) != 0) throw;
       if (StringParser::ExtractAddress("test@test.co.uk").Compare(_T("test")) != 0) throw;

@@ -15,7 +15,7 @@ namespace VolumeTests
       [Test]
       public void TestProcessLargeNumberOfMessages()
       {
-         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "pop3fetching@example.test", "test");
 
          var messages = new List<string>();
 
@@ -52,7 +52,7 @@ namespace VolumeTests
 
             fa.DownloadNow();
 
-            Pop3ClientSimulator.AssertMessageCount("test@example.test", "test", msgCount, TimeSpan.FromMinutes(60));
+            Pop3ClientSimulator.AssertMessageCount("pop3fetching@example.test", "test", msgCount, TimeSpan.FromMinutes(60));
 
             pop3Server.WaitForCompletion();
 

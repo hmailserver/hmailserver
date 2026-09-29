@@ -1,9 +1,9 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
-#include "Fetchaccount.h"
+#include "FetchAccount.h"
 #include "FetchAccountUIDs.h"
 #include "FetchAccountUID.h"
 #include "../Util/Crypt.h"

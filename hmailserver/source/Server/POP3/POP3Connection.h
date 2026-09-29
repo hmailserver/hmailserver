@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "../common/Util/File.h"
-#include "../common/Util/TransparentTransmissionBuffer.h"
+#include "../Common/Util/File.h"
+#include "../Common/Util/TransparentTransmissionBuffer.h"
 #include "../Common/TCPIP/TCPConnection.h"
 
 namespace HM

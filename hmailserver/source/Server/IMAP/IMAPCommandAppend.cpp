@@ -32,7 +32,8 @@ namespace HM
 {
 
    IMAPCommandAppend::IMAPCommandAppend() :
-      bytes_left_to_receive_(0)
+      bytes_left_to_receive_(0),
+      write_failed_(false)
    {
    }
 
@@ -69,6 +70,7 @@ namespace HM
       // Reset these two so we don't reuse old values.
       flags_to_set_ = "";
       create_time_to_set_ = "";
+      write_failed_ = false;
 
       std::shared_ptr<IMAPSimpleCommandParser> pParser = std::shared_ptr<IMAPSimpleCommandParser>(new IMAPSimpleCommandParser());
 
@@ -146,11 +148,11 @@ namespace HM
             return IMAPResult(IMAPResult::ResultNo, "Account could not be fetched.");
 
          if (!pAccount->SpaceAvailable(bytes_left_to_receive_))
-            return IMAPResult(IMAPResult::ResultNo, "Your quota has been exceeded.");
+            return IMAPResult(IMAPResult::ResultNo, "[OVERQUOTA] Your quota has been exceeded.");
       }
 
       if (!pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionInsert))
-         return IMAPResult(IMAPResult::ResultBad, "ACL: Insert permission denied (Required for APPEND command).");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: Insert permission denied (Required for APPEND command).");
 
 
 
@@ -201,31 +203,31 @@ namespace HM
 
    }
    
-   bool
+   void
    IMAPCommandAppend::WriteData_(const std::shared_ptr<IMAPConnection>  pConn, const BYTE *pBuf, size_t WriteLen)
    {
-      if (!current_message_)
-         return false;
+      // After a failed write, later chunks would leave a hole in the file.
+      if (!current_message_ || write_failed_)
+         return;
 
       String destinationPath = FileUtilities::GetFilePath(message_file_name_);
       if (!FileUtilities::Exists(destinationPath))
          FileUtilities::CreateDirectory(destinationPath);
 
       File oFile;
-      
+
       try
       {
-         oFile.Open(message_file_name_, File::OTAppend);
-
-
-         oFile.Write(pBuf, WriteLen);
+         if (!oFile.Open(message_file_name_, File::OTAppend) ||
+             !oFile.Write(pBuf, WriteLen))
+         {
+            write_failed_ = true;
+         }
       }
       catch (...)
       {
-         return false;
+         write_failed_ = true;
       }
-
-      return true;
    }
 
    bool
@@ -269,6 +271,18 @@ namespace HM
          }
       }
 
+      // Flags the user lacks the right to set are left unset (RFC 4314 4).
+      if (bDeleted && !pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteDeleted))
+         bDeleted = false;
+
+      if ((bDraft || bAnswered || bFlagged) &&
+          !pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionWriteOthers))
+      {
+         bDraft = false;
+         bAnswered = false;
+         bFlagged = false;
+      }
+
       current_message_->SetFlagDeleted(bDeleted);
       current_message_->SetFlagSeen(bSeen);
       current_message_->SetFlagDraft(bDraft);
@@ -284,7 +298,17 @@ namespace HM
          current_message_->SetCreateTime(create_time_to_set_);
       }
 
-      PersistentMessage::SaveObject(current_message_);
+      // A client trusting APPENDUID must never be told OK for a message that was not stored.
+      if (write_failed_ || !PersistentMessage::SaveObject(current_message_))
+      {
+         KillCurrentMessage_();
+
+         pConnection->SendAsciiData(current_tag_ + " NO APPEND failed. The message could not be saved.\r\n");
+
+         destination_folder_.reset();
+         current_message_.reset();
+         return;
+      }
 
       pConnection->AddRecentMessage(current_message_->GetID());
 
@@ -311,7 +335,12 @@ namespace HM
       }
 
       // Send the OK response to the client.
-      sResponse += current_tag_ + " OK APPEND completed\r\n";
+      // A client that can't read the destination must not learn its UIDs (RFC 4315 6).
+      String sAppendUID;
+      if (pConnection->CheckPermission(destination_folder_, ACLPermission::PermissionRead))
+         sAppendUID.Format(_T("[APPENDUID %u %u] "), destination_folder_->GetUIDValidity(), current_message_->GetUID());
+
+      sResponse += current_tag_ + " OK " + sAppendUID + "APPEND completed\r\n";
       pConnection->SendAsciiData(sResponse);
 
       // Notify the mailbox notifier that the mailbox contents have changed. 

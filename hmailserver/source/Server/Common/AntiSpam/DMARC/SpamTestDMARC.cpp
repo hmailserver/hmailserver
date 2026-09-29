@@ -1,7 +1,7 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "SpamTestDMARC.h"
 
@@ -173,7 +173,7 @@ namespace HM
    bool
    SpamTestDMARC::IsAuthenticated_(std::shared_ptr<SenderAuthentication> senderAuthentication, const DMARCRecord &record, const String &headerFromDomain)
    {
-      if (senderAuthentication->GetSPFResult() == SPF::Pass &&
+      if (senderAuthentication->GetSPFResult() == SPFResult::Pass &&
           DMARCEvaluator::IsAligned(senderAuthentication->GetSPFDomain(), headerFromDomain, record.GetSPFAlignment()))
       {
          return true;

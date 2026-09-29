@@ -3,8 +3,8 @@
 
 #include "stdafx.h"
 #include "BLCheck.h"
-#include "../common/tcpip/dnsresolver.h"
-#include "../common/tcpip/IPAddress.h"
+#include "../Common/TCPIP/DNSResolver.h"
+#include "../Common/TCPIP/IPAddress.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

@@ -3,11 +3,11 @@
 
 #include "stdafx.h"
 
-#include ".\COMAuthentication.h"
-#include "..\Common\BO\Account.h"
-#include "..\Common\Util\PasswordValidator.h"
-#include "..\Common\Util\Crypt.h"
-#include "..\Common\Util\Hashing\PasswordHasher.h"
+#include "./COMAuthentication.h"
+#include "../Common/BO/Account.h"
+#include "../Common/Util/PasswordValidator.h"
+#include "../Common/Util/Crypt.h"
+#include "../Common/Util/Hashing/PasswordHasher.h"
 
 #include "COMError.h"
 

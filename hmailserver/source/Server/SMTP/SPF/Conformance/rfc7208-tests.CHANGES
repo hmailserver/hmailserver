@@ -1,0 +1,129 @@
+# Legend:
+# --- = A new release
+#   ! = Added a test case or otherwise tightened a requirement, possibly
+#       causing implementations to become incompliant with the current
+#       test-suite release
+#   - = Removed a test case or otherwise relaxed a requirement
+#   * = Fixed a bug, or made a minor improvement
+
+--- 2019.08 (UNRELEASED)
+  ! Added multiple tests for creative syntax errors in SPF records
+    that were breaking implementations.
+
+--- 2014.04 (UNRELEASED)
+  ! Updates for RFC 7208 (4408bis)
+    ! Updated multiple tests not to consider type SPF records under mixed
+      conditions - Note: due to the way the test suite is structured, many
+      records are still labled SPF internally, but for test functions, it
+      doesn't matter externally.
+    - Removed "invalid-domain-empty-label", "invalid-domain-long", and
+      "invalid-domain-long-via-macro".  Since RFC 7208 explicitly describes
+      the results for these conditions as undefined, there's no point in
+      testing for a particular result.
+    ! Modified multiple tests to remove ambiguous results for cases that were
+      ambiguous in RFC 4408, but have been clarified in RFC 7208.
+    ! Changed "mx-limit" test to produce permerror result per changes in RFC
+      7208
+  ! Added "invalid-trailing-macro-char" and "invalid-embedded-macro-char"
+    tests from Stuart on pyspf trunk
+
+--- 2009.10 (2009-10-31 20:00)
+
+  ! Added test case:
+    ! "macro-multiple-delimiters":
+      Multiple delimiters in a macro expression must be supported.
+  * Fixed "multitxt2" test case failing with SPF-type-only implementations.
+    Tolerate a "None" result to accomodate those.
+
+--- 2008.08 (2008-08-17 16:00)
+
+  ! "invalid-domain-empty-label", "invalid-domain-long",
+    "invalid-domain-long-via-macro" test cases:
+    A <target-name> that is a valid domain-spec per RFC 4408 but an invalid
+    domain name per RFC 1035 (two successive dots or labels longer than 63
+    characters) must be treated either as a "PermError" or as non-existent and
+    thus a no-match.  (In particular, those cases can never cause a TempError
+    because the error is guaranteed to reoccur given the same input data.
+    This applies likewise to RFC-1035-invalid <target-name>s that are the
+    result of macro expansion.)  Refined descriptions and comments to that
+    end.
+    The no-match behavior can be inferred by analogy from 4.3/1 and 5/10/3.
+    The spec reference to 8.1/2 is bogus because the formal grammar does not
+    preclude such invalid domain names.
+  ! The "exp= without domain-spec" controversy has been resolved; it must be a
+    syntax error.  Tightened "exp-empty-domain" test case accordingly.
+  ! Added test cases:
+    ! "a-dash-in-toplabel":
+      <toplabel> may contain dashes.  Implementations matching <toplabel>
+      non-greedily may get that wrong.
+    ! "a-only-toplabel", "a-only-toplabel-trailing-dot":
+      Both "a:museum" and "a:museum." are invalid syntax.  A bare top-label is
+      insufficient, with or without a trailing dot.
+    ! "exp-no-txt", "exp-dns-error":
+      Clearly, "exp=" referring to a non-existent TXT RR, or the look-up
+      resulting in a DNS error, must cause the "exp=" modifier to be ignored per
+      6.2/4.
+    ! "macro-mania-in-domain":
+      Test macro-encoded percents (%%), spaces (%_), and URL-percent-encoded
+      spaces (%20) in <domain-spec>.
+    ! "macro-reverse-split-on-dash":
+      Test transformation of macro expansion results: splitting on non-dot
+      separator characters, reversal, number of right-hand parts to use.
+  - Removed "a-valid-syntax-but-unqueryable" test case.  It is redundant to
+    the "invalid-domain-empty-label" test case.
+  - Relaxed "multispf1" test case:
+    If performed via live DNS (yes, some people do that!), this test may be
+    ineffective as DNS resolvers may combine multiple identical RRs.  Thus,
+    tolerate the test failing in this manner.
+  * Adjusted "multispf2" test case:
+    Avoid combination of multiple identical RRs by using different
+    capitalization in intentionally duplicate RRs.
+  * Renamed test cases:
+      a-numeric-top-label  ->  a-numeric-toplabel
+      a-bad-toplab         ->  a-bad-toplabel
+
+--- 2007.05 (2007-05-30 21:00)
+
+  - "exp-empty-domain" test case is subject to controversy.  "exp=" with an
+    empty domain-spec may be considered a syntax error or not, thus both "Fail"
+    and "PermError" results are acceptable for now.
+  * Renamed the old "exp-syntax-error" test case to "explanation-syntax-error"
+    to indicate that it refers to syntax errors in the explanation string, not
+    in the "exp=" modifier.
+  ! Added test cases:
+    ! "exp-syntax-error", "redirect-syntax-error":  Syntax errors in "exp=" and
+      "redirect=" must be treated as such.
+    ! "a-empty-domain", "mx-empty-domain", "ptr-empty-domain",
+      "include-empty-domain", "redirect-empty-domain":  "a:", "mx:", "ptr:",
+      "include:", and "redirect=" with an empty domain-spec are syntax errors.
+    ! "include-cidr":  "include:<domain>/<cidr>" is a syntax error.
+    ! "helo-not-fqdn", "helo-domain-literal", "domain-literal":  A non-FQDN
+      HELO or MAIL FROM must result in a "None" result.
+    ! "hello-domain-literal":  Macro expansion results must not be checked for
+      syntax errors, but must rather be treated as non-matches if nonsensical.
+    ! "false-a-limit":  There is no limit for the number of A records resulting
+      from an "a:"-induced lookup, and no such limit must be imposed.
+    ! "default-modifier-obsolete(2)":  The "default=" modifier used in very old
+      spec drafts must be ignored by RFC 4408 implementations.
+
+--- 2007.01 (2007-01-14 05:19)
+
+  ! Added test cases:
+    ! "nospftxttimeout":  If no SPF-type record is present and the TXT lookup
+      times out, the result must either be "None" (preferred) or "TempError".
+    ! "exp-multiple-txt", "exp-syntax-error":  Multiple explanation string TXT
+      records and syntax errors in explanation strings must be ignored (i.e.,
+      specifically "PermError" must NOT be returned).
+    ! "exp-empty-domain":  "exp=" with an empty domain-spec is to be tolerated,
+      i.e., ignored, too.  (This is under debate.)
+    ! "exp-twice", "redirect-twice":  Added.  Multiple "exp=" or "redirect="
+      modifiers are prohibited.
+  * "Macro expansion rules" scenario:  Fixed a bug that caused TXT-only
+    implementations to fail several tests incorrectly due to a real TXT record
+    blocking the automatic synthesis of TXT records from the corresponding
+    SPF-type records.
+
+--- 2006.11 (initial release) (2006-11-27 21:27)
+
+# $Id$
+# vim:tw=79 sts=2 sw=2

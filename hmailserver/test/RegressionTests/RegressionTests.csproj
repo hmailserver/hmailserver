@@ -121,6 +121,7 @@
     <Compile Include="Shared\UtilityServices.cs" />
     <Compile Include="Stress\IMAP\ConcurrentConnectionsStressTests.cs" />
     <Compile Include="Stress\IMAP\NotificationThreadingStressTests.cs" />
+    <Compile Include="Stress\IMAP\UidPlusStressTests.cs" />
     <Compile Include="Stress\Scripting\MemoryUsage.cs" />    
     <Compile Include="TestResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -186,6 +187,12 @@
     <Compile Include="Security\AutoBan.cs" />
     <Compile Include="Security\SMTPAuthentication.cs" />
     <Compile Include="SMTP\Signatures.cs" />
+    <Compile Include="SMTP\SRS\Bounces.cs" />
+    <Compile Include="SMTP\SRS\Relaying.cs" />
+    <Compile Include="SMTP\SRS\Forwarding.cs" />
+    <Compile Include="SMTP\SRS\Settings.cs" />
+    <Compile Include="SMTP\SRS\SrsAddress.cs" />
+    <Compile Include="SMTP\SRS\SrsTestBase.cs" />
     <Compile Include="Infrastructure\Persistence\Limitations.cs" />
     <Compile Include="SSL\CertificateTypes.cs" />
     <Compile Include="Stress\StabilitySanityTests.cs" />
@@ -201,6 +208,12 @@
     <Compile Include="IMAP\MessageIndexing.cs" />
     <Compile Include="IMAP\MessageUids.cs" />
     <Compile Include="IMAP\SessionMessageNumbering.cs" />
+    <Compile Include="IMAP\UidPlus.cs" />
+    <Compile Include="IMAP\UidValidity.cs" />
+    <Compile Include="IMAP\UidPlusCompliance.cs" />
+    <Compile Include="Shared\TrackedImapSession.cs" />
+    <Compile Include="Details\IMAP\UidPlusEdgeCaseTests.cs" />
+    <Compile Include="Details\IMAP\UidPlusRfcTests.cs" />
     <Compile Include="MIME\Parameters.cs" />
     <Compile Include="Security\Basics.cs" />
     <Compile Include="Shared\TestFixtureBase.cs" />

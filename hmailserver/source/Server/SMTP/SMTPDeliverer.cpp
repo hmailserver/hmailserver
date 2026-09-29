@@ -5,37 +5,37 @@
 
 #include "SMTPDeliverer.h"
 
-#include "../common/Application/ObjectCache.h"
+#include "../Common/Application/ObjectCache.h"
 
-#include "../common/AntiVirus/AntiVIrusCOnfiguration.h"
-#include "../common/AntiVirus/VirusScanner.h"
+#include "../Common/AntiVirus/AntiVirusConfiguration.h"
+#include "../Common/AntiVirus/VirusScanner.h"
 
-#include "../common/BO/MessageRecipient.h"
-#include "../common/BO/MessageRecipients.h"
-#include "../common/BO/MessageData.h"
-#include "../common/Cache/CacheContainer.h"
-#include "../common/Cache/InboxIDCache.h"
-#include "../common/Util/Time.h"
-#include "../common/Util/ServerStatus.h"
-#include "../common/Util/MailerDaemonAddressDeterminer.h"
-#include "../common/TCPIP/TCPConnection.h"
+#include "../Common/BO/MessageRecipient.h"
+#include "../Common/BO/MessageRecipients.h"
+#include "../Common/BO/MessageData.h"
+#include "../Common/Cache/CacheContainer.h"
+#include "../Common/Cache/InboxIDCache.h"
+#include "../Common/Util/Time.h"
+#include "../Common/Util/ServerStatus.h"
+#include "../Common/Util/MailerDaemonAddressDeterminer.h"
+#include "../Common/TCPIP/TCPConnection.h"
 
-#include "../common/Util/Utilities.h"
-#include "../common/Util/MessageAttachmentStripper.h"
-#include "../common/Util/MessageUtilities.h"
+#include "../Common/Util/Utilities.h"
+#include "../Common/Util/MessageAttachmentStripper.h"
+#include "../Common/Util/MessageUtilities.h"
 
-#include "../common/Scripting/Events.h"
+#include "../Common/Scripting/Events.h"
 
-#include "../common/Persistence/PersistentMessage.h"
-#include "../common/Persistence/PersistentIMAPFolder.h"
-#include "../common/Persistence/PersistentAccount.h"
-#include "../common/Persistence/PersistentMessageRecipient.h"
-#include "../common/Persistence/PersistentServerMessage.h"
+#include "../Common/Persistence/PersistentMessage.h"
+#include "../Common/Persistence/PersistentIMAPFolder.h"
+#include "../Common/Persistence/PersistentAccount.h"
+#include "../Common/Persistence/PersistentMessageRecipient.h"
+#include "../Common/Persistence/PersistentServerMessage.h"
 
-#include "../common/BO/IMAPFolder.h"
-#include "../common/BO/Domain.h"
-#include "../common/BO/Account.h"
-#include "../common/BO/ServerMessages.h"
+#include "../Common/BO/IMAPFolder.h"
+#include "../Common/BO/Domain.h"
+#include "../Common/BO/Account.h"
+#include "../Common/BO/ServerMessages.h"
 
 #include "LocalDelivery.h"
 #include "ExternalDelivery.h"
@@ -47,7 +47,7 @@
 #include "RecipientParser.h"
 #include "MirrorMessage.h"
 
-#include "../Common/Util/AWstats.h"
+#include "../Common/Util/AWStats.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

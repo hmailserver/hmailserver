@@ -1,10 +1,10 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\FetchAccountLock.h"
+#include "stdafx.h"
+#include "./FetchAccountLock.h"
 
-#include "..\Common\BO\FetchAccount.h"
+#include "../Common/BO/FetchAccount.h"
 #include "../Common/Persistence/PersistentFetchAccount.h"
 
 #ifdef _DEBUG

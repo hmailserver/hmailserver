@@ -5,14 +5,14 @@
 #include "InterfaceUtilities.h"
 #include "../Common/TCPIP/DNSResolver.h"
 #include "../Common/TCPIP/HostNameAndIpAddress.h"
-#include "../Common/util/ServiceManager.h"
-#include "../Common/util/Crypt.h"
-#include "../Common/util/MailImporter.h"
-#include "../Common/util/EmailAllUsers.h"
-#include "../Common/util/GUIDcreator.h"
-#include "../Common/util/ClassTester.h"
-#include "../Common/util/Utilities.h"
-#include "../Common/util/PasswordGenerator.h"
+#include "../Common/Util/ServiceManager.h"
+#include "../Common/Util/Crypt.h"
+#include "../Common/Util/MailImporter.h"
+#include "../Common/Util/EmailAllUsers.h"
+#include "../Common/Util/GUIDCreator.h"
+#include "../Common/Util/ClassTester.h"
+#include "../Common/Util/Utilities.h"
+#include "../Common/Util/PasswordGenerator.h"
 #include "../SMTP/RuleApplier.h"
 #include "../SMTP/DeliveryQueue.h"
 #include "../Common/Persistence/PersistentMessage.h"
@@ -331,6 +331,23 @@ STDMETHODIMP InterfaceUtilities::ImportMessageFromFileToIMAPFolder(BSTR sFilenam
          return authentication_->GetAccessDenied();
    
       *bIsSuccessful = HM::MailImporter::Import(sFilename, iAccountID, sIMAPFolder) ? VARIANT_TRUE : VARIANT_FALSE;
+   
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceUtilities::ImportMessageFromFileToPublicIMAPFolder(BSTR sFilename, BSTR sIMAPFolder, VARIANT_BOOL *bIsSuccessful)
+{
+   try
+   {
+      if (!authentication_->GetIsServerAdmin())
+         return authentication_->GetAccessDenied();
+   
+      *bIsSuccessful = HM::MailImporter::ImportToPublicFolder(sFilename, sIMAPFolder) ? VARIANT_TRUE : VARIANT_FALSE;
    
       return S_OK;
    }

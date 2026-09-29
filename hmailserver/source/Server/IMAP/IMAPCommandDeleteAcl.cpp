@@ -60,7 +60,7 @@ namespace HM
 
       // Check if the user has access to delete ACL for this folder
       if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionAdminister))
-         return IMAPResult(IMAPResult::ResultNo, "ACL: DeleteACL permission denied");
+         return IMAPResult(IMAPResult::ResultNo, "[NOPERM] ACL: DeleteACL permission denied");
 
       // Assume identifier is a user and not a group.
       std::shared_ptr<const Account> pAccount = CacheContainer::Instance()->GetAccount(sIdentifier);

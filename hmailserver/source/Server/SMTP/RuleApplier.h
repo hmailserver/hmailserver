@@ -41,6 +41,8 @@ namespace HM
 
       // Check whether pMessage matches pCriteria.
       bool MessageMatchesCriteria_(std::shared_ptr<RuleCriteria> pCriteria, std::shared_ptr<MessageData> pMsgData) const;
+
+      static String GetLocalRecipientDomain_(std::shared_ptr<Message> message);
       
       // Actions
       void ApplyAction_Forward(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const;

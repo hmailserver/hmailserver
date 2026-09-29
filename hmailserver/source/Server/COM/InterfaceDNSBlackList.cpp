@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "InterfaceDNSBlackList.h"
 
-#include "..\Common\Persistence\PersistentDNSBlackList.h"
+#include "../Common/Persistence/PersistentDNSBlacklist.h"
 
 #include "../Common/BO/DNSBlackLists.h"
 

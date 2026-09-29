@@ -1,0 +1,1 @@
+v=spf1 -exists:%(ir).sbl.example.com ?all

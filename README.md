@@ -230,6 +230,22 @@ NOTE: When running tests, your local hMailServer installation will be updated wi
 
 You can also navigate to the source code for a test, right-click anywhere and select "Run Test(s)" to run it.
 
+Code signing policy
+===================
+
+Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+
+Only binaries built from this repository are signed. They are built and signed by GitHub Actions, and every signing request is approved by hand.
+
+**Team roles**
+
+   * Committers and reviewers: [Members](https://github.com/orgs/hmailserver/people)
+   * Approvers: [Owners](https://github.com/orgs/hmailserver/people?query=role%3Aowner)
+
+**Privacy**
+
+hMailServer does not send any information to the hMailServer project or to other third parties. It only connects to other systems as part of what the administrator configures it to do, such as delivering email, looking up DNS records, checking DNS blacklists and fetching email from external accounts.
+
 Releasing hMailServer
 =====================
 
@@ -237,6 +253,6 @@ Without finding any serious issues:
 
 1. Run all integration tests on supported versions of Windows and the different supported databases. 
 2. Run all server stress tests
-3. Enable Gflags (gflags /p /enable hmailserver.exe) and run all integration tests to check for memory issues
+3. Run the page heap tests to check for memory issues, using the VM test runner: `--test "Windows 10 - Page heap: Regression tests"` and `--test "Windows 10 - Page heap: Volume tests"`
 4. Run for at least 1 week in production for hMailServer.com
 5. Wait for at least 500 downloads of the beta version

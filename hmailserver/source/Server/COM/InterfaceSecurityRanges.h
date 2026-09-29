@@ -7,7 +7,7 @@
 #include "../hMailServer/hMailServer.h"
 
 
-#include "../Common/bo/SecurityRanges.h"
+#include "../Common/BO/SecurityRanges.h"
 
 class ATL_NO_VTABLE InterfaceSecurityRanges : 
 	public CComObjectRootEx<CComSingleThreadModel>,

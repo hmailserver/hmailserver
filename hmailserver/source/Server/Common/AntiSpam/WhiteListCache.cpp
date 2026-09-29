@@ -1,7 +1,7 @@
 // Copyright (c) 2013  Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "WhiteListCache.h"
 #include "../../Common/BO/WhiteListAddresses.h"

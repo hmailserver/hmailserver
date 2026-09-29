@@ -9,6 +9,7 @@ namespace VMTestRunner.Console
    {
       private const string NuGetPackagesRelativePath = @"..\..\..\..\packages\";
       private const string RegressionTestsBinRelativePath = @"..\..\..\..\RegressionTests\bin\x64\Debug\";
+      private const string VolumeTestsBinRelativePath = @"..\..\..\..\VolumeTests\bin\x64\Debug\";
       private const string NUnitConsoleRunnerPackagePath = @"NUnit.ConsoleRunner.3.15.5\tools";
       private const string NUnitPackagePath = @"NUnit.3.13.3\lib\net45";
       private readonly string _nUnitPath;
@@ -58,13 +59,13 @@ namespace VMTestRunner.Console
          var vm = new HyperV(_testIndex);
 
          var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-         var testAssemblyDirectory = Path.Combine(currentDirectory, RegressionTestsBinRelativePath);
+         var testAssemblyDirectory = Path.Combine(currentDirectory, GetTestBinRelativePath());
 
-         var testAssemblyNames = new string[]
-            {
-               "RegressionTests.dll",
-               "Interop.hMailServer.dll"
-            };
+         if (!Directory.Exists(testAssemblyDirectory))
+            throw new InvalidOperationException($"The {_environment.TestSuite} assemblies were not found in " +
+               $"{Path.GetFullPath(testAssemblyDirectory)}. Build them with build\\build-tests.ps1.");
+
+         var testAssemblyNames = GetTestAssemblyNames();
 
          string guestTestPath = @"C:\Nunit";
 
@@ -122,15 +123,16 @@ namespace VMTestRunner.Console
                   CopyLocalVersion(guest);
                }
 
+               if (_environment.EnablePageHeap)
+                  EnablePageHeap(guest, guestTestPath);
+
                // Run NUnit
+               string runTestParameters = $"{_environment.TestSuite}.dll";
+
                if (_environment.IncludeStressTests)
-               {
-                  guest.RunProgram(Path.Combine(guestTestPath, RunTestScriptName), "IncludeStress");
-               }
-               else
-               {
-                  guest.RunProgram(Path.Combine(guestTestPath, RunTestScriptName), "");
-               }
+                  runTestParameters += " IncludeStress";
+
+               guest.RunProgram(Path.Combine(guestTestPath, RunTestScriptName), runTestParameters);
 
                // Collect results. The NUnit result is kept next to the log file of this run.
                string localResultFile = RunContext.GetResultFilePath(_environment);
@@ -166,6 +168,50 @@ namespace VMTestRunner.Console
                Logger.Error(ex, "Unable to power off VM. Maybe it's not powered on?");
             }
          }
+      }
+
+      /// <summary>
+      /// Where the assemblies of the suite under test are built.
+      /// </summary>
+      private string GetTestBinRelativePath()
+      {
+         switch (_environment.TestSuite)
+         {
+            case TestSuite.VolumeTests:
+               return VolumeTestsBinRelativePath;
+            default:
+               return RegressionTestsBinRelativePath;
+         }
+      }
+
+      /// <summary>
+      /// The assemblies the suite needs in the guest. The volume tests use the shared
+      /// infrastructure of the regression tests, so that assembly goes along as well.
+      /// </summary>
+      private string[] GetTestAssemblyNames()
+      {
+         switch (_environment.TestSuite)
+         {
+            case TestSuite.VolumeTests:
+               return new[] { "VolumeTests.dll", "RegressionTests.dll", "Interop.hMailServer.dll" };
+            default:
+               return new[] { "RegressionTests.dll", "Interop.hMailServer.dll" };
+         }
+      }
+
+      /// <summary>
+      /// Turns page heap on for hMailServer.exe. gflags writes the setting to the registry,
+      /// so the service has to be restarted for it to take effect.
+      /// </summary>
+      private void EnablePageHeap(IGuestSession guest, string guestTestPath)
+      {
+         string guestGFlagsPath = Path.Combine(guestTestPath, "gflags.exe");
+
+         guest.CopyFileToGuest(_environment.GFlagsPath, guestGFlagsPath);
+         guest.RunProgram(guestGFlagsPath, "/p /enable hMailServer.exe", true);
+
+         guest.RunProgram(@"C:\Windows\System32\net.exe", "stop hMailServer");
+         guest.RunProgram(@"C:\Windows\System32\net.exe", "start hMailServer");
       }
 
       /// <summary>

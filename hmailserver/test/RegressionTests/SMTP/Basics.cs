@@ -1111,6 +1111,209 @@ namespace RegressionTests.SMTP
          Assert.IsTrue(result.Contains("Too many invalid commands"), result);
       }
 
+      [TestCase("", "VRFY test@example.test", "502 VRFY disallowed.")]
+      [TestCase("", "TURN", "502 TURN disallowed.")]
+      [TestCase("", "RCPT TO:<test@example.test>", "503 Must have sender first.")]
+      [TestCase("", "DATA", "503 Must have sender and recipient first.")]
+      [TestCase("MAIL FROM:<test@example.com>", "DATA", "503 Must have sender and recipient first.")]
+      [TestCase("MAIL FROM:<test@example.com>", "MAIL FROM:<test@example.com>", "503 Issue a reset if you want to start over")]
+      [Description("Issue #653: All 5xx replies to client errors should count towards the invalid commands limit.")]
+      public void TestTooManyInvalidCommandsShouldCountAllClientErrors(string setupCommand, string invalidCommand, string expectedError)
+      {
+         _settings.DisconnectInvalidClients = true;
+         _settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("HELO example.com\r\n");
+         if (setupCommand != "")
+            StringAssert.Contains("250", sim.SendAndReceive(setupCommand + "\r\n"));
+
+         for (var i = 0; i < 3; i++)
+            StringAssert.Contains(expectedError, sim.SendAndReceive(invalidCommand + "\r\n"));
+
+         var result = sim.SendAndReceive(invalidCommand + "\r\n");
+         StringAssert.Contains("Too many invalid commands", result);
+      }
+
+      [Test]
+      [Description("Issue #653: Too long lines should count towards the invalid commands limit.")]
+      public void TestTooManyInvalidCommandsLineTooLongShouldBeCounted()
+      {
+         _settings.DisconnectInvalidClients = true;
+         _settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("HELO example.com\r\n");
+
+         var longLine = "NOOP " + new string('A', 600) + "\r\n";
+         for (var i = 0; i < 3; i++)
+            StringAssert.Contains("500 Line too long.", sim.SendAndReceive(longLine));
+
+         var result = sim.SendAndReceive(longLine);
+         StringAssert.Contains("Too many invalid commands", result);
+      }
+
+      [Test]
+      [Description("Issue #653: Rejections due to the SIZE parameter should count towards the invalid commands limit.")]
+      public void TestTooManyInvalidCommandsSizeParameterShouldBeCounted()
+      {
+         _settings.MaxMessageSize = 1;
+
+         AssertDisconnectedAfterRepeatedRejections(
+            sim => sim.SendAndReceive("MAIL FROM:<test@example.com> SIZE=100000\r\n"),
+            "552 Message size exceeds fixed maximum message size");
+      }
+
+      [Test]
+      [Description("Issue #653: Rejections due to message size should count towards the invalid commands limit.")]
+      public void TestTooManyInvalidCommandsMessageSizeShouldBeCounted()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         _settings.MaxMessageSize = 1;
+
+         var body = new string('A', 70) + "\r\n";
+         for (var i = 0; i < 5; i++) body += body;
+
+         AssertDisconnectedAfterRepeatedRejections(
+            sim => SendMessageAndReceive(sim, "test@example.com", "test@example.test", body),
+            "554 Rejected - Message size exceeds fixed maximum message size");
+      }
+
+      [Test]
+      [Description("Issue #653: Rejections due to bare LF's should count towards the invalid commands limit.")]
+      public void TestTooManyInvalidCommandsBareLineFeedsShouldBeCounted()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var previous = _settings.AllowIncorrectLineEndings;
+         _settings.AllowIncorrectLineEndings = false;
+
+         try
+         {
+            AssertDisconnectedAfterRepeatedRejections(
+               sim => SendMessageAndReceive(sim, "test@example.com", "test@example.test", "Line 1\nLine 2"),
+               "554 Rejected - Message containing bare LF's.");
+         }
+         finally
+         {
+            _settings.AllowIncorrectLineEndings = previous;
+         }
+      }
+
+      [Test]
+      [Description("Issue #653: Cancelled transmissions should count towards the invalid commands limit.")]
+      public void TestTooManyInvalidCommandsCancelledTransmissionShouldBeCounted()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         AssertDisconnectedAfterRepeatedRejections(
+            sim => SendMessageAndReceive(sim, "test@example.com", "test@example.test", new string('A', 100001)),
+            "554 Too long line was received. Transmission aborted.");
+      }
+
+      [Test]
+      [Description("Issue #653: Spam rejections should count towards the invalid commands limit.")]
+      public void TestTooManyInvalidCommandsSpamRejectionShouldBeCounted()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var antiSpam = _settings.AntiSpam;
+         antiSpam.SpamDeleteThreshold = 1;
+         antiSpam.CheckHostInHelo = true;
+         antiSpam.CheckHostInHeloScore = 5;
+
+         // Behind an incoming relay, the HELO address literal in the Received header is compared
+         // to the originating IP address without DNS lookups.
+         var incomingRelay = _settings.IncomingRelays.Add();
+         incomingRelay.LowerIP = "127.0.0.1";
+         incomingRelay.UpperIP = "127.0.0.1";
+         incomingRelay.Name = "Test";
+         incomingRelay.Save();
+
+         var message = "Received: from [198.51.100.7] (unknown [203.0.113.99])\r\n" +
+                       "\tby mail.example.test with ESMTP\r\n" +
+                       "\t; Fri, 06 May 2016 03:49:14 +0200\r\n" +
+                       "Subject: Test\r\n" +
+                       "\r\n" +
+                       "Body";
+
+         AssertDisconnectedAfterRepeatedRejections(
+            sim => SendMessageAndReceive(sim, "test@example.com", "test@example.test", message),
+            "550 The host name specified in HELO does not match IP address.");
+      }
+
+      [TestCase("OnHELO(oClient)")]
+      [TestCase("OnSMTPData(oClient, oMessage)")]
+      [TestCase("OnAcceptMessage(oClient, oMessage)")]
+      [Description("Issue #653: Script rejections should count towards the invalid commands limit.")]
+      public void TestTooManyInvalidCommandsScriptRejectionShouldBeCounted(string eventSignature)
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var scripting = _settings.Scripting;
+         File.WriteAllText(scripting.CurrentScriptFile,
+            "Sub " + eventSignature + "\r\n" +
+            "   Result.Value = 2\r\n" +
+            "   Result.Message = \"Rejected by script\"\r\n" +
+            "End Sub");
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         Func<TcpConnection, string> attempt;
+         if (eventSignature.StartsWith("OnHELO"))
+            attempt = sim => sim.SendAndReceive("HELO example.com\r\n");
+         else
+            attempt = sim => SendMessageAndReceive(sim, "test@example.com", "test@example.test", "Body");
+
+         AssertDisconnectedAfterRepeatedRejections(attempt, "554 Rejected by script", !eventSignature.StartsWith("OnHELO"));
+      }
+
+      private void AssertDisconnectedAfterRepeatedRejections(Func<TcpConnection, string> attempt, string expectedError, bool sendHelo = true)
+      {
+         _settings.DisconnectInvalidClients = true;
+         _settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         if (sendHelo)
+            sim.SendAndReceive("HELO example.com\r\n");
+
+         for (var i = 0; i < 3; i++)
+         {
+            StringAssert.Contains(expectedError, attempt(sim));
+            sim.SendAndReceive("RSET\r\n");
+         }
+
+         StringAssert.Contains("Too many invalid commands", attempt(sim));
+      }
+
+      // Returns the first reply which isn't a positive one.
+      private static string SendMessageAndReceive(TcpConnection sim, string from, string to, string body)
+      {
+         var result = sim.SendAndReceive("MAIL FROM:<" + from + ">\r\n");
+         if (!result.StartsWith("250"))
+            return result;
+
+         result = sim.SendAndReceive("RCPT TO:<" + to + ">\r\n");
+         if (!result.StartsWith("250"))
+            return result;
+
+         result = sim.SendAndReceive("DATA\r\n");
+         if (!result.StartsWith("354"))
+            return result;
+
+         sim.Send(body + "\r\n.\r\n");
+         return sim.ReadUntil("\r\n");
+      }
+
       [Test]
       public void TestTooManyInvalidCommandsHELOSuccesfullCommandDoesNotResetCounter()
       {

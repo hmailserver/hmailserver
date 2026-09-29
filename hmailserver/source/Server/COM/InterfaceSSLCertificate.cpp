@@ -5,8 +5,8 @@
 #include "COMError.h"
 #include "InterfaceSSLCertificate.h"
 
-#include "..\Common\Persistence\PersistentSSLCertificate.h"
-#include "..\Common\BO\SSLCertificate.h"
+#include "../Common/Persistence/PersistentSSLCertificate.h"
+#include "../Common/BO/SSLCertificate.h"
 
 // InterfaceSSLCertificate
 

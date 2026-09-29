@@ -7,15 +7,15 @@
 #include "../Common/BO/Message.h"
 #include "../Common/Mime/Mime.h"
 #include "../Common/Util/Time.h"
-#include "../common/Util/MailerDaemonAddressDeterminer.h"
+#include "../Common/Util/MailerDaemonAddressDeterminer.h"
 #include "../Common/BO/MessageRecipients.h"
 #include "../Common/BO/MessageData.h"
 #include "../Common/Persistence/PersistentMessage.h"
-#include "../common/Persistence/PersistentServerMessage.h"
+#include "../Common/Persistence/PersistentServerMessage.h"
 
 #include "RecipientParser.h"
 
-#include "../common/BO/ServerMessages.h"
+#include "../Common/BO/ServerMessages.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

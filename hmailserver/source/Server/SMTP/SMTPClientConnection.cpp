@@ -5,9 +5,9 @@
 #include "SMTPClientConnection.h"
 
 #include "../Common/BO/MessageRecipient.h"
-#include "../common/Util/Utilities.h"
-#include "../common/Util/File.h"
-#include "../common/Util/ByteBuffer.h"
+#include "../Common/Util/Utilities.h"
+#include "../Common/Util/File.h"
+#include "../Common/Util/ByteBuffer.h"
 #include "../Common/Util/TransparentTransmissionBuffer.h"
 #include "../Common/Persistence/PersistentMessage.h"
 

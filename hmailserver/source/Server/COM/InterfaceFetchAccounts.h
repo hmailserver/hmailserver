@@ -6,7 +6,7 @@
 #include "../hMailServer/resource.h"
 #include "../hMailServer/hMailServer.h"
 
-#include "../Common/BO/FetchAccountS.h"
+#include "../Common/BO/FetchAccounts.h"
 
 // InterfaceFetchAccounts
 

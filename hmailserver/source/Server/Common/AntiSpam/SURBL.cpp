@@ -1,8 +1,8 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\surbl.h"
+#include "stdafx.h"
+#include "./SURBL.h"
 
 #include "../../Common/BO/MessageData.h"
 #include "../../Common/BO/SURBLServer.h"

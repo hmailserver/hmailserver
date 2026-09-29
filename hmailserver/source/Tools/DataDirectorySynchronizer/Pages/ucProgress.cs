@@ -88,6 +88,11 @@ namespace DataDirectorySynchronizer.Pages
 
       private void ProcessFilesInFolder(DirectoryInfo dirInfo, int accountID)
       {
+         ProcessFilesInFolder(dirInfo, accountID, false);
+      }
+
+      private void ProcessFilesInFolder(DirectoryInfo dirInfo, int accountID, bool publicFolder)
+      {
          labelStatus.Text = dirInfo.FullName;
          foreach (FileInfo file in dirInfo.GetFiles())
          {
@@ -99,7 +104,7 @@ namespace DataDirectorySynchronizer.Pages
                 fullName.ToLower().EndsWith(".hma"))
             {
                if (Globals.Mode == Globals.ModeType.Import)
-                  imported = _utilities.ImportMessageFromFile(fullName, accountID);
+                  imported = ImportFile(fullName, accountID, publicFolder);
                else
                {
                   // does it exist?
@@ -119,6 +124,19 @@ namespace DataDirectorySynchronizer.Pages
          }
       }
 
+      private bool ImportFile(string fullName, int accountID, bool publicFolder)
+      {
+         if (publicFolder)
+         {
+            // Messages in public folders aren't owned by an account, and the public IMAP folder
+            // they belong to isn't part of the path on disk. The server therefore needs to be
+            // told which folder the message should be placed in.
+            return _utilities.ImportMessageFromFileToPublicIMAPFolder(fullName, Globals.PublicFolderImportPath);
+         }
+
+         return _utilities.ImportMessageFromFile(fullName, accountID);
+      }
+
       private void IteratePublicFolder(DirectoryInfo dirRoot)
       {
          DirectoryInfo publicFolder =
@@ -131,10 +149,10 @@ namespace DataDirectorySynchronizer.Pages
          {
             // Messages in public folders aren't owned by an account, which is why
             // no account is given here.
-            ProcessFilesInFolder(publicFolder, 0);
+            ProcessFilesInFolder(publicFolder, 0, true);
 
             foreach (DirectoryInfo publicSubFolder in publicFolder.GetDirectories())
-               ProcessFilesInFolder(publicSubFolder, 0);
+               ProcessFilesInFolder(publicSubFolder, 0, true);
          }
          catch (Exception)
          {

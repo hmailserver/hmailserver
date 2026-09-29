@@ -1,9 +1,9 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
-#include ".\persistentrulecriteria.h"
-#include "..\BO\RuleCriteria.h"
+#include "stdafx.h"
+#include "./PersistentRuleCriteria.h"
+#include "../BO/RuleCriteria.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)

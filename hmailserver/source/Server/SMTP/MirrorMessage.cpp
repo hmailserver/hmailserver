@@ -1,20 +1,20 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "./MirrorMessage.h"
 
 #include "../Common/BO/Account.h"
 #include "../Common/BO/Domain.h"
 #include "../Common/BO/Message.h"
-#include "../common/BO/MessageRecipient.h"
-#include "../common/BO/MessageRecipients.h"
+#include "../Common/BO/MessageRecipient.h"
+#include "../Common/BO/MessageRecipients.h"
 #include "../Common/BO/Route.h"
 #include "../Common/BO/Routes.h"
 #include "../Common/BO/RouteAddresses.h"
-#include "../common/Cache/CacheContainer.h"
-#include "../common/Persistence/PersistentMessage.h"
+#include "../Common/Cache/CacheContainer.h"
+#include "../Common/Persistence/PersistentMessage.h"
 #include "../Common/Util/MailerDaemonAddressDeterminer.h"
 
 #include "RecipientParser.h"

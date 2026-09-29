@@ -81,6 +81,7 @@
     <Compile Include="Infrastructure\TestSettings.cs" />
     <Compile Include="Models\FileCopyCommand.cs" />
     <Compile Include="Models\GuestTransport.cs" />
+    <Compile Include="Models\TestSuite.cs" />
     <Compile Include="Models\InstallCommand.cs" />
     <Compile Include="Models\TestEnvironment.cs" />
     <Compile Include="Models\TestRunReport.cs" />
