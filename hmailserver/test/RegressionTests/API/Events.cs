@@ -1125,6 +1125,9 @@ namespace RegressionTests.API
             pop3Server.WaitForCompletion();
          }
 
+         // Wait for delivery, so the next test's setup does not delete the account mid-delivery.
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
          var eventLogText = TestSetup.ReadExistingTextFile(_settings.Logging.CurrentEventLog);
          Assert.IsFalse(eventLogText.Contains("INJECTED"), eventLogText);
          StringAssert.Contains("UID: [" + JScriptInjection + "]", eventLogText);
