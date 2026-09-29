@@ -45,6 +45,9 @@ namespace RegressionTests.Shared
 
       public bool DisconnectImmediate { get; set; }
 
+      // UIDs returned by UIDL, one per message. When null, UIDs are generated.
+      public List<string> Uids { get; set; }
+
       protected override void HandleClient()
       {
          Run();
@@ -122,7 +125,8 @@ namespace RegressionTests.Shared
             var builder = new StringBuilder();
 
             for (var i = 0; i < _messages.Count; i++)
-               builder.Append(string.Format("{0} UniqueID-{1}\r\n", i + 1, _messages[i].GetHashCode()));
+               builder.Append(string.Format("{0} {1}\r\n", i + 1,
+                  Uids != null ? Uids[i] : "UniqueID-" + _messages[i].GetHashCode()));
 
             Send(builder.ToString());
 

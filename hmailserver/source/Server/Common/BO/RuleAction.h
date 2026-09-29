@@ -62,6 +62,10 @@ namespace HM
       String GetScriptFunction() const {return script_function_; }
       void SetScriptFunction(const String &sNewVal) {script_function_ = sNewVal; }
 
+      // The name is written into script code as is, so only plain identifiers are allowed.
+      static bool IsValidScriptFunctionName(const String &name);
+      bool HasValidScriptFunction() const;
+
       bool GetAbortSpamFlagged() const { return abort_spam_flagged_; }
       void SetAbortSpamFlagged(bool bNewVal) { abort_spam_flagged_ = bNewVal; }
 
