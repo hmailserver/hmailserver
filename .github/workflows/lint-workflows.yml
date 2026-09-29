@@ -19,6 +19,7 @@ on:
       - 'feature/**'
       - 'techdebt/**'
       - 'bugfix/**'
+      - '[0-9]+.[0-9]+.[0-9]+'
     paths:
       - '.github/workflows/**'
   workflow_dispatch:
