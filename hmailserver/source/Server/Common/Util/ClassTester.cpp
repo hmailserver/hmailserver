@@ -31,6 +31,7 @@
 #include "../Util/Hashing/HashCreator.h"
 #include "../Util/Hashing/PasswordHasher.h"
 #include "../Util/EventTester.h"
+#include "../Scripting/ScriptServer.h"
 #include <boost/pool/object_pool.hpp>
 
 #ifdef _DEBUG
@@ -181,6 +182,11 @@ namespace HM
 
       
 
+      OutputDebugString(_T("hMailServer: Testing script string literals\n"));
+      ScriptServerTester scriptServerTester;
+      std::vector<AnsiString> scriptServerFailures = scriptServerTester.Run();
+      if (!scriptServerFailures.empty())
+         throw std::logic_error(scriptServerFailures[0]);
    }
 
    void 

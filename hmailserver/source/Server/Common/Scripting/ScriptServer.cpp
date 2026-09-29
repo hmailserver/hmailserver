@@ -198,7 +198,65 @@ namespace HM
 
    }
 
-   void 
+   String
+   ScriptServer::ToStringLiteral(const String &language, const String &value)
+   {
+      // One pass per character, so an escape added here is never escaped again.
+      String result;
+
+      if (language == _T("JScript"))
+      {
+         result = _T("'");
+
+         for (int i = 0; i < value.GetLength(); i++)
+         {
+            wchar_t c = value[i];
+
+            if (c == L'\\')
+               result += _T("\\\\");
+            else if (c == L'\'')
+               result += _T("\\'");
+            else if (c < 0x20 || c == 0x7F || c == 0x2028 || c == 0x2029)
+            {
+               String escape;
+               escape.Format(_T("\\u%04X"), (int) c);
+               result += escape;
+            }
+            else
+               result += c;
+         }
+
+         result += _T("'");
+      }
+      else
+      {
+         // VBScript has no escape character. Control characters are appended with ChrW
+         // since a literal cannot span lines.
+         result = _T("\"");
+
+         for (int i = 0; i < value.GetLength(); i++)
+         {
+            wchar_t c = value[i];
+
+            if (c == L'"')
+               result += _T("\"\"");
+            else if (c < 0x20)
+            {
+               String escape;
+               escape.Format(_T("\" & ChrW(%d) & \""), (int) c);
+               result += escape;
+            }
+            else
+               result += c;
+         }
+
+         result += _T("\"");
+      }
+
+      return result;
+   }
+
+   void
    ScriptServer::FireEvent(Event e,  const String &sEventCaller, std::shared_ptr<ScriptObjectContainer> pObjects)
    {
       if (!Configuration::Instance()->GetUseScriptServer())
@@ -320,6 +378,31 @@ namespace HM
       pBasic->Terminate();
 
       LOG_DEBUG("Event completed");
+   }
+
+   std::vector<AnsiString>
+   ScriptServerTester::Run()
+   {
+      std::vector<AnsiString> failures;
+
+      auto check = [&failures](const String &language, const String &value, const String &expected)
+      {
+         String actual = ScriptServer::ToStringLiteral(language, value);
+         if (actual != expected)
+            failures.push_back(AnsiString("ToStringLiteral(" + language + ") gave " + actual + ", expected " + expected));
+      };
+
+      check(_T("JScript"), _T("plain"), _T("'plain'"));
+      check(_T("JScript"), _T("\\'); x; //"), _T("'\\\\\\'); x; //'"));
+      check(_T("JScript"), _T("a\r\nb\tc"), _T("'a\\u000D\\u000Ab\\u0009c'"));
+      check(_T("JScript"), String(1, (wchar_t) 0x2028), _T("'\\u2028'"));
+      check(_T("JScript"), _T("\"C:\\temp\""), _T("'\"C:\\\\temp\"'"));
+
+      check(_T("VBScript"), _T("plain"), _T("\"plain\""));
+      check(_T("VBScript"), _T("a\"b\\c"), _T("\"a\"\"b\\c\""));
+      check(_T("VBScript"), _T("a\r\nb"), _T("\"a\" & ChrW(13) & \"\" & ChrW(10) & \"b\""));
+
+      return failures;
    }
 
 }

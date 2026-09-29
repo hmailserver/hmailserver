@@ -187,7 +187,8 @@ namespace HM
          std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
          std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
-         String sEventCaller = "OnBackupFailed(\"" + sReason + "\")";
+         String sScriptLanguage = Configuration::Instance()->GetScriptLanguage();
+         String sEventCaller = "OnBackupFailed(" + ScriptServer::ToStringLiteral(sScriptLanguage, sReason) + ")";
          ScriptServer::Instance()->FireEvent(ScriptServer::EventOnBackupFailed, sEventCaller, pContainer);
       }
       LOG_DEBUG("BackupManager::~OnBackupFailed()");

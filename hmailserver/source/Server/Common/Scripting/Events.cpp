@@ -55,23 +55,11 @@ namespace HM
       // By default, pass through.
       pResult->SetValue(2);
 
-      String sEventCaller;
-
       String sScriptLanguage = Configuration::Instance()->GetScriptLanguage();
-      if (sScriptLanguage == _T("VBScript"))
-      {
-         String sEscapedPassword = sPassword;
-         sEscapedPassword.Replace(_T("\""), _T("\"\""));
 
-         sEventCaller.Format(_T("OnClientValidatePassword(HMAILSERVER_ACCOUNT, \"%s\")"), sEscapedPassword.c_str());
-      }
-      else if (sScriptLanguage == _T("JScript"))
-      {
-         String sEscapedPassword = sPassword;
-         sEscapedPassword.Replace(_T("'"), _T("\\'"));
-
-         sEventCaller.Format(_T("OnClientValidatePassword(HMAILSERVER_ACCOUNT, '%s')"), sEscapedPassword.c_str());
-      }
+      String sEventCaller;
+      sEventCaller.Format(_T("OnClientValidatePassword(HMAILSERVER_ACCOUNT, %s)"),
+         ScriptServer::ToStringLiteral(sScriptLanguage, sPassword).c_str());
 
       ScriptServer::Instance()->FireEvent(ScriptServer::EventOnClientValidatePassword, sEventCaller, pContainer);
       return pResult;
@@ -153,37 +141,16 @@ namespace HM
       // Send an event
       if (Configuration::Instance()->GetUseScriptServer())
       {
-         String sEventCaller;
-
-         String sRecipientCopy = sRecipient;
          String sErrorMessageCopy = sErrorMessage;
+         sErrorMessageCopy.TrimLeft();
+         sErrorMessageCopy.TrimRight();
 
          String sScriptLanguage = Configuration::Instance()->GetScriptLanguage();
 
-         if (sScriptLanguage == _T("VBScript"))
-         {
-            sRecipientCopy.Replace(_T("\""), _T(""));
-            sErrorMessageCopy.Replace(_T("\""), _T(""));
-
-            sErrorMessageCopy.Replace(_T("\r\n"), _T("\" + vbCRLF + \""));
-
-            sErrorMessageCopy.TrimLeft();
-            sErrorMessageCopy.TrimRight();
-
-            sEventCaller.Format(_T("OnDeliveryFailed(HMAILSERVER_MESSAGE, \"%s\", \"%s\")"), sRecipientCopy.c_str(), sErrorMessageCopy.c_str());
-         }
-         else if (sScriptLanguage == _T("JScript"))
-         {
-            sRecipientCopy.Replace(_T("'"), _T("\\'"));
-            sErrorMessageCopy.Replace(_T("'"), _T("\\'"));
-
-            sErrorMessageCopy.Replace(_T("\r\n"), _T("\\r\\n"));
-
-            sErrorMessageCopy.TrimLeft();
-            sErrorMessageCopy.TrimRight();
-
-            sEventCaller.Format(_T("OnDeliveryFailed(HMAILSERVER_MESSAGE, '%s', '%s')"), sRecipientCopy.c_str(), sErrorMessageCopy.c_str());
-         }
+         String sEventCaller;
+         sEventCaller.Format(_T("OnDeliveryFailed(HMAILSERVER_MESSAGE, %s, %s)"),
+            ScriptServer::ToStringLiteral(sScriptLanguage, sRecipient).c_str(),
+            ScriptServer::ToStringLiteral(sScriptLanguage, sErrorMessageCopy).c_str());
 
          std::shared_ptr<ScriptObjectContainer> pContainer  = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
          pContainer->AddObject("HMAILSERVER_MESSAGE", pMessage, ScriptObject::OTMessage);
@@ -206,30 +173,15 @@ namespace HM
       if (!Configuration::Instance()->GetUseScriptServer())
          return pResult;
       
-      String sEventCaller;
-
-      String sRemoteUIDCopy = sRemoteUID;
-
       String sScriptLanguage = Configuration::Instance()->GetScriptLanguage();
 
-      if (sScriptLanguage == _T("VBScript"))
-      {
-         sRemoteUIDCopy.Replace(_T("\""), _T("\"\""));
+      String sMessageArgument = _T("HMAILSERVER_MESSAGE");
+      if (!pMessage)
+         sMessageArgument = sScriptLanguage == _T("JScript") ? _T("null") : _T("Nothing");
 
-         if (pMessage)
-            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, HMAILSERVER_MESSAGE, \"%s\")"), sRemoteUIDCopy.c_str());
-         else
-            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, Nothing, \"%s\")"), sRemoteUIDCopy.c_str());
-      }
-      else if (sScriptLanguage == _T("JScript"))
-      {
-         sRemoteUIDCopy.Replace(_T("'"), _T("\\'"));
-
-         if (pMessage)
-            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, HMAILSERVER_MESSAGE, '%s')"), sRemoteUIDCopy.c_str());
-         else
-            sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, null, '%s')"), sRemoteUIDCopy.c_str());
-      }
+      String sEventCaller;
+      sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, %s, %s)"),
+         sMessageArgument.c_str(), ScriptServer::ToStringLiteral(sScriptLanguage, sRemoteUID).c_str());
 
       std::shared_ptr<ScriptObjectContainer> pContainer  = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
       

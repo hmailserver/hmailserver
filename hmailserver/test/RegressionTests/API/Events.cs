@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Security.Authentication;
 using System.Text;
 using hMailServer;
 using NUnit.Framework;
@@ -971,6 +973,254 @@ namespace RegressionTests.API
          var eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
          Assert.IsTrue(eventLogText.Contains("Account: test@example.test"));
          Assert.IsTrue(eventLogText.Contains("Password: MySecretPassword"));
+      }
+
+      [Test]
+      public void TestOnClientValidatePasswordJScript_BackslashCannotBreakOutOfString()
+      {
+         LogHandler.DeleteEventLog();
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var app = SingletonProvider<TestSetup>.Instance.GetApp();
+         var scripting = app.Settings.Scripting;
+         scripting.Language = "JScript";
+
+         var script =
+            @"function OnClientValidatePassword(account, password) {
+                 EventLog.Write('Password: [' + password + ']');
+              }";
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         var pop3 = new Pop3ClientSimulator();
+         Assert.IsFalse(pop3.ConnectAndLogon("test@example.test", JScriptInjection));
+
+         var eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
+         Assert.IsFalse(eventLogText.Contains("INJECTED"), eventLogText);
+         StringAssert.Contains("Password: [" + JScriptInjection + "]", eventLogText);
+      }
+
+      [Test]
+      public void TestOnClientValidatePasswordVBScript_QuoteAndLineBreakArePassedIntact()
+      {
+         LogHandler.DeleteEventLog();
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var app = SingletonProvider<TestSetup>.Instance.GetApp();
+         var scripting = app.Settings.Scripting;
+         scripting.Language = "VBScript";
+
+         var script =
+            @"Sub OnClientValidatePassword(account, password)
+                 EventLog.Write(""Intact: "" & (password = ""pass""""word"" & vbCrLf & ""line2""))
+              End Sub";
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         // AUTH LOGIN is base64 encoded, so the password can contain a line break.
+         const string password = "pass\"word\r\nline2";
+         var smtp = new SmtpClientSimulator();
+         Assert.Throws<AuthenticationException>(() =>
+            smtp.ConnectAndLogon(EncodeBase64("test@example.test"), EncodeBase64(password), out _));
+
+         var eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
+         StringAssert.Contains("Intact: True", eventLogText);
+      }
+
+      [Test]
+      public void TestOnDeliveryFailedJScript_BackslashCannotBreakOutOfString()
+      {
+         LogHandler.DeleteEventLog();
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var scripting = _settings.Scripting;
+         scripting.Language = "JScript";
+
+         var script =
+            @"function OnDeliveryFailed(message, recipient, errorMessage) {
+                 EventLog.Write('Error: [' + errorMessage + ']');
+              }";
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         var deliveryResults = new Dictionary<string, int>();
+         deliveryResults["test@dummy-example.com"] = 550;
+
+         var smtpServerPort = TestSetup.GetNextFreePort();
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
+         {
+            // The remote server controls the error message passed to the script.
+            server.RecipientReplyText = JScriptInjection;
+            server.AddRecipientResult(deliveryResults);
+            server.StartListen();
+
+            TestSetup.AddRoutePointingAtLocalhost(0, smtpServerPort, false);
+
+            SmtpClientSimulator.StaticSend("test@example.test", "test@dummy-example.com", "Test", "Test message");
+
+            server.WaitForCompletion();
+         }
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsFalse(eventLogText.Contains("INJECTED"), eventLogText);
+         StringAssert.Contains(JScriptInjection, eventLogText);
+      }
+
+      [Test]
+      public void TestOnExternalAccountDownloadJScript_BackslashCannotBreakOutOfString()
+      {
+         LogHandler.DeleteEventLog();
+
+         var scripting = _settings.Scripting;
+         scripting.Language = "JScript";
+
+         var script =
+            @"function OnExternalAccountDownload(fetchAccount, message, remoteUid) {
+                 EventLog.Write('UID: [' + remoteUid + ']');
+              }";
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@example.test", "test");
+
+         var messages = new List<string>
+         {
+            "From: Martin@example1.com\r\n" +
+            "To: Martin@example.com\r\n" +
+            "Subject: Message 1\r\n" +
+            "\r\n" +
+            "Message 1!"
+         };
+
+         var port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
+         {
+            // The remote server controls the UID passed to the script.
+            pop3Server.Uids = new List<string> { JScriptInjection };
+            pop3Server.StartListen();
+
+            var fa = account.FetchAccounts.Add();
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "TestFA";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.UseSSL = false;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.ProcessMIMERecipients = false;
+            fa.Save();
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+         }
+
+         var eventLogText = TestSetup.ReadExistingTextFile(_settings.Logging.CurrentEventLog);
+         Assert.IsFalse(eventLogText.Contains("INJECTED"), eventLogText);
+         StringAssert.Contains("UID: [" + JScriptInjection + "]", eventLogText);
+      }
+
+      [Test]
+      public void TestOnBackupFailedJScript_BackslashIsPassedIntact()
+      {
+         LogHandler.DeleteEventLog();
+
+         var scripting = _settings.Scripting;
+         scripting.Language = "JScript";
+
+         var script =
+            @"function OnBackupFailed(reason) {
+                 EventLog.Write('Failed: [' + reason + ']');
+              }";
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         // \t in the path must not become a tab.
+         const string backupDir = @"C:\some-non-existant-directory\test";
+         var back = new BackupRestore();
+         back.InitializeBackupSettings();
+         back.SetBackupDir(backupDir);
+         Assert.IsFalse(back.Execute());
+
+         CustomAsserts.AssertReportedError("BACKUP ERROR: The specified backup directory is not accessible:");
+         var eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         StringAssert.Contains(backupDir, eventLogText);
+      }
+
+      [Test]
+      public void TestRuleScriptFunctionNameSetByUserCannotRunCode()
+      {
+         LogHandler.DeleteEventLog();
+
+         var scripting = _settings.Scripting;
+         scripting.Language = "VBScript";
+         File.WriteAllText(scripting.CurrentScriptFile, "Sub Harmless(message)\r\nEnd Sub");
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         account.AdminLevel = eAdminLevel.hAdminLevelNormal;
+         account.Save();
+
+         // A normal user logs on to the COM API and adds a rule to their own account.
+         var userApp = new Application();
+         Assert.IsNotNull(userApp.Authenticate(account.Address, "test"));
+         var userAccount = userApp.Domains[0].Accounts.ItemByAddress[account.Address];
+
+         var rule = userAccount.Rules.Add();
+         rule.Name = "Injection";
+         rule.Active = true;
+
+         var criteria = rule.Criterias.Add();
+         criteria.UsePredefined = true;
+         criteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         criteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         criteria.MatchValue = "0";
+         criteria.Save();
+
+         var action = rule.Actions.Add();
+         action.Type = eRuleActionType.eRARunScriptFunction;
+         action.ScriptFunction = "Harmless(Nothing) : EventLog.Write(\"INJ\" & \"ECTED\") : Rem ";
+         Assert.Throws<COMException>(() => action.Save());
+
+         try
+         {
+            rule.Save();
+         }
+         catch (COMException)
+         {
+            // Refusing the rule is also acceptable.
+         }
+
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "Test");
+         Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+
+         if (File.Exists(LogHandler.GetEventLogFileName()))
+         {
+            var eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+            Assert.IsFalse(eventLogText.Contains("INJECTED"), eventLogText);
+         }
+      }
+
+      // Ends a JScript string with \' if the backslash is not escaped. The marker is split so
+      // it only appears in the log when the injected code runs.
+      private const string JScriptInjection = @"\');EventLog.Write(/INJ/.source+/ECTED/.source);//";
+
+      private static string EncodeBase64(string value)
+      {
+         return Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
       }
    }
 }

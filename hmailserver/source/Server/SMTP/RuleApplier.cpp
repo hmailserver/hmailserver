@@ -357,6 +357,13 @@ namespace HM
       // Run a custom function
       String sFunctionName = pAction->GetScriptFunction();
 
+      if (!RuleAction::IsValidScriptFunctionName(sFunctionName))
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5735, "RuleApplier::ApplyAction_ScriptFunction",
+            "The rule script function name is not valid, so it was not run: " + sFunctionName);
+         return;
+      }
+
       std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
       std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
       pContainer->AddObject("HMAILSERVER_MESSAGE", pMsgData->GetMessage(), ScriptObject::OTMessage);
