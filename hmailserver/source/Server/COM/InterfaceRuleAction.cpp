@@ -34,6 +34,9 @@ STDMETHODIMP InterfaceRuleAction::Save()
       if (!object_)
          return GetAccessDenied();
 
+      if (!object_->HasValidScriptFunction())
+         return COMError::GenerateError("The script function name may only contain letters, digits and underscores, and may not start with a digit.");
+
       // Set the sort order of the rule.
       if (object_->GetID() == 0 && object_->GetSortOrder() == 0)
       {

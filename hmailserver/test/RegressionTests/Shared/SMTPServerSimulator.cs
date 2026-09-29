@@ -73,6 +73,9 @@ namespace RegressionTests.Shared
 
       public string MessageData { get; private set; } = "";
 
+      // Text sent after the code in RCPT TO replies. When null, the address is echoed.
+      public string RecipientReplyText { get; set; }
+
       public void AddRecipientResult(Dictionary<string, int> result)
       {
          _recipientResults.Add(result);
@@ -199,7 +202,7 @@ namespace RegressionTests.Shared
 
             var result = _currentRecipientResult[address].ToString();
 
-            Send(result + " " + address + "\r\n");
+            Send(result + " " + (RecipientReplyText ?? address) + "\r\n");
 
             RcptTos.Add(address);
             RcptTosReceived++;

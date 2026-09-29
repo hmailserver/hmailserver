@@ -37,6 +37,7 @@
 #include "../Util/Hashing/HashCreator.h"
 #include "../Util/Hashing/PasswordHasher.h"
 #include "../Util/EventTester.h"
+#include "../Scripting/ScriptServer.h"
 #include <boost/pool/object_pool.hpp>
 
 #ifdef _DEBUG
@@ -233,6 +234,10 @@ namespace HM
       OutputDebugString(_T("hMailServer: Testing UIDVALIDITY counters\n"));
       UIDValidityGeneratorTester uidValidityTester;
       ReportFailures_("UIDVALIDITY counters", uidValidityTester.Run());
+
+      OutputDebugString(_T("hMailServer: Testing script string literals\n"));
+      ScriptServerTester scriptServerTester;
+      ReportFailures_("script string literals", scriptServerTester.Run());
    }
 
    void 
