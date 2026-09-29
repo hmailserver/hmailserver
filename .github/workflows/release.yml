@@ -1,0 +1,103 @@
+# Creates a draft GitHub release from an installer that build.yml has already built and tested.
+#
+# Run it by hand with the build number, e.g. 3110. It finds the build's published artifacts,
+# hMailServer-<version>-B<build>-x64-Setup and -Symbols, which the publish job in build.yml
+# only uploads once the regression tests have passed. The installer and a zip of the symbols
+# are attached to a new draft release, tagged at the commit that was built. The draft is
+# then reviewed, given release notes and published by hand.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: 'Build number, e.g. 3110.'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Create draft release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # actions: read to find and download the build's artifacts, contents: write to create
+    # the release.
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      BUILD: ${{ inputs.build }}
+    steps:
+      - name: Find the build
+        id: find
+        run: |
+          if ! [[ "$BUILD" =~ ^[0-9]+$ ]]; then
+            echo "::error::The build number must be digits only, was '$BUILD'."
+            exit 1
+          fi
+
+          # Artifacts expire after 90 days, so an older build can no longer be released.
+          matches=$(gh api --paginate "repos/$GH_REPO/actions/artifacts?per_page=100" \
+            --jq ".artifacts[] | select(.expired | not) | select(.name | test(\"^hMailServer-[0-9]+\\\\.[0-9]+\\\\.[0-9]+-B$BUILD-x64-Setup$\")) | \"\(.name) \(.workflow_run.id)\"")
+          count=$(printf '%s' "$matches" | grep -c . || true)
+          if [ "$count" -ne 1 ]; then
+            echo "::error::Expected one unexpired installer artifact for build $BUILD, found $count."
+            printf '%s\n' "$matches"
+            exit 1
+          fi
+
+          read -r setup_name run_id <<< "$matches"
+          version=$(sed -E 's/^hMailServer-([0-9.]+)-B.*/\1/' <<< "$setup_name")
+          run=$(gh api "repos/$GH_REPO/actions/runs/$run_id" --jq '"\(.head_sha) \(.head_branch)"')
+          read -r sha branch <<< "$run"
+
+          # Only builds of master and version branches (e.g. 5.7.1) are released.
+          if [ "$branch" != "master" ] && ! [[ "$branch" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Build $BUILD was built from '$branch'. Only master and version branches can be released."
+            exit 1
+          fi
+
+          echo "Build $BUILD is hMailServer $version, run $run_id, $branch at $sha"
+          {
+            echo "version=$version"
+            echo "run-id=$run_id"
+            echo "sha=$sha"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Download the installer and symbols
+        env:
+          VERSION: ${{ steps.find.outputs.version }}
+          RUN_ID: ${{ steps.find.outputs.run-id }}
+        run: |
+          name="hMailServer-$VERSION-B$BUILD-x64"
+          gh run download "$RUN_ID" --name "$name-Setup" --dir installer
+          gh run download "$RUN_ID" --name "$name-Symbols" --dir symbols
+
+          mkdir release
+          cp "installer/$name.exe" release/
+          (cd symbols && zip -q -9 "../release/$name-Symbols.zip" ./*.pdb)
+          ls -l release
+
+      - name: Create the draft release
+        env:
+          VERSION: ${{ steps.find.outputs.version }}
+          SHA: ${{ steps.find.outputs.sha }}
+        run: |
+          tag="hMailServer-$VERSION-b$BUILD"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "::error::A release tagged $tag already exists."
+            exit 1
+          fi
+
+          # 5.7.0 is called 5.7 in the title, as in earlier releases.
+          title_version="$VERSION"
+          if [[ "$VERSION" =~ ^([0-9]+\.[0-9]+)\.0$ ]]; then title_version="${BASH_REMATCH[1]}"; fi
+          gh release create "$tag" release/* \
+            --draft \
+            --target "$SHA" \
+            --title "hMailServer $title_version, build $BUILD" \
+            --notes ""
