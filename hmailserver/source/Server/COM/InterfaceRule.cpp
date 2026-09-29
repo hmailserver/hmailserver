@@ -6,6 +6,8 @@
 
 #include "../Common/BO/Rule.h"
 #include "../Common/BO/Rules.h"
+#include "../Common/BO/RuleAction.h"
+#include "../Common/BO/RuleActions.h"
 #include "../Common/Persistence/PersistentRule.h"
 
 #include "InterfaceRuleCriterias.h"
@@ -263,6 +265,13 @@ STDMETHODIMP InterfaceRule::Save()
    {
       if (!object_)
          return GetAccessDenied();
+
+      std::shared_ptr<HM::RuleActions> actions = object_->GetActions();
+      for (int i = 0; i < actions->GetCount(); i++)
+      {
+         if (!actions->GetItem(i)->HasValidScriptFunction())
+            return COMError::GenerateError("The script function name may only contain letters, digits and underscores, and may not start with a digit.");
+      }
 
       // Set the sort order of the rule.
       if (object_->GetID() == 0 && object_->GetSortOrder() == 0)

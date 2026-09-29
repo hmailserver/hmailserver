@@ -49,8 +49,12 @@ namespace HM
       // Refreshes the scripts in the event directory
       void LoadScripts();
       
-      String GetCurrentScriptFile() const;   
-   
+      String GetCurrentScriptFile() const;
+
+      // Returns value as a quoted string literal, including the quotes, for the
+      // given script language. Use it for every value written into a call.
+      static String ToStringLiteral(const String &language, const String &value);
+
    private:
 
       bool DoesFunctionExist_(const String &sProcedure);
@@ -79,5 +83,12 @@ namespace HM
       String script_extension_;
       String script_language_;
 
+   };
+
+   class ScriptServerTester
+   {
+   public:
+      // Returns a description of each failed check.
+      std::vector<AnsiString> Run();
    };
 }

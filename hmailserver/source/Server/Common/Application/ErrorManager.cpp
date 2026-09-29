@@ -179,32 +179,13 @@ namespace HM
           Configuration::Instance()->GetPropertySet() && 
           Configuration::Instance()->GetUseScriptServer())
       {
-         String sEventCaller;
-         
          String sScriptLanguage = Configuration::Instance()->GetScriptLanguage();
 
-         if (sScriptLanguage == _T("VBScript"))
-         {
-            String tempSource = sSource;
-            String tempDescription = sDescription;
-            
-            tempSource.Replace(_T("\""), _T("\"\""));
-            tempDescription.Replace(_T("\""), _T("\"\""));
-
-            sEventCaller.Format(_T("OnError(%d, %d, \"%s\", \"%s\")"), 
-               iSeverity, iErrorID, tempSource.c_str(), tempDescription.c_str());
-         }
-         else if (sScriptLanguage == _T("JScript"))
-         {
-            String tempSource = sSource;
-            String tempDescription = sDescription;
-
-            tempSource.Replace(_T("'"), _T("\\'"));
-            tempDescription.Replace(_T("'"), _T("\\'"));
-
-            sEventCaller.Format(_T("OnError(%d, %d, '%s', '%s')"), 
-               iSeverity, iErrorID, tempSource.c_str(), tempDescription.c_str());
-         }
+         String sEventCaller;
+         sEventCaller.Format(_T("OnError(%d, %d, %s, %s)"),
+            iSeverity, iErrorID,
+            ScriptServer::ToStringLiteral(sScriptLanguage, sSource).c_str(),
+            ScriptServer::ToStringLiteral(sScriptLanguage, sDescription).c_str());
 
          std::shared_ptr<ScriptObjectContainer> pContainer  = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
          

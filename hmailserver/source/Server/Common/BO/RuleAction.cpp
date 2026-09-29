@@ -24,6 +24,32 @@ namespace HM
    {
    }
 
+   bool
+   RuleAction::IsValidScriptFunctionName(const String &name)
+   {
+      if (name.IsEmpty() || name.GetLength() > 255)
+         return false;
+
+      for (int i = 0; i < name.GetLength(); i++)
+      {
+         wchar_t c = name[i];
+
+         bool letter = (c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z') || c == L'_';
+         bool digit = c >= L'0' && c <= L'9';
+
+         if (!letter && !(digit && i > 0))
+            return false;
+      }
+
+      return true;
+   }
+
+   bool
+   RuleAction::HasValidScriptFunction() const
+   {
+      return type_ != ScriptFunction || IsValidScriptFunctionName(script_function_);
+   }
+
    bool 
    RuleAction::XMLStore(XNode *pRuleNode, int iOptions)
    {
