@@ -972,5 +972,34 @@ namespace RegressionTests.API
          Assert.IsTrue(eventLogText.Contains("Account: test@example.test"));
          Assert.IsTrue(eventLogText.Contains("Password: MySecretPassword"));
       }
+
+      [Test]
+      public void TestOnClientValidatePasswordJScript_BackslashCannotBreakOutOfString()
+      {
+         LogHandler.DeleteEventLog();
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var app = SingletonProvider<TestSetup>.Instance.GetApp();
+         var scripting = app.Settings.Scripting;
+         scripting.Language = "JScript";
+
+         var script =
+            @"function OnClientValidatePassword(account, password) {
+                 EventLog.Write('Password: [' + password + ']');
+              }";
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         // A trailing backslash must not end the string literal and run the rest as JScript.
+         const string password = @"\');EventLog.Write(/INJECTED/.source);//";
+         var pop3 = new Pop3ClientSimulator();
+         Assert.IsFalse(pop3.ConnectAndLogon("test@example.test", password));
+
+         var eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
+         Assert.IsFalse(eventLogText.Contains("INJECTED"), eventLogText);
+         StringAssert.Contains("Password: [" + password + "]", eventLogText);
+      }
    }
 }
