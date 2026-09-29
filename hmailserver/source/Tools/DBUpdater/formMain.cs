@@ -309,7 +309,7 @@ namespace DBUpdater
             case 5712:
                return "hMailServer 5.7 (5712)";
             case 5713:
-               return "hMailServer 5.7.1 (5713)";
+               return "hMailServer 5.7.2 (5713)";
             default:
                return "Unknown version";
          }
