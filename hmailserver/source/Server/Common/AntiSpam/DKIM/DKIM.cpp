@@ -33,8 +33,6 @@ namespace HM
    void 
    DKIM::Initialize()
    {
-      ERR_load_EVP_strings();
-
       recommendedHeaderFields_.push_back("From");
       recommendedHeaderFields_.push_back("Sender");
       recommendedHeaderFields_.push_back("Reply-To");
@@ -204,7 +202,7 @@ namespace HM
       unsigned int siglen = EVP_PKEY_size(private_key);
       unsigned char *sig = (unsigned char*) OPENSSL_malloc(siglen);
       
-	  EVP_MD_CTX* headerSigningContext = EVP_MD_CTX_create();
+	  EVP_MD_CTX* headerSigningContext = EVP_MD_CTX_new();
       EVP_SignInit( headerSigningContext, hashType == HashCreator::SHA256 ? EVP_sha256() : EVP_sha1());
       
       String result;
@@ -226,7 +224,7 @@ namespace HM
       }
 
       EVP_PKEY_free(private_key);
-	  EVP_MD_CTX_destroy(headerSigningContext);
+	  EVP_MD_CTX_free(headerSigningContext);
       OPENSSL_free(sig);
 
       return result;
@@ -420,8 +418,7 @@ namespace HM
          return result;
       }
 
-	  EVP_MD_CTX* hdr__ctx = EVP_MD_CTX_create();
-      EVP_MD_CTX_init( hdr__ctx );
+	  EVP_MD_CTX* hdr__ctx = EVP_MD_CTX_new();
 
       if (tagA == "rsa-sha256")
          EVP_VerifyInit( hdr__ctx, EVP_sha256() );
@@ -449,7 +446,7 @@ namespace HM
          }
       }
 
-      EVP_MD_CTX_destroy( hdr__ctx );
+      EVP_MD_CTX_free( hdr__ctx );
       EVP_PKEY_free(publicKey);
 
       return result;

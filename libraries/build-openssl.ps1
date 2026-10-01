@@ -92,7 +92,7 @@ Push-Location $srcDir
 try
 {
     Invoke-BuildStep "Configuring OpenSSL $Version for target VC-WIN64A" {
-        perl Configure no-asm VC-WIN64A "--prefix=$outDir" "--openssldir=$outDir" -D_WIN32_WINNT=0x600 --api=1.1.1 no-deprecated
+        perl Configure no-asm VC-WIN64A "--prefix=$outDir" "--openssldir=$outDir" -D_WIN32_WINNT=0x600 --api=3.0 no-deprecated
     }
     if ($LastExitCode -ne 0)
     {
