@@ -31,6 +31,8 @@ is_book: false
 
 <div>After setting everything up, it's recommended that you use a DKIM validator to set your set up, for example <a href="http://dkimvalidator.com/">dkimvalidator.com</a>.</div>
 
+<div>That confirms the signature. To also see whether SPF and DMARC agree on the same message, and which folder it was filed under at the receiving end, send one to <a href="https://email-spam-tester.com/">email-spam-tester.com</a>.</div>
+
 <div> </div>
 
 <div> </div>
