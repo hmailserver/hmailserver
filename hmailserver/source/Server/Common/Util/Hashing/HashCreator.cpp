@@ -6,9 +6,7 @@
 #include "../PasswordGenerator.h"
 #include "../../Mime/MimeCode.h"
 
-#include <openssl/sha.h>
 #include <openssl/evp.h>
-#include <openssl/md5.h>
 
 #include "HashCreator.h"
 
@@ -92,52 +90,26 @@ namespace HM
 
    AnsiString HashCreator::GetHash_Raw(const unsigned char *input, int inputLength, HashCreator::RequestedEncoding encoding)
    {
-      int digestLength = 0;
+      const EVP_MD *digest = nullptr;
 
       switch (hash_type_)
       {
       case SHA1:
-         digestLength = SHA_DIGEST_LENGTH;
+         digest = EVP_sha1();
          break;
       case SHA256:
-         digestLength = SHA256_DIGEST_LENGTH;
+         digest = EVP_sha256();
          break;
       case MD5:
-         digestLength = MD5_DIGEST_LENGTH;
+         digest = EVP_md5();
          break;
       }
 
-      unsigned char *results = new unsigned char[digestLength];
+      unsigned char results[EVP_MAX_MD_SIZE];
+      unsigned int digestLength = 0;
 
-      switch (hash_type_)
-      {
-      case SHA1:
-         {
-            SHA_CTX context;
-            SHA1_Init(&context);
-            SHA1_Update(&context, input, inputLength);
-            SHA1_Final(results, &context);
-            break;
-         }
-      case MD5:
-         {
-            MD5_CTX context;
-            MD5_Init(&context);
-            MD5_Update(&context, input, inputLength);
-            MD5_Final(results, &context);
-            break;
-         }
-      case SHA256:
-         {
-            SHA256_CTX context;
-            SHA256_Init(&context);
-            SHA256_Update(&context, input, inputLength);
-            SHA256_Final(results, &context);
-            break;
-         }
-
-      }
-
+      if (digest == nullptr || EVP_Digest(input, inputLength, results, &digestLength, digest, nullptr) != 1)
+         throw std::logic_error("Failed to calculate hash.");
 
       HM::AnsiString retVal;
       if (encoding == hex)
@@ -145,7 +117,7 @@ namespace HM
          char buffer[3];
          buffer[2] = '\0';
 
-         for (int i = 0; i < digestLength; i++)
+         for (unsigned int i = 0; i < digestLength; i++)
          {
             sprintf_s(buffer, 3, "%02x", results[i]);
 
@@ -164,8 +136,6 @@ namespace HM
          retVal = sEncodedValue;
          retVal = retVal.Mid(0, retVal.GetLength()-2);
       }
-
-      delete [] results;
 
       return retVal;
    }
