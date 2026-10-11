@@ -91,8 +91,10 @@ $env:CFLAGS = "-DOPENSSL_TLS_SECURITY_LEVEL=0"
 Push-Location $srcDir
 try
 {
+    # Deprecated APIs stay in the DLLs: libpq and libmariadb still use some of them.
+    # hMailServer.vcxproj excludes them from hMailServer's own code.
     Invoke-BuildStep "Configuring OpenSSL $Version for target VC-WIN64A" {
-        perl Configure no-asm VC-WIN64A "--prefix=$outDir" "--openssldir=$outDir" -D_WIN32_WINNT=0x600 --api=1.1.1 no-deprecated
+        perl Configure no-asm VC-WIN64A "--prefix=$outDir" "--openssldir=$outDir" -D_WIN32_WINNT=0x600
     }
     if ($LastExitCode -ne 0)
     {
