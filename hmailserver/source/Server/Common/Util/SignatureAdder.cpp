@@ -131,6 +131,10 @@ namespace HM
             return false;
       }
 
+      // The body of a large message is not loaded, so no signature can be added to it.
+      if (message_data->IsHeaderOnly())
+         return false;
+
       if (!sender_domain->GetAddSignaturesToReplies() && GetMessageIsReply_(message_data))
       {
          // The message is a reply, but we have configured the

@@ -1460,6 +1460,42 @@ namespace RegressionTests.Rules
       }
 
       [Test]
+      [Description("Issue 683: A forward rule on a message larger than 80MB forwarded a blank message.")]
+      public void TestForwardOfMessageLargerThan80MBKeepsContent()
+      {
+         _settings.MaxMessageSize = 0;
+
+         var account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest1@example.test", "test");
+         var account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest2@example.test", "test");
+
+         var rule = account1.Rules.Add();
+         rule.Name = "Forward large";
+         rule.Active = true;
+
+         var ruleCriteria = rule.Criterias.Add();
+         ruleCriteria.UsePredefined = true;
+         ruleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         ruleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         ruleCriteria.MatchValue = "0";
+         ruleCriteria.Save();
+
+         var ruleAction = rule.Actions.Add();
+         ruleAction.Type = eRuleActionType.eRAForwardEmail;
+         ruleAction.To = account2.Address;
+         ruleAction.Save();
+
+         rule.Save();
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("sender@example.test", account1.Address, "Large rule forward", TestSetup.CreateLargeMessageBody());
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var message = CustomAsserts.AssertGetFirstMessage(account2, "Inbox");
+         CustomAsserts.AssertLargeMessageIntact(message, "Large rule forward");
+      }
+
+      [Test]
       [Description("Test forward rule when spam flagged.")]
       public void TestForwardAbortSpamFlagged()
       {

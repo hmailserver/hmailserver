@@ -35,6 +35,8 @@ using namespace std;
 // RFC 822 - Standard For The Format of ARPA Internet Text Message
 namespace HM
 {
+   class File;
+
    const char* FindString(const char* pszStr1, const char* pszStr2, const char* pszEnd);
 
    class CMimeConst
@@ -472,6 +474,9 @@ namespace HM
       void ClearAttachments();
       void RemoveAttachment(std::shared_ptr<MimeBody> pAttachment);
       int LoadFromFile(const AnsiString &pszFilename);
+      bool LoadHeaderFromFile(const AnsiString &pszFilename);
+      // Loads only the header. The body stays on disk and is copied when saving.
+      bool IsHeaderOnly() const { return header_only_; }
       bool SaveAllToFile(const AnsiString &pszFilename);
 
       String GetCleanContentType() const;
@@ -504,11 +509,12 @@ namespace HM
       bool body_modified_ = false;     // True if any body content was changed
       size_t last_header_size_ = 0;    // Header size captured from last Load() call
       size_t last_multipart_end_ = 0;  // Position right after "--boundary--" closing marker, or 0 if not multipart
+      bool header_only_ = false;       // True if only the header was loaded from source file
 
    protected:
 	   bool AllocateBuffer(size_t nBufSize);
 	   void FreeBuffer();
-      AnsiString ReadBodyFromSourceFile() const;
+      bool CopyBodyFromSourceFile(File &target, size_t &bytesCopied) const;
 
       String GenerateFileNameFromEncapsulatedSubject(bool unicode) const;
    };

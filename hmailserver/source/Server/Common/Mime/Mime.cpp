@@ -1246,6 +1246,7 @@ namespace HM
             }
 
             body_modified_ = false;
+            header_only_ = false;
          }
          catch (...)
          {
@@ -1260,6 +1261,51 @@ namespace HM
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4228, "MimeBody::LoadFromFile", sErrorMessage);
          }
       }
+
+      return true;
+   }
+
+   bool
+   MimeBody::LoadHeaderFromFile(const AnsiString &pszFilename)
+   {
+      File oFile;
+      if (!oFile.Open(pszFilename, File::OTReadOnly))
+         return false;
+
+      // Limits memory use if a message has a huge header.
+      const int MaxHeaderSize = 1024 * 1024 * 10;
+
+      // Read until the blank line which ends the header.
+      AnsiString header;
+      while (std::shared_ptr<ByteBuffer> chunk = oFile.ReadChunk(65536))
+      {
+         if (chunk->GetSize() == 0)
+            break;
+
+         int searchStart = std::max(0, header.GetLength() - 3);
+         header.append(chunk->GetCharBuffer(), chunk->GetSize());
+
+         int headerEnd = header.Find("\r\n\r\n", searchStart);
+         if (headerEnd >= 0)
+         {
+            header = header.Left(headerEnd + 4);
+            break;
+         }
+
+         if (header.GetLength() > MaxHeaderSize)
+            return false;
+      }
+
+      FreeBuffer();
+      size_t headerSize = MimeHeader::Load(header.c_str(), header.GetLength(), true);
+      if (headerSize == 0)
+         return false;
+
+      source_file_ = pszFilename;
+      body_byte_offset_ = std::min(headerSize, (size_t) header.GetLength());
+      body_byte_end_ = 0; // Copy to end of file.
+      body_modified_ = false;
+      header_only_ = true;
 
       return true;
    }
@@ -1279,55 +1325,89 @@ namespace HM
       return false;
    }
 
-   // Read the body bytes from the original source file, from body_byte_offset_ to body_byte_end_.
-   AnsiString MimeBody::ReadBodyFromSourceFile() const
+   // Copies the body bytes from the source file, from body_byte_offset_ to body_byte_end_
+   // (or to end of file if body_byte_end_ is 0), without loading them all into memory.
+   bool MimeBody::CopyBodyFromSourceFile(File &target, size_t &bytesCopied) const
    {
-      File oFile;
-      if (!oFile.Open(source_file_, File::OTReadOnly))
-         return "";
+      bytesCopied = 0;
 
-      std::shared_ptr<ByteBuffer> contents = oFile.ReadTextFile();
-      if (!contents || contents->GetSize() <= body_byte_offset_)
-         return "";
+      File source;
+      if (!source.Open(source_file_, File::OTReadOnly))
+         return false;
+
+      size_t fileSize = (size_t) source.GetSize();
 
       // Use body_byte_end_ to copy only the bytes the MIME parser actually consumed,
       // which excludes any trailing garbage bytes beyond the parsed message.
-      size_t end = (body_byte_end_ > 0 && body_byte_end_ <= contents->GetSize() - 1)
-                   ? body_byte_end_
-                   : contents->GetSize() - 1;  // -1 to exclude null terminator
-
+      size_t end = (body_byte_end_ > 0 && body_byte_end_ <= fileSize) ? body_byte_end_ : fileSize;
       if (end <= body_byte_offset_)
-         return "";
+         return true;
 
-      return AnsiString(contents->GetCharBuffer() + body_byte_offset_,
-                        end - body_byte_offset_);
+      if (!source.SetPosition((int) body_byte_offset_))
+         return false;
+
+      size_t remaining = end - body_byte_offset_;
+      while (remaining > 0)
+      {
+         std::shared_ptr<ByteBuffer> chunk = source.ReadChunk((int) std::min((size_t) File::FileChunkSize, remaining));
+         if (!chunk || chunk->GetSize() == 0)
+            return false;
+
+         size_t written = 0;
+         if (!target.Write(chunk, written) || written != chunk->GetSize())
+            return false;
+
+         remaining -= chunk->GetSize();
+         bytesCopied += chunk->GetSize();
+      }
+
+      return true;
    }
 
    // write the entire header and content to file.
    bool MimeBody::SaveAllToFile(const AnsiString & pszFilename)
    {
+      bool bodyModified = body_modified_ || IsAnyChildModified();
+
+      if (header_only_ && bodyModified)
+      {
+         // The body was never loaded, so saving would lose it.
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5736, "MimeBody::SaveAllToFile",
+            Formatter::Format("The body of the message is too large to be modified. File: {0}", String(source_file_)));
+         return false;
+      }
+
       // If body content was not modified and we have a source file, serialize only
       // headers (using raw_line_ for unmodified fields) and copy body from disk.
       // This preserves exact byte sequences required for DKIM signature validity.
-      if (!body_modified_ && !IsAnyChildModified() && !source_file_.IsEmpty())
+      if (!bodyModified && !source_file_.IsEmpty())
       {
          AnsiString headerBuffer;
          MimeHeader::Store(headerBuffer);  // includes trailing blank line \r\n
 
-         AnsiString bodyFromDisk = ReadBodyFromSourceFile();
+         // The target may be the source file, so write to a temporary file first.
+         String tempFileName = String(pszFilename) + ".tmp";
 
-         AnsiString fullMessage = headerBuffer + bodyFromDisk;
-         bool result = FileUtilities::WriteToFile(pszFilename, fullMessage);
-         if (result)
+         File tempFile;
+         if (!tempFile.Open(tempFileName, File::OTCreate))
+            return false;
+
+         size_t bodySize = 0;
+         bool result = tempFile.Write(headerBuffer) && CopyBodyFromSourceFile(tempFile, bodySize);
+         tempFile.Close();
+
+         if (!result || !FileUtilities::Move(tempFileName, pszFilename))
          {
-            // Update source tracking so subsequent saves also use the fast path
-            size_t newHeaderSize = (size_t)headerBuffer.GetLength();
-            size_t newBodySize = (size_t)bodyFromDisk.GetLength();
-            source_file_ = pszFilename;
-            body_byte_offset_ = newHeaderSize;
-            body_byte_end_ = newHeaderSize + newBodySize;
+            FileUtilities::DeleteFile(tempFileName);
+            return false;
          }
-         return result;
+
+         // Update source tracking so subsequent saves also use the fast path
+         size_t newHeaderSize = (size_t)headerBuffer.GetLength();
+         source_file_ = pszFilename;
+         body_byte_offset_ = newHeaderSize;
+         body_byte_end_ = newHeaderSize + bodySize;
+         return true;
       }
 
       // Fallback: full re-serialization (body was modified or no source file available)

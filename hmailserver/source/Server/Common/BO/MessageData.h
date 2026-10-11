@@ -22,6 +22,9 @@ namespace HM
 
       bool RefreshFromMessage();
 
+      bool IsHeaderOnly() const;
+      // True if the message is too large for its body to be parsed. Headers can still be changed.
+
       String GetHeader() const;
       
       String GetSubject() const;
@@ -111,6 +114,7 @@ namespace HM
 
       bool encode_fields_;
       bool unfold_with_space_;
+      bool load_failed_;
    };
 
    class MessageDataTester
