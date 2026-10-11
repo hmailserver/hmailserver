@@ -178,6 +178,17 @@ namespace RegressionTests.Infrastructure
          }
       }
 
+      // Checks that a message sent with TestSetup.CreateLargeMessageBody() still has its subject and full body.
+      public static void AssertLargeMessageIntact(Message message, string subject)
+      {
+         var expectedBodyLength = TestSetup.LargeBodyLine.Length * TestSetup.LargeBodyLineCount;
+
+         var fileContent = File.ReadAllText(message.Filename);
+         Assert.GreaterOrEqual(fileContent.Length, expectedBodyLength, "The message lost its content.");
+         StringAssert.Contains("Subject: " + subject + "\r\n", fileContent);
+         StringAssert.Contains(TestSetup.LargeBodyLine, fileContent);
+      }
+
       public static Message AssertGetFirstMessage(Account account, string folderName)
       {
          var folder = account.IMAPFolders.get_ItemByName(folderName);

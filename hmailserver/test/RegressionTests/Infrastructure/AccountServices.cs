@@ -44,6 +44,29 @@ namespace RegressionTests.Infrastructure
 
       [Test]
       [Category("Accounts")]
+      [Description("Issue 683: Forwarding a message larger than 80MB delivered a blank message.")]
+      public void AccountForwardOfMessageLargerThan80MBKeepsContent()
+      {
+         _settings.MaxMessageSize = 0;
+
+         var account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account1@example.test", "test");
+         var account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "account2@example.test", "test");
+
+         account1.ForwardAddress = account2.Address;
+         account1.ForwardEnabled = true;
+         account1.Save();
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("sender@example.test", account1.Address, "Large forward", TestSetup.CreateLargeMessageBody());
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var message = CustomAsserts.AssertGetFirstMessage(account2, "Inbox");
+         CustomAsserts.AssertLargeMessageIntact(message, "Large forward");
+      }
+
+      [Test]
+      [Category("Accounts")]
       [Description("Ensure that messages aren't forwarded if they re deleted using a rule.")]
       public void ConfirmSingleReturnPathAfterRuleForward()
       {

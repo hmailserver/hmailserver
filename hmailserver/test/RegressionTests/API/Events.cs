@@ -50,6 +50,37 @@ namespace RegressionTests.API
       }
 
       [Test]
+      [Description("Issue 683: Saving a header change on a message larger than 80MB emptied the message.")]
+      public void TestOnAcceptMessageHeaderChangeOnMessageLargerThan80MB()
+      {
+         _settings.MaxMessageSize = 0;
+         _settings.Scripting.Language = "JScript";
+
+         var script =
+            @"function OnAcceptMessage(oClient, message)
+                           {
+                              message.HeaderValue('X-SpamResult') = 'TEST';
+                              message.Save();
+                           }";
+
+         var scripting = _settings.Scripting;
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         var account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send("sender@example.test", account1.Address, "Large script save", TestSetup.CreateLargeMessageBody());
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var message = CustomAsserts.AssertGetFirstMessage(account1, "Inbox");
+         CustomAsserts.AssertLargeMessageIntact(message, "Large script save");
+         StringAssert.Contains("X-SpamResult: TEST\r\n", File.ReadAllText(message.Filename));
+      }
+
+      [Test]
       public void TestOnAcceptMessageVBScript()
       {
          LogHandler.DeleteEventLog();

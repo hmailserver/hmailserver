@@ -35,6 +35,7 @@ namespace HM
    {
       encode_fields_ = true;
       unfold_with_space_ = true;
+      load_failed_ = false;
 
       mime_mail_ = std::shared_ptr<MimeBody>(new MimeBody);
    }
@@ -55,16 +56,24 @@ namespace HM
       message_file_name_ = fileName;
 
       mime_mail_ = std::shared_ptr<MimeBody>(new MimeBody);
+      load_failed_ = true;
 
-      const int MaxSize = 1024*1024 * 80; // we'll ignore messages larger than 80MB.
-      if (FileUtilities::FileSize(message_file_name_) > MaxSize)
-         return false;
+      // To limit memory use, only the header of larger messages is loaded.
+      const long MaxParseSize = 1024*1024 * 80;
+      bool headerOnly = FileUtilities::FileSize(message_file_name_) > MaxParseSize;
 
       bool bNewMessage = false;
       try
       {
-
-         if (!mime_mail_->LoadFromFile(message_file_name_))
+         if (headerOnly)
+         {
+            if (!mime_mail_->LoadHeaderFromFile(message_file_name_))
+            {
+               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5737, "MessageData::LoadFromMessage", "Could not load the message header. File: " + message_file_name_);
+               return false;
+            }
+         }
+         else if (!mime_mail_->LoadFromFile(message_file_name_))
          {
             bNewMessage = true;
          }
@@ -100,9 +109,15 @@ namespace HM
          SetFieldValue(CMimeConst::MimeVersion(), "1.0");
       }
 
+      load_failed_ = false;
       return true;
    }
 
+   bool
+   MessageData::IsHeaderOnly() const
+   {
+      return mime_mail_->IsHeaderOnly();
+   }
 
    bool 
    MessageData::RefreshFromMessage()
@@ -783,6 +798,13 @@ namespace HM
    bool 
    MessageData::Write(const String &fileName)
    {
+      if (load_failed_)
+      {
+         // Writing now would replace the message with an empty one.
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5738, "MessageData::Write", "The message was not saved, since it could not be loaded. File: " + fileName);
+         return false;
+      }
+
       const HM::String directoryName = HM::FileUtilities::GetFilePath(fileName);
       if (!HM::FileUtilities::Exists(directoryName))
          HM::FileUtilities::CreateDirectory(directoryName);

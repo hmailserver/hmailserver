@@ -656,6 +656,19 @@ namespace RegressionTests.Shared
          return s;
       }
 
+      public const int LargeBodyLineCount = 900000;
+      public const string LargeBodyLine = "This line is part of a large message body. 0123456789abcdefghijklmnopqrstuvwxyz0123456789ABCD\r\n";
+
+      // Creates a body of about 85MB, above the 80MB where the server stops parsing the body.
+      public static string CreateLargeMessageBody()
+      {
+         var body = new StringBuilder(LargeBodyLine.Length * LargeBodyLineCount);
+         for (var i = 0; i < LargeBodyLineCount; i++)
+            body.Append(LargeBodyLine);
+
+         return body.ToString();
+      }
+
       // Files that the server itself opens cannot live in the temp directory of the account
       // running the tests, since the service account has no access to another user's profile.
       // The public directory is reachable by both.
