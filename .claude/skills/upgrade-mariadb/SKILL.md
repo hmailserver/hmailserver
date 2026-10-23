@@ -2,7 +2,7 @@
 name: upgrade-mariadb
 description: >-
   Build MariaDB Connector/C for hMailServer and/or bump the pinned version, for
-  3.4.x (e.g. rebuild 3.4.9 against a new OpenSSL, or upgrade 3.4.9 -> 3.4.10).
+  3.4.x (e.g. rebuild 3.4.11 against a new OpenSSL, or upgrade 3.4.11 -> 3.4.12).
   Builds libmariadb.dll into %hMailServerLibs% via libraries\build-mariadb.ps1
   (linking it against the OpenSSL hMailServer uses), rewrites every pinned MariaDB
   Connector/C version reference in the repo, keeps the README build instructions
@@ -25,7 +25,7 @@ There are two reasons to run it:
 
 - **Rebuild the connector** at the *current* pinned version — most often to relink it against a
   freshly built OpenSSL (see the OpenSSL skill's client-library note). No version rewrites needed.
-- **Bump the version** (e.g. `3.4.9 -> 3.4.10`) — build the new version *and* rewrite the pinned
+- **Bump the version** (e.g. `3.4.11 -> 3.4.12`) — build the new version *and* rewrite the pinned
   references.
 
 ## Scope
@@ -45,8 +45,8 @@ There are two reasons to run it:
 
 - Read the current version by searching
   `hmailserver/source/Server/hMailServer/post-build.bat` for `libmariadb-3\.4\.\d+`
-  (e.g. `libmariadb-3.4.9`).
-- Take the target version from the user (e.g. `3.4.10`). For a pure rebuild, the target equals
+  (e.g. `libmariadb-3.4.11`).
+- Take the target version from the user (e.g. `3.4.12`). For a pure rebuild, the target equals
   the current version.
 - **Validate the target matches `^3\.4\.\d+$`.** Abort with the out-of-scope message above if
   it does not.

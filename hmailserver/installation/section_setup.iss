@@ -10,9 +10,7 @@ AllowNoIcons=yes
 Uninstallable=true
 DirExistsWarning=no
 CreateAppDir=true
-; Windows Vista SP2. This is below the 6.1 that Inno Setup wants: Vista's loader cannot
-; parse the manifest block that pins mpr.dll, version.dll and friends to system32, so the
-; compiler strips that block from setup.exe for every target - the compiler warns about it.
-; Setup still hardens its DLL search path at run time. Inno Setup 6.3 dropped Vista
-; altogether, which is why the installer is built with 6.2.2 rather than a later release.
-MinVersion=6.0.6002
+; Windows 10 / Windows Server 2016. hMailServer.exe imports libpq.dll, and libpq from
+; PostgreSQL 16 and later requires Windows 10, so on anything older the service would not
+; start at all - whichever database it is configured for.
+MinVersion=10.0

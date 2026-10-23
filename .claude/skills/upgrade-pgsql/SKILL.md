@@ -1,17 +1,17 @@
 ---
 name: upgrade-pgsql
 description: >-
-  Build libpq for hMailServer and/or bump the pinned PostgreSQL version, for 15.x
-  and 16.x (e.g. rebuild 15.18 against a new OpenSSL, or upgrade 15.18 -> 15.19).
+  Build libpq for hMailServer and/or bump the pinned PostgreSQL version, for 17.x
+  and 18.x (e.g. rebuild 18.6 against a new OpenSSL, or upgrade 18.6 -> 18.7).
   Builds libpq into %hMailServerLibs% via libraries\build-pgsql.ps1 (linking it
   against the OpenSSL hMailServer uses), rewrites every pinned PostgreSQL version
   reference in the repo, keeps the README build instructions current, and verifies
   hMailServer still compiles and links. Use when asked to build, rebuild, bump,
-  update, or upgrade PostgreSQL/libpq for hMailServer. Supports PostgreSQL 15.x/16.x
+  update, or upgrade PostgreSQL/libpq for hMailServer. Supports PostgreSQL 17.x/18.x
   only.
 ---
 
-# Build / upgrade libpq (PostgreSQL 15.x/16.x) for hMailServer
+# Build / upgrade libpq (PostgreSQL 17.x/18.x) for hMailServer
 
 hMailServer talks to PostgreSQL through libpq. PostgreSQL is not vendored in the repo;
 libpq is built locally into `%hMailServerLibs%\postgresql-<version>\Release\libpq`, and its
@@ -23,18 +23,25 @@ There are two reasons to run it:
 
 - **Rebuild libpq** at the *current* pinned version — most often to relink it against a
   freshly built OpenSSL (see the OpenSSL skill's libpq note). No version rewrites needed.
-- **Bump the PostgreSQL version** (e.g. `15.18 -> 15.19`) — build the new version *and* rewrite
+- **Bump the PostgreSQL version** (e.g. `18.6 -> 18.7`) — build the new version *and* rewrite
   the pinned references.
 
 ## Scope
 
-- **PostgreSQL 15.x and 16.x only.** These ship the `src\tools\msvc\build.pl` MSVC build
-  system this skill drives. **PostgreSQL 17 removed it** in favour of Meson; if the requested
-  target is 17.x or newer, stop and tell the user it is out of scope — the build recipe differs
-  and this skill is not validated for it. Reject anything not matching `^1[56]\.\d+$`.
-- libpq links against OpenSSL at build time. The build script points `config.pl`'s `openssl`
-  entry at `%hMailServerLibs%\openssl-<ver>\out64`, so **a matching OpenSSL build must already
-  exist** (build it first with the upgrade-openssl skill / `build-openssl.ps1`).
+- **PostgreSQL 17.x and 18.x only.** They are built with Meson, which the script drives. A
+  new major (19.x and later) needs its Meson options and output layout checked first, so if the
+  requested target is outside 17.x/18.x, stop and tell the user it is out of scope. Reject
+  anything not matching `^1[78]\.\d+$`. 15.x and 16.x shipped the old `src\tools\msvc\build.pl`
+  system, which the script no longer drives.
+- libpq from PostgreSQL 16 and later requires Windows 10, and so does the installer
+  (`MinVersion` in `section_setup.iss`). Never lower that while libpq is 16 or later.
+- libpq links against OpenSSL at build time. The build script hands Meson
+  `%hMailServerLibs%\openssl-<ver>\out64` as extra include and library directories, so **a
+  matching OpenSSL build must already exist** (build it first with the upgrade-openssl skill /
+  `build-openssl.ps1`). The script fails if the configured libpq does not define `USE_OPENSSL`.
+- The script fetches its own pinned Meson, Ninja and winflexbison into
+  `%hMailServerLibs%\tools`. Bumping those pins (`$MesonVersion`, `$NinjaVersion`,
+  `$WinFlexBisonVersion` / `$WinFlexBisonHash`) is a separate change from a PostgreSQL bump.
 - Updating any CI/CD-built copy of libpq is out of scope, but the README build instructions
   must stay accurate.
 
@@ -43,11 +50,11 @@ There are two reasons to run it:
 ### 1. Determine current and target version
 
 - Read the current PostgreSQL version by searching
-  `hmailserver/source/Server/hMailServer/post-build.bat` for `postgresql-1[56]\.\d+`
-  (e.g. `postgresql-15.18`).
-- Take the target version from the user (e.g. `15.19`). For a pure rebuild, the target equals
+  `hmailserver/source/Server/hMailServer/post-build.bat` for `postgresql-1[78]\.\d+`
+  (e.g. `postgresql-18.6`).
+- Take the target version from the user (e.g. `18.7`). For a pure rebuild, the target equals
   the current version.
-- **Validate the target matches `^1[56]\.\d+$`.** Abort with the out-of-scope message above if
+- **Validate the target matches `^1[78]\.\d+$`.** Abort with the out-of-scope message above if
   it does not.
 - Read the OpenSSL version libpq should link against from
   `hmailserver/source/Server/hMailServer/hMailServer.vcxproj` (`openssl-<ver>`). The build
@@ -56,7 +63,7 @@ There are two reasons to run it:
 ### 2. Build libpq
 
 Invoke the build script (prerequisites — `%hMailServerLibs%`, an existing
-`openssl-<ver>\out64`, Perl on PATH, VS2019/VS2022 x64 tools — are validated inside it; surface its
+`openssl-<ver>\out64`, Perl and Python on PATH, VS x64 tools — are validated inside it; surface its
 error message if it fails):
 
 ```
@@ -67,7 +74,7 @@ Pass `-OpenSSLVersion <ver>` only to override the auto-detected value.
 
 **Run this through the native PowerShell tool, NOT the Bash tool.** The Bash tool prepends
 MSYS/Git (`/usr/bin`) to `PATH`, which shadows Strawberry Perl with an MSYS Perl that is
-missing modules PostgreSQL's `build.pl` needs, and puts a GNU `tar` ahead of the Windows
+missing modules PostgreSQL's build scripts need, and puts a GNU `tar` ahead of the Windows
 `bsdtar` (GNU tar misreads the `C:` in `C:\...` as a remote rmt host — "Cannot connect to C:
 resolve failed"). The native PowerShell tool has a clean Windows `PATH` where `perl` resolves
 to Strawberry Perl. The script also pins tar to `%SystemRoot%\System32\tar.exe` defensively,
@@ -81,7 +88,8 @@ script fails, read that log for the full transcript rather than relying on the (
 truncated) captured console output.
 
 On success it produces `%hMailServerLibs%\postgresql-<target>\Release\libpq` containing
-`libpq.dll` and `libpq.lib`, and the `libpq-fe.h` header under `src\interfaces\libpq`. Only
+`libpq.dll`, `libpq.lib` and `libpq.pdb` (copied there from Meson's `build64` tree), and the
+`libpq-fe.h` header under `src\interfaces\libpq`. Only
 proceed if the script exits 0.
 
 ### 3. Rewrite the pinned version references
@@ -110,7 +118,7 @@ version.
 The `README.md` "Building PostgreSQL" section documents the manual recipe the script
 automates. On a version bump, update its version numbers (step 3 already covers the
 `postgresql-<ver>` strings). Skim the new release's notes; only if PostgreSQL changed the build
-process (e.g. dropped/changed `src\tools\msvc\build.pl`, new flags) update both
+process (e.g. new or renamed Meson options, a different output path) update both
 `libraries\build-pgsql.ps1` and the README accordingly. State whether a change was needed.
 
 ### 5. Verify
@@ -153,6 +161,6 @@ dependencies and need no action.
 
 ## Note
 
-The script's own end-to-end run needs the PostgreSQL source download, the VS2019/VS2022 x64 toolchain,
-Perl, and a matching `openssl-<ver>\out64` build present; it validates those prerequisites and
+The script's own end-to-end run needs the PostgreSQL source download, the VS x64 toolchain,
+Perl, Python, and a matching `openssl-<ver>\out64` build present; it validates those prerequisites and
 fails early with a clear message if any is missing.

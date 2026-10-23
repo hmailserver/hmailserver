@@ -19,8 +19,8 @@
 
         openssl=3.5.8               openssl_dir=openssl-3.5.8
         boost=1.92.0                boost_dir=boost_1_92_0
-        postgresql=15.19            postgresql_dir=postgresql-15.19
-        mariadb=3.4.9               mariadb_dir=libmariadb-3.4.9
+        postgresql=18.6             postgresql_dir=postgresql-18.6
+        mariadb=3.4.11              mariadb_dir=libmariadb-3.4.11
         sevenzip=26.03              sevenzip_dir=7zip-26.03
 
     The *_dir values are the folder names under %hMailServerLibs% that the build scripts
@@ -71,8 +71,8 @@ function Get-PinnedVersion
 }
 
 # The same version strings the library build scripts and the project file use:
-#   openssl-3.5.8, boost_1_92_0, postgresql-15.19 in the project's include/library paths,
-#   libmariadb-3.4.9 in the DLL post-build.bat copies into the output directory.
+#   openssl-3.5.8, boost_1_92_0, postgresql-18.6 in the project's include/library paths,
+#   libmariadb-3.4.11 in the DLL post-build.bat copies into the output directory.
 $openssl = Get-PinnedVersion -Text $vcxprojText -Pattern 'openssl-(\d+\.\d+\.\d+)' -Description 'OpenSSL' -Source $vcxproj
 $boostUnderscored = Get-PinnedVersion -Text $vcxprojText -Pattern 'boost_(\d+_\d+_\d+)' -Description 'Boost' -Source $vcxproj
 $postgresql = Get-PinnedVersion -Text $vcxprojText -Pattern 'postgresql-(\d+\.\d+)' -Description 'PostgreSQL' -Source $vcxproj

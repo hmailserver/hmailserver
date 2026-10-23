@@ -28,7 +28,7 @@
         is located automatically via vswhere).
 
 .PARAMETER Version
-    The MariaDB Connector/C version to build, e.g. 3.4.9. Must match 3.4.x.
+    The MariaDB Connector/C version to build, e.g. 3.4.11. Must match 3.4.x.
 
 .PARAMETER OpenSSLVersion
     The OpenSSL version to link libmariadb against, e.g. 3.5.8. Must correspond to an
@@ -37,11 +37,11 @@
     currently links against).
 
 .EXAMPLE
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.9 -OpenSSLVersion 3.5.8
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.11 -OpenSSLVersion 3.5.8
 
 .EXAMPLE
     # Auto-detect the OpenSSL version from hMailServer.vcxproj:
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.9
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.11
 #>
 [CmdletBinding()]
 param(

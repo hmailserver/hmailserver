@@ -76,9 +76,9 @@ env:
   # The v142 toolset the projects are pinned to, and so the oldest C++ runtime the installer
   # may ship. A later one is fine - the 14.x runtimes are backwards compatible.
   REDIST_MIN_VERSION: '14.29'
-  # The last Inno Setup release whose installers still run on Windows Vista, which
-  # hMailServer64.iss sets as its MinVersion. 6.3 raised the floor to Windows 7, so no later
-  # release can be used until Vista support is dropped.
+  # The last Inno Setup release whose installers still run on Windows Vista. The installer's
+  # MinVersion is now Windows 10 (libpq requires it), so a later release could be used; the
+  # pin has not been moved yet.
   INNOSETUP_VERSION: 6.2.2
   # The build number continues the series TeamCity produced, which ended at 2869. GitHub's
   # run number cannot be seeded, so it is offset by that instead: build = offset + run number.
@@ -472,9 +472,9 @@ jobs:
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version $env:LIB_VERSION
           if ($LASTEXITCODE -ne 0) { throw "build-mariadb.ps1 failed with exit code $LASTEXITCODE" }
 
-          # Only the DLL is shipped; hMailServer compiles against the vendored
-          # libraries\libmysql-5.7.38 headers, not this source tree. Keep just the folder
-          # chain leading to the DLL by dropping the siblings at each level.
+          # Only the DLL is shipped; hMailServer loads it at run time and declares the
+          # mysql_* functions it uses itself, so it needs no headers from this source tree.
+          # Keep just the folder chain leading to the DLL by dropping the siblings at each level.
           $root = Join-Path $env:hMailServerLibs $env:LIB_DIR
           Get-ChildItem $root -Force | Where-Object { $_.Name -ne 'build64' } | Remove-Item -Recurse -Force
           Get-ChildItem (Join-Path $root 'build64') -Force | Where-Object { $_.Name -ne 'libmariadb' } | Remove-Item -Recurse -Force

@@ -25,7 +25,8 @@ Environment set up
    * An installed version of hMailServer 5.7 (configured with a database)
    * Visual Studio 2026 Community edition with the v142 (VS2019) build tools
    * InnoSetup 6.2.2 (https://github.com/jrsoftware/issrc/releases/tag/is-6_2_2) - the last
-     release whose installers run on Windows Vista, which hMailServer still supports
+     release whose installers run on Windows Vista. hMailServer now requires Windows 10, so a
+     later release could be used, but the build has not been moved to one yet
    * Perl 5 (https://strawberryperl.com/) - required by the OpenSSL and PostgreSQL library builds
    * CMake (https://cmake.org/download/) - unless Visual Studio's "C++ CMake tools for Windows" component is installed
    
@@ -82,24 +83,26 @@ Building PostgreSQL
 -------------------
 hMailServer talks to PostgreSQL through libpq. libpq is built by the `libraries\build-pgsql.ps1`
 script, which downloads the requested version into %hMailServerLibs%\postgresql-&lt;Version&gt;,
-generates the `src\tools\msvc\config.pl` that links libpq against a previously built OpenSSL, and
-builds `libpq.dll` / `libpq.lib` into `postgresql-&lt;Version&gt;\Release\libpq`.
+configures it with Meson against a previously built OpenSSL, and builds `libpq.dll` / `libpq.lib`
+into `postgresql-&lt;Version&gt;\Release\libpq`. The script fetches pinned copies of Meson, Ninja
+and winflexbison (flex and bison) into `%hMailServerLibs%\tools` itself.
 
 Prerequisites:
 - The environment variable hMailServerLibs (see above).
 - A matching OpenSSL build (`openssl-&lt;Version&gt;\out64`) already present - build it first with the OpenSSL script above.
-- Perl (e.g. [Strawberry Perl](https://strawberryperl.com/)) on PATH - required by PostgreSQL's build.pl.
+- Perl (e.g. [Strawberry Perl](https://strawberryperl.com/)) on PATH - required by PostgreSQL's build.
+- Python 3 on PATH - Meson runs on it.
 - Visual Studio 2026 with the x64 C++ build tools.
 
 Run, from the repository root:
 
    <pre>
-   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-pgsql.ps1 -Version 15.19
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-pgsql.ps1 -Version 18.6
    </pre>
 
 The script auto-detects the OpenSSL version to link against from the hMailServer project; pass
-`-OpenSSLVersion 3.5.x` to override it. Only PostgreSQL 15.x and 16.x are supported (17 removed
-the `src\tools\msvc\build.pl` build system this relies on).
+`-OpenSSLVersion 3.5.x` to override it. Only PostgreSQL 17.x and 18.x are supported. libpq from
+PostgreSQL 16 and later requires Windows 10, which is why hMailServer does too.
 
 Building MariaDB Connector/C
 ----------------------------
@@ -119,7 +122,7 @@ Prerequisites:
 Run, from the repository root:
 
    <pre>
-   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.9
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.11
    </pre>
 
 The script auto-detects the OpenSSL version to link against from the hMailServer project; pass

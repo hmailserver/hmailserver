@@ -7,8 +7,6 @@ namespace VMTestRunner.Console
 {
    public class TestEnvironments
    {
-      private const string MySQLLibPlaceholder = "{{MySQLLib}}";
-
       public static void AddAll(List<TestEnvironment> listEnvironments)
       {
          string jsonPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestEnvironments.json");
@@ -50,43 +48,16 @@ namespace VMTestRunner.Console
                env.PreInstallCommands.Add(new InstallCommand(cmd.Executable, cmd.Parameters));
 
             foreach (var copy in item.PreInstallFileCopy)
-               env.PreInstallFileCopy.Add(new FileCopyCommand(ResolvePath(copy.From), copy.To));
+               env.PreInstallFileCopy.Add(new FileCopyCommand(copy.From, copy.To));
 
             foreach (var cmd in item.PostInstallCommands)
                env.PostInstallCommands.Add(new InstallCommand(cmd.Executable, cmd.Parameters));
 
             foreach (var copy in item.PostInstallFileCopy)
-               env.PostInstallFileCopy.Add(new FileCopyCommand(ResolvePath(copy.From), copy.To));
+               env.PostInstallFileCopy.Add(new FileCopyCommand(copy.From, copy.To));
 
             listEnvironments.Add(env);
          }
-      }
-
-      private static string ResolvePath(string path)
-      {
-         switch (path)
-         {
-            case MySQLLibPlaceholder:
-               return GetMySQLLib();
-            default:
-               return path;
-         }
-      }
-
-      private static string GetMySQLLib()
-      {
-         string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-         var librariesDir = Path.Combine(currentDir, @"..\..\..\..\..\..\libraries");
-         var libMySqlDir = Path.Combine(librariesDir, "libmysql-5.7.38");
-
-         string name = Path.Combine(libMySqlDir, "libmySQL.dll");
-
-         if (!File.Exists(name))
-         {
-            throw new System.Exception($"The file {name} could not be found.");
-         }
-
-         return name;
       }
 
       /// <summary>
