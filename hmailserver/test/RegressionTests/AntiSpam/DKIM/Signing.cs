@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using hMailServer;
 using NUnit.Framework;
@@ -525,6 +526,28 @@ namespace RegressionTests.AntiSpam.DKIM
             Assert.IsTrue(localData.ToLower().Contains("dkim-signature"),
                "Expected a DKIM-Signature header in the locally-delivered message but none was found.\r\n" + localData);
          }
+      }
+
+      [Test]
+      [Description("Saving a domain with DKIM signing enabled should fail if the private key file does not exist, #688.")]
+      public void TestSaveWithMissingPrivateKeyFileFails()
+      {
+         _domain.DKIMPrivateKeyFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".key");
+         _domain.DKIMSelector = "TestSelector";
+         _domain.DKIMSignEnabled = true;
+
+         var ex = Assert.Throws<COMException>(() => _domain.Save());
+         StringAssert.Contains("private key file", ex.Message);
+      }
+
+      [Test]
+      [Description("Saving a domain with a missing private key file should work when DKIM signing is disabled, #688.")]
+      public void TestSaveWithMissingPrivateKeyFileWhenDisabled()
+      {
+         _domain.DKIMPrivateKeyFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".key");
+         _domain.DKIMSelector = "TestSelector";
+         _domain.DKIMSignEnabled = false;
+         _domain.Save();
       }
    }
 }
