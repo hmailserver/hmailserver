@@ -25,6 +25,7 @@ namespace HM
       static bool Copy(const String &sFrom, const String &sTo, bool bCreateMissingDirectories = false, bool bReportMissingSource = true);
       static bool Move(const String &sFrom, const String &sTo);
       static bool Exists(const String &sFilename);
+      static bool IsRegularFile(const String &sFilename);
 
       static void ReadFileToBuf(const String &sFilename, BYTE *Buf, int iStart = -1, int iCount = -1);
       static String ReadCompleteTextFile(const String &sFilename);

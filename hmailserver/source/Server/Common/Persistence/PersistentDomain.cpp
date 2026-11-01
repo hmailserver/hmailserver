@@ -176,6 +176,17 @@ namespace HM
       if (!PreSaveLimitationsCheck::CheckLimitations(mode, pDomain, sErrorMessage))
          return false;
 
+      // Not checked on restore, since key files may not have been copied yet.
+      if (mode == PersistenceModeNormal && pDomain->GetDKIMEnabled())
+      {
+         String privateKeyFile = pDomain->GetDKIMPrivateKeyFile();
+         if (!privateKeyFile.IsEmpty() && !FileUtilities::IsRegularFile(privateKeyFile))
+         {
+            sErrorMessage.Format(_T("The DKIM private key file %s does not exist or is not a file."), privateKeyFile.c_str());
+            return false;
+         }
+      }
+
       __int64 iID = pDomain->GetID();
       if (iID > 0)
       {

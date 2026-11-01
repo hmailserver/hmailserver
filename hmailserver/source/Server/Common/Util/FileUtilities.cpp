@@ -174,6 +174,14 @@ namespace HM
       return boost::filesystem::exists(sFilename, error_code);
    }
 
+   bool
+   FileUtilities::IsRegularFile(const String &sFilename)
+   {
+      // False for directories, and for paths the server cannot inspect.
+      boost::system::error_code error_code;
+      return boost::filesystem::is_regular_file(sFilename, error_code);
+   }
+
    String
    FileUtilities::GetFilePath(const String & FileName)
    //---------------------------------------------------------------------------()
