@@ -852,22 +852,34 @@ namespace HM
 
       // A test may ask for the message to be rejected or marked as spam regardless
       // of the spam score.
-      bool rejectRequested = false;
+      std::shared_ptr<SpamTestResult> rejectingResult;
+      std::shared_ptr<SpamTestResult> failedResult;
       bool markRequested = false;
 
       for (std::shared_ptr<SpamTestResult> testResult : setSpamTestResults)
       {
          if (testResult->GetRejectMessage())
-            rejectRequested = true;
+            rejectingResult = testResult;
+
+         if (!failedResult && testResult->GetResult() == SpamTestResult::Fail)
+            failedResult = testResult;
 
          if (testResult->GetMarkAsSpam())
             markRequested = true;
       }
 
-      if (rejectRequested || (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold))
+      if (rejectingResult || (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold))
       {
          // Increase the spam-counter
          ServerStatus::Instance()->OnSpamMessageDetected();
+
+         // Same reason as the SMTP server gives: the rejecting test, else the first failed one.
+         std::shared_ptr<SpamTestResult> reasonResult = rejectingResult ? rejectingResult : failedResult;
+         String reason = reasonResult ? reasonResult->GetMessage() : String();
+
+         String logMessage = Formatter::Format("hMailServer SpamProtection rejected fetched email (Account: {0}, Sender: {1}, Score: {2}, Reason: {3})",
+            account_->GetName(), senderAddress, iTotalSpamScore, reason);
+         LOG_APPLICATION(logMessage);
 
          FileUtilities::DeleteFile(fileName);
          return false;

@@ -812,6 +812,47 @@ namespace RegressionTests.POP3.Fetching
       }
 
       [Test]
+      [Description("Issue 690, a fetched message deleted as spam must be logged.")]
+      public void TestSpamProtectionDeleteIsLogged()
+      {
+         _application.Settings.AntiSpam.SpamMarkThreshold = 1;
+         _application.Settings.AntiSpam.SpamDeleteThreshold = 100;
+
+         _application.Settings.AntiSpam.CheckHostInHelo = true;
+         _application.Settings.AntiSpam.CheckHostInHeloScore = 105;
+
+         var message = "Received: from openspf.org (openspf.org [1.2.1.1]) by mail.host.edu\r\n" +
+                       "From: spftest@openspf.org\r\n" +
+                       "To: Martin@example.com\r\n" +
+                       "Subject: Test\r\n" +
+                       "\r\n" +
+                       "Should be deleted as spam.";
+
+         var messages = new List<string> { message };
+
+         var port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
+         {
+            pop3Server.StartListen();
+
+            var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@example.test", "test");
+            var fa = CreateFetchAccount(account, port, true, false);
+
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+
+            fa.Delete();
+
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 0);
+
+            Assert.IsTrue(LogHandler.DefaultLogContains(
+               "hMailServer SpamProtection rejected fetched email (Account: Test, Sender: spftest@openspf.org, Score: 105, " +
+               "Reason: The host name specified in HELO does not match IP address.)"));
+         }
+      }
+
+      [Test]
       public void TestSpamProtectionPreTransmissionHELOPass()
       {
          _application.Settings.AntiSpam.SpamMarkThreshold = 1;
