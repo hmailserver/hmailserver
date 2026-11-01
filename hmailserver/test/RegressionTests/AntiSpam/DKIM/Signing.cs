@@ -541,6 +541,18 @@ namespace RegressionTests.AntiSpam.DKIM
       }
 
       [Test]
+      [Description("Saving a domain with DKIM signing enabled should fail if the private key file is a directory, #688.")]
+      public void TestSaveWithPrivateKeyFileDirectoryFails()
+      {
+         _domain.DKIMPrivateKeyFile = Path.GetTempPath();
+         _domain.DKIMSelector = "TestSelector";
+         _domain.DKIMSignEnabled = true;
+
+         var ex = Assert.Throws<COMException>(() => _domain.Save());
+         StringAssert.Contains("private key file", ex.Message);
+      }
+
+      [Test]
       [Description("Saving a domain with a missing private key file should work when DKIM signing is disabled, #688.")]
       public void TestSaveWithMissingPrivateKeyFileWhenDisabled()
       {

@@ -180,9 +180,9 @@ namespace HM
       if (mode == PersistenceModeNormal && pDomain->GetDKIMEnabled())
       {
          String privateKeyFile = pDomain->GetDKIMPrivateKeyFile();
-         if (!privateKeyFile.IsEmpty() && !FileUtilities::Exists(privateKeyFile))
+         if (!privateKeyFile.IsEmpty() && !FileUtilities::IsRegularFile(privateKeyFile))
          {
-            sErrorMessage.Format(_T("The DKIM private key file %s does not exist."), privateKeyFile.c_str());
+            sErrorMessage.Format(_T("The DKIM private key file %s does not exist or is not a file."), privateKeyFile.c_str());
             return false;
          }
       }
