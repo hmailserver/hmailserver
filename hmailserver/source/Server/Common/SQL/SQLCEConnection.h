@@ -47,6 +47,7 @@ namespace HM
       String GetDatabaseFileName_(const String &sShortName) const;
 
       virtual bool UpgradeDatabase_();
+      bool EnableFlushOnCommit_();
 
       DALConnection::ExecutionResult GetErrorType_(int iErrorCode);
 
