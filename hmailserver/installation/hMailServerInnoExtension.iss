@@ -761,6 +761,34 @@ begin
    end;
 end;
 
+// True if the ProgramData directory already gives the service account full control.
+// icacls.exe has no query option, so its listing is written to a file and searched.
+function HasServiceAccountAccess() : Boolean;
+var
+   ResultCode : Integer;
+   szOutputFile : String;
+   szOutput : AnsiString;
+   szText : String;
+begin
+   Result := False;
+   szOutputFile := ExpandConstant('{tmp}\icacls-output.txt');
+
+   if (Exec(ExpandConstant('{cmd}'),
+            '/C ""' + ExpandConstant('{sys}\icacls.exe') + '" "' + GetProgramDataDir() + '" > "' + szOutputFile + '""',
+            '', SW_HIDE, ewWaitUntilTerminated, ResultCode) = False) or (ResultCode <> 0) then
+      exit;
+
+   if (LoadStringFromFile(szOutputFile, szOutput)) then
+   begin
+      // Strip the zero bytes in case icacls wrote UTF-16.
+      szText := String(szOutput);
+      StringChangeEx(szText, #0, '', True);
+      Result := Pos(Uppercase('NT SERVICE\hMailServer:(OI)(CI)(F)'), Uppercase(szText)) > 0;
+   end;
+
+   DeleteFile(szOutputFile);
+end;
+
 // Gives the hMailServer service access to its own data. The service runs as the
 // virtual account NT SERVICE\hMailServer, which exists only once the service has
 // been created. On Windows versions before Windows 7, virtual accounts are not
@@ -774,9 +802,16 @@ begin
    if (Version.Major < 6) or ((Version.Major = 6) and (Version.Minor < 1)) then
       exit;
 
-   Exec(ExpandConstant('{sys}\icacls.exe'),
-        '"' + GetProgramDataDir() + '" /grant "NT SERVICE\hMailServer":(OI)(CI)F',
-        '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+   // Windows rewrites the permissions of every file below the directory when an
+   // inheritable entry is granted, which is slow with a large data directory. So
+   // skip it when the entry is already there, e.g. after a reinstall.
+   if (HasServiceAccountAccess()) then
+      exit;
+
+   if (Exec(ExpandConstant('{sys}\icacls.exe'),
+            '"' + GetProgramDataDir() + '" /grant "NT SERVICE\hMailServer":(OI)(CI)F',
+            '', SW_HIDE, ewWaitUntilTerminated, ResultCode) = False) or (ResultCode <> 0) then
+      Log('hMailServer: Failed to give NT SERVICE\hMailServer access to ' + GetProgramDataDir() + '. icacls result: ' + IntToStr(ResultCode));
 end;
 
 function RunPostInstallTasks() : Boolean;
@@ -784,6 +819,7 @@ function RunPostInstallTasks() : Boolean;
       ResultCode: Integer;
       ProgressPage : TOutputProgressWizardPage;
       szParameters: AnsiString;
+      bServiceExisted: Boolean;
 begin
    try
 
@@ -802,14 +838,21 @@ begin
       ProgressPage.SetText('Creating the hMailServer service...', '');
       ProgressPage.SetProgress(3,6);
 
+      // Existing services keep their account (see ServiceManager::RegisterService), so
+      // only a service created now runs as the virtual account and needs access.
+      bServiceExisted := IsServiceInstalled('hMailServer');
+
       // Register hMaillServer service
       if (Exec(ExpandConstant('{app}\Bin\hMailServer.exe'), '/Register', '',  SW_HIDE, ewWaitUntilTerminated, ResultCode) = False) then
          FailPostInstall('The hMailServer service could not be created. ' + SysErrorMessage(ResultCode));
 
       // Must run after the service has been created - the virtual account doesn't
       // exist until then.
-      if (IsProgramDataInstallation()) then
+      if (IsProgramDataInstallation() and not bServiceExisted) then
+      begin
+         ProgressPage.SetText('Giving the hMailServer service access to its data directory...', 'This may take a while if the data directory contains many messages.');
          GrantServiceAccountAccess();
+      end;
 
       ProgressPage.SetText('Initializing hMailServer database...', '');
       ProgressPage.SetProgress(4,6);
@@ -870,8 +913,13 @@ var
 begin
    szDir := GetProgramDataDir();
 
-   if (DirExists(szDir) = False) then
-      CreateDir(szDir);
+   // An existing directory keeps its permissions. Changing them would rewrite the
+   // permissions of every file below it, and they may have been restricted on purpose.
+   if (DirExists(szDir)) then
+      exit;
+
+   if (CreateDir(szDir) = False) then
+      exit;
 
    // S-1-5-18 is LocalSystem, S-1-5-32-544 is the local Administrators group and
    // S-1-5-32-545 is the local Users group. The SIDs are used rather than the names,
