@@ -8,6 +8,7 @@
 namespace HM
 {
    class SQLCommand;
+   class SQLCEFlusher;
 
    class DatabaseConnectionManager
    {
@@ -46,6 +47,8 @@ namespace HM
       
       std::set<std::shared_ptr<DALConnection> > busy_connections_;
       std::set<std::shared_ptr<DALConnection> > available_connections_;
+
+      std::shared_ptr<SQLCEFlusher> sqlce_flusher_;
       
 
    };

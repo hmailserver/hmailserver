@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.ServiceProcess;
+using System.Threading;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
@@ -35,6 +36,9 @@ namespace RegressionTests.Infrastructure.Persistence
             SmtpClientSimulator.StaticSend("sender@example.test", address, "Message " + i, "Body");
 
          CustomAsserts.AssertFolderMessageCount(account.IMAPFolders.get_ItemByName("INBOX"), messageCount);
+
+         // The server flushes committed changes to disk once a second.
+         Thread.Sleep(TimeSpan.FromSeconds(2));
 
          KillAndRestartService();
 
