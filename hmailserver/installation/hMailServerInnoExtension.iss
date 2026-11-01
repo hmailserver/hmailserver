@@ -819,7 +819,6 @@ function RunPostInstallTasks() : Boolean;
       ResultCode: Integer;
       ProgressPage : TOutputProgressWizardPage;
       szParameters: AnsiString;
-      bServiceExisted: Boolean;
 begin
    try
 
@@ -838,17 +837,14 @@ begin
       ProgressPage.SetText('Creating the hMailServer service...', '');
       ProgressPage.SetProgress(3,6);
 
-      // Existing services keep their account (see ServiceManager::RegisterService), so
-      // only a service created now runs as the virtual account and needs access.
-      bServiceExisted := IsServiceInstalled('hMailServer');
-
       // Register hMaillServer service
       if (Exec(ExpandConstant('{app}\Bin\hMailServer.exe'), '/Register', '',  SW_HIDE, ewWaitUntilTerminated, ResultCode) = False) then
          FailPostInstall('The hMailServer service could not be created. ' + SysErrorMessage(ResultCode));
 
       // Must run after the service has been created - the virtual account doesn't
-      // exist until then.
-      if (IsProgramDataInstallation() and not bServiceExisted) then
+      // exist until then. Also runs for an existing service, since the directory may
+      // have been replaced, e.g. restored from a backup.
+      if (IsProgramDataInstallation()) then
       begin
          ProgressPage.SetText('Giving the hMailServer service access to its data directory...', 'This may take a while if the data directory contains many messages.');
          GrantServiceAccountAccess();
