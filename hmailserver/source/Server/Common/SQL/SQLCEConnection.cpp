@@ -161,6 +161,11 @@ namespace HM
 
          SysFreeString(bsConnection);
 
+         if (!EnableFlushOnCommit_())
+         {
+            cSQLCEConnection->Close();
+            return TemporaryFailure;
+         }
 
          connected_ = true;
          sErrorMessage = "";
@@ -189,7 +194,48 @@ namespace HM
 
    }
 
-   bool 
+   bool
+   SQLCEConnection::EnableFlushOnCommit_()
+   {
+      // SQL Server Compact 4.0 may never flush lazily committed changes to disk (KB2979868),
+      // so make every commit write to disk before it returns.
+      ADOConnectionConstruction15Ptr construction = cSQLCEConnection;
+      IUnknownPtr session = construction ? construction->GetSession() : nullptr;
+
+      CComQIPtr<ISessionProperties> sessionProperties(session);
+      if (!sessionProperties)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5703, "SQLCEConnection::EnableFlushOnCommit_", "Failed to access the database session.");
+         return false;
+      }
+
+      DBPROP property;
+      property.dwPropertyID = DBPROP_SSCE_TRANSACTION_COMMIT_MODE;
+      property.dwOptions = DBPROPOPTIONS_REQUIRED;
+      property.colid = DB_NULLID;
+      property.dwStatus = 0;
+      VariantInit(&property.vValue);
+      property.vValue.vt = VT_I4;
+      property.vValue.lVal = DBPROPVAL_SSCE_TCM_FLUSH;
+
+      DBPROPSET propertySet;
+      propertySet.guidPropertySet = DBPROPSET_SSCE_SESSION;
+      propertySet.cProperties = 1;
+      propertySet.rgProperties = &property;
+
+      HRESULT hr = sessionProperties->SetProperties(1, &propertySet);
+      if (FAILED(hr))
+      {
+         String message;
+         message.Format(_T("Failed to make commits flush to disk. HRESULT: 0x%08X, Property status: %d"), hr, property.dwStatus);
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5704, "SQLCEConnection::EnableFlushOnCommit_", message);
+         return false;
+      }
+
+      return true;
+   }
+
+   bool
    SQLCEConnection::UpgradeDatabase_()
    {
       ISSCEEngine *pISSCEEngine = NULL;
