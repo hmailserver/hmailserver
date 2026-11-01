@@ -100,6 +100,7 @@
     <Compile Include="Infrastructure\IPRanges.cs" />
     <Compile Include="Infrastructure\MainOperations.cs" />
     <Compile Include="Infrastructure\Persistence\Basics.cs" />
+    <Compile Include="Infrastructure\Persistence\CrashRecovery.cs" />
     <Compile Include="POP3\Basics.cs" />
     <Compile Include="Shared\Pop3ClientSimulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
