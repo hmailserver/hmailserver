@@ -576,7 +576,7 @@ jobs:
       - name: Upload the binaries for signing
         id: upload-binaries
         if: env.SIGNING_POLICY != 'none'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: binaries-unsigned
           path: ${{ runner.temp }}/unsigned-binaries/
@@ -587,7 +587,7 @@ jobs:
       # access to the requested GitHub resource", even with the SignPath GitHub App installed.
       - name: Sign the binaries
         if: env.SIGNING_POLICY != 'none'
-        uses: SignPath/github-action-submit-signing-request@c92b958760219087e01f8d67a1669ed57afe2627 # v2.3
+        uses: SignPath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3.0
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ env.SIGNPATH_ORGANIZATION_ID }}
@@ -666,7 +666,7 @@ jobs:
           Get-ChildItem $symbols | Select-Object Name, Length | Format-Table -AutoSize | Out-String
 
       - name: Upload the symbols for publishing
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: symbols-untested
           path: ${{ runner.temp }}/symbols
@@ -769,7 +769,7 @@ jobs:
       - name: Upload the installer for signing
         id: upload-installer
         if: env.SIGNING_POLICY != 'none'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: installer-unsigned
           path: hmailserver/installation/Output/*.exe
@@ -778,7 +778,7 @@ jobs:
 
       - name: Sign the installer
         if: env.SIGNING_POLICY != 'none'
-        uses: SignPath/github-action-submit-signing-request@c92b958760219087e01f8d67a1669ed57afe2627 # v2.3
+        uses: SignPath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3.0
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ env.SIGNPATH_ORGANIZATION_ID }}
@@ -806,7 +806,7 @@ jobs:
       # between jobs, so the run ends up carrying the installer twice - which is the price
       # of testing it on a machine that did not build it.
       - name: Upload the installer for testing
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: installer-untested
           path: hmailserver/installation/Output/*.exe
@@ -817,7 +817,7 @@ jobs:
 
       - name: Upload the library build logs
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: library-build-logs
           path: libraries/build-*.log
@@ -852,7 +852,7 @@ jobs:
       attestations: write
     steps:
       - name: Download the tested installer
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: installer-untested
           path: installer
@@ -867,20 +867,20 @@ jobs:
           subject-path: installer/*.exe
 
       - name: Upload the installer under its release name
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: hMailServer-${{ needs.build.outputs.version }}-B${{ needs.build.outputs.build }}-x64-Setup
           path: installer/*.exe
           if-no-files-found: error
 
       - name: Download the symbols
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: symbols-untested
           path: symbols
 
       - name: Upload the symbols under their release name
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: hMailServer-${{ needs.build.outputs.version }}-B${{ needs.build.outputs.build }}-x64-Symbols
           path: symbols/*.pdb
