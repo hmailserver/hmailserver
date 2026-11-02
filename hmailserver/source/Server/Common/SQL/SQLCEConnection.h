@@ -17,6 +17,7 @@ namespace HM
       bool Disconnect();
       ExecutionResult TryExecute(const SQLCommand &command, String &sErrorMessage, __int64 *iInsertID = 0, int iIgnoreErrors = 0);
       bool IsConnected() const;
+      bool EnableFlushOnCommit();
   
       virtual bool GetSupportsCommandParameters() const {return true; }
       _ConnectionPtr GetConnection() const;
@@ -47,7 +48,6 @@ namespace HM
       String GetDatabaseFileName_(const String &sShortName) const;
 
       virtual bool UpgradeDatabase_();
-      bool EnableFlushOnCommit_();
 
       DALConnection::ExecutionResult GetErrorType_(int iErrorCode);
 
