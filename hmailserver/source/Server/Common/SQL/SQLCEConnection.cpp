@@ -161,12 +161,6 @@ namespace HM
 
          SysFreeString(bsConnection);
 
-         if (!EnableFlushOnCommit_())
-         {
-            cSQLCEConnection->Close();
-            return TemporaryFailure;
-         }
-
          connected_ = true;
          sErrorMessage = "";
          
@@ -195,17 +189,15 @@ namespace HM
    }
 
    bool
-   SQLCEConnection::EnableFlushOnCommit_()
+   SQLCEConnection::EnableFlushOnCommit()
    {
-      // SQL Server Compact 4.0 may never flush lazily committed changes to disk (KB2979868),
-      // so make every commit write to disk before it returns.
       ADOConnectionConstruction15Ptr construction = cSQLCEConnection;
       IUnknownPtr session = construction ? construction->GetSession() : nullptr;
 
       CComQIPtr<ISessionProperties> sessionProperties(session);
       if (!sessionProperties)
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5703, "SQLCEConnection::EnableFlushOnCommit_", "Failed to access the database session.");
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5703, "SQLCEConnection::EnableFlushOnCommit", "Failed to access the database session.");
          return false;
       }
 
@@ -228,7 +220,7 @@ namespace HM
       {
          String message;
          message.Format(_T("Failed to make commits flush to disk. HRESULT: 0x%08X, Property status: %d"), hr, property.dwStatus);
-         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5704, "SQLCEConnection::EnableFlushOnCommit_", message);
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5704, "SQLCEConnection::EnableFlushOnCommit", message);
          return false;
       }
 
