@@ -161,7 +161,6 @@ namespace HM
 
          SysFreeString(bsConnection);
 
-
          connected_ = true;
          sErrorMessage = "";
          
@@ -189,7 +188,46 @@ namespace HM
 
    }
 
-   bool 
+   bool
+   SQLCEConnection::EnableFlushOnCommit()
+   {
+      ADOConnectionConstruction15Ptr construction = cSQLCEConnection;
+      IUnknownPtr session = construction ? construction->GetSession() : nullptr;
+
+      CComQIPtr<ISessionProperties> sessionProperties(session);
+      if (!sessionProperties)
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5703, "SQLCEConnection::EnableFlushOnCommit", "Failed to access the database session.");
+         return false;
+      }
+
+      DBPROP property;
+      property.dwPropertyID = DBPROP_SSCE_TRANSACTION_COMMIT_MODE;
+      property.dwOptions = DBPROPOPTIONS_REQUIRED;
+      property.colid = DB_NULLID;
+      property.dwStatus = 0;
+      VariantInit(&property.vValue);
+      property.vValue.vt = VT_I4;
+      property.vValue.lVal = DBPROPVAL_SSCE_TCM_FLUSH;
+
+      DBPROPSET propertySet;
+      propertySet.guidPropertySet = DBPROPSET_SSCE_SESSION;
+      propertySet.cProperties = 1;
+      propertySet.rgProperties = &property;
+
+      HRESULT hr = sessionProperties->SetProperties(1, &propertySet);
+      if (FAILED(hr))
+      {
+         String message;
+         message.Format(_T("Failed to make commits flush to disk. HRESULT: 0x%08X, Property status: %d"), hr, property.dwStatus);
+         ErrorManager::Instance()->ReportError(ErrorManager::Critical, 5704, "SQLCEConnection::EnableFlushOnCommit", message);
+         return false;
+      }
+
+      return true;
+   }
+
+   bool
    SQLCEConnection::UpgradeDatabase_()
    {
       ISSCEEngine *pISSCEEngine = NULL;
