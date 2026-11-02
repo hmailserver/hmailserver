@@ -377,6 +377,7 @@ EXIT 0
     <ClCompile Include="..\Common\SQL\Prerequisites\PreReqNoDuplicateFolders.cpp" />
     <ClCompile Include="..\Common\SQL\Prerequisites\PrerequisiteList.cpp" />
     <ClCompile Include="..\Common\SQL\SQLCEConnection.cpp" />
+    <ClCompile Include="..\Common\SQL\SQLCEFlusher.cpp" />
     <ClCompile Include="..\Common\SQL\SQLCERecordset.cpp" />
     <ClCompile Include="..\Common\SQL\SQLCommand.cpp" />
     <ClCompile Include="..\Common\SQL\SQLParameter.cpp" />
@@ -908,6 +909,7 @@ EXIT 0
     <ClInclude Include="..\Common\SQL\Prerequisites\PreReqNoDuplicateFolders.h" />
     <ClInclude Include="..\Common\SQL\Prerequisites\PrerequisiteList.h" />
     <ClInclude Include="..\Common\SQL\SQLCEConnection.h" />
+    <ClInclude Include="..\Common\SQL\SQLCEFlusher.h" />
     <ClInclude Include="..\Common\SQL\SQLCERecordset.h" />
     <ClInclude Include="..\Common\SQL\SQLCommand.h" />
     <ClInclude Include="..\Common\SQL\SQLParameter.h" />

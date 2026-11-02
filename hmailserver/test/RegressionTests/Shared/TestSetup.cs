@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -56,6 +57,9 @@ namespace RegressionTests.Shared
       public Domain PerformBasicSetup()
       {
          var restartRequired = false;
+
+         // A delivery left running by the previous test fails if its account is deleted below.
+         WaitForDeliveriesInProgress();
 
          var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
 
@@ -399,6 +403,19 @@ namespace RegressionTests.Shared
          }
 
          application.SubmitEMail();
+      }
+
+      private static void WaitForDeliveriesInProgress()
+      {
+         var status = SingletonProvider<TestSetup>.Instance.GetApp().Status;
+
+         // Locked messages are being delivered. Messages waiting for a retry are not waited for.
+         Poll.Until(TimeSpan.FromSeconds(20), () =>
+            !status.UndeliveredMessages.Split('\n').Any(line =>
+            {
+               var info = line.Split('\t');
+               return info.Length > 6 && info[6] == "1";
+            }));
       }
 
       public static int GetNumberOfMessagesInDeliveryQueue()

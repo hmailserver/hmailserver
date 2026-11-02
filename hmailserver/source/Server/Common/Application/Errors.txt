@@ -129,5 +129,6 @@
 5700, Could not delete the directory %s.
 5701, Parsing HTML body with regular expression threw a runtime_error
 5702, A regex match was found, but there were <2 matches in the result
-5703, SQLCEConnection::EnableFlushOnCommit_, Failed to access the database session.
-5704, SQLCEConnection::EnableFlushOnCommit_, Failed to make commits flush to disk.
+5703, SQLCEConnection::EnableFlushOnCommit, Failed to access the database session.
+5704, SQLCEConnection::EnableFlushOnCommit, Failed to make commits flush to disk.
+5705, SQLCEFlusher::WorkerFunc_, Failed to flush the database to disk.

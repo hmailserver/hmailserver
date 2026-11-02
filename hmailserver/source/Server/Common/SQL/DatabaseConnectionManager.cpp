@@ -12,6 +12,7 @@
 #include "MySQLRecordset.h"
 #include "PGRecordset.h"
 #include "SQLCERecordset.h"
+#include "SQLCEFlusher.h"
 #include "MySQLInterface.h"
 
 #include "SQLCommand.h"
@@ -116,6 +117,13 @@ namespace HM
 
       (*iter)->OnConnected();
 
+      if (dbType == HM::DatabaseSettings::TypeMSSQLCompactEdition)
+      {
+         sqlce_flusher_ = std::make_shared<SQLCEFlusher>(pSettings);
+         if (!sqlce_flusher_->Start())
+            sqlce_flusher_.reset();
+      }
+
       return DALConnection::Connected;
    }
 
@@ -123,6 +131,12 @@ namespace HM
    DatabaseConnectionManager::Disconnect()
    {
       boost::lock_guard<boost::recursive_mutex> guard(mutex_);
+
+      if (sqlce_flusher_)
+      {
+         sqlce_flusher_->Stop();
+         sqlce_flusher_.reset();
+      }
 
       //auto iterConnection = available_connections_.begin();
       for(std::shared_ptr<DALConnection> pConnection : available_connections_)
