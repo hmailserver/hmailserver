@@ -101,7 +101,7 @@ namespace VMTestRunner.Console
                var testIndex = test.testIndex;
                var result = results[testIndex - 1];
 
-               Logger.Info($"{testIndex}/{listEnvironments.Count} - Test: {environment.Description} on {environment.OperatingSystem}. VM: {environment.VMName} (Snapshot: {environment.SnapshotName}), Include stress tests: {environment.IncludeStressTests}");
+               Logger.Info($"{testIndex}/{listEnvironments.Count} - Test: {environment.Description} on {environment.OperatingSystem}. VM: {environment.VMName} (Snapshot: {environment.SnapshotName}), Suite: {environment.TestSuite}, Include stress tests: {environment.IncludeStressTests}, Page heap: {environment.EnablePageHeap}");
 
                result.StartedUtc = DateTime.UtcNow;
                TestStatusBoard.Instance.SetRunning(testIndex, "Starting");
@@ -163,10 +163,11 @@ namespace VMTestRunner.Console
       private static List<TestEnvironment> SelectEnvironments(List<TestEnvironment> allEnvironments,
          string test, int count)
       {
-         var selected = allEnvironments;
+         List<TestEnvironment> selected;
 
          if (!string.IsNullOrWhiteSpace(test))
          {
+            // Disabled tests are matched too, since naming one is how they are run.
             selected = allEnvironments
                .Where(environment => Matches(environment, test))
                .ToList();
@@ -174,14 +175,34 @@ namespace VMTestRunner.Console
             if (selected.Count == 0)
             {
                Logger.Error($"No test matches '{test}'. Available tests:{Environment.NewLine}" +
-                  string.Join(Environment.NewLine, allEnvironments.Select(environment => $"  {environment.Name}")));
+                  string.Join(Environment.NewLine, allEnvironments.Select(DescribeForSelection)));
                return null;
             }
 
             if (selected.Count > 1)
             {
                Logger.Error($"'{test}' matches more than one test. Every test must have a unique name:{Environment.NewLine}" +
-                  string.Join(Environment.NewLine, selected.Select(environment => $"  {environment.Name}")));
+                  string.Join(Environment.NewLine, selected.Select(DescribeForSelection)));
+               return null;
+            }
+         }
+         else
+         {
+            selected = allEnvironments
+               .Where(environment => environment.Enabled)
+               .ToList();
+
+            var skipped = allEnvironments.Where(environment => !environment.Enabled).ToList();
+
+            if (skipped.Count > 0)
+            {
+               Logger.Info($"{skipped.Count} test(s) are disabled and were skipped. Run one by naming it with --test:{Environment.NewLine}" +
+                  string.Join(Environment.NewLine, skipped.Select(environment => $"  {environment.Name}")));
+            }
+
+            if (selected.Count == 0)
+            {
+               Logger.Error("Every test is disabled, so there is nothing to run.");
                return null;
             }
          }
@@ -198,6 +219,9 @@ namespace VMTestRunner.Console
 
       private static bool Matches(TestEnvironment environment, string test) =>
          string.Equals(environment.Name, test, StringComparison.OrdinalIgnoreCase);
+
+      private static string DescribeForSelection(TestEnvironment environment) =>
+         environment.Enabled ? $"  {environment.Name}" : $"  {environment.Name} (disabled)";
 
       /// <summary>
       /// Tells the user which installer is being tested.
