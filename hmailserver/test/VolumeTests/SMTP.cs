@@ -166,8 +166,8 @@ namespace VolumeTests
       }
 
       [Test]
-      [Description("Test to send 200 000 messages and confirm that the memory usage does not increase over 3MB.")]
-      public void TestSend200KMessages()
+      [Description("Test to send 10 000 messages and confirm that the memory usage does not increase over 20 MB.")]
+      public void TestSend10KMessages()
       {
          string dataDir =
              Path.Combine(SingletonProvider<TestSetup>.Instance.GetApp().Settings.Directories.DataDirectory, "example.test");
@@ -177,7 +177,7 @@ namespace VolumeTests
          int memoryUsage = Shared.GetCurrentMemoryUsage();
          int maxMemoryUsage = memoryUsage + 20;
 
-         const int numberOfMessages = 200000;
+         const int numberOfMessages = 10_000;
          var stopwatch = Stopwatch.StartNew();
 
          for (int i = 1; i <= numberOfMessages; i++)

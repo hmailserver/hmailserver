@@ -262,5 +262,40 @@
     "preInstallFileCopy": [],
     "postInstallCommands": [],
     "postInstallFileCopy": []
+  },
+
+  // Volume tests. These processes larger amounts of data.
+  // Takes longer to run, disabled by default.
+  {
+    "name": "Windows 10 - Volume tests",
+    "operatingSystem": "Windows 10",
+    "description": "Volume tests",
+    "vmName": "Windows10",
+    "snapshotName": "Ready",
+    "enabled": false,
+    "enablePageHeap": false,
+    "testSuite": "VolumeTests",
+    "preInstallCommands": [],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [],
+    "postInstallFileCopy": []
+  },
+
+  // Page heap runs. Page heap catches heap corruption but makes the server much slower,
+  // so these are disabled and only run when selected by name with --test. They need the
+  // Debugging Tools for Windows feature of the Windows SDK on the host, for gflags.exe.
+  {
+    "name": "Windows 10 - Page heap: Regression tests",
+    "operatingSystem": "Windows 10",
+    "description": "Page heap: Regression tests",
+    "vmName": "Windows10",
+    "snapshotName": "Ready",
+    "enabled": false,
+    "enablePageHeap": true,
+    "preInstallCommands": [],
+    "preInstallFileCopy": [],
+    "postInstallCommands": [],
+    "postInstallFileCopy": []
   }
+
 ]
