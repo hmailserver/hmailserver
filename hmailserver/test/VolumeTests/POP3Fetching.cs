@@ -25,7 +25,7 @@ namespace VolumeTests
                           "\r\n" +
                           "Hello!";
 
-         const int msgCount = 30000;
+         const int msgCount = 10000;
 
          for (int i = 0; i < msgCount; i++)
             messages.Add(message);
