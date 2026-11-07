@@ -28,20 +28,20 @@
         is located automatically via vswhere).
 
 .PARAMETER Version
-    The MariaDB Connector/C version to build, e.g. 3.4.9. Must match 3.4.x.
+    The MariaDB Connector/C version to build, e.g. 3.4.11. Must match 3.4.x.
 
 .PARAMETER OpenSSLVersion
-    The OpenSSL version to link libmariadb against, e.g. 3.5.8. Must correspond to an
+    The OpenSSL version to link libmariadb against, e.g. 3.5.9. Must correspond to an
     existing %hMailServerLibs%\openssl-<OpenSSLVersion>\out64 build. If omitted, the
     script auto-detects it from hMailServer.vcxproj (the openssl-<ver> the project
     currently links against).
 
 .EXAMPLE
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.9 -OpenSSLVersion 3.5.8
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.11 -OpenSSLVersion 3.5.9
 
 .EXAMPLE
     # Auto-detect the OpenSSL version from hMailServer.vcxproj:
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.9
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.11
 #>
 [CmdletBinding()]
 param(
@@ -123,6 +123,14 @@ $vsInstall = Resolve-VcVars64
 # libmariadb is a C library consumed through an import library and a DLL, so its ABI does not
 # depend on the toolset; no -ToolsetVersion is needed (see Import-VsEnvironment).
 Import-VsEnvironment -VsInstall $vsInstall
+
+# Prefer the CMake shipped with that Visual Studio: an older standalone CMake earlier on
+# PATH may not know its generator (CMake 3.24 has no "Visual Studio 18 2026").
+$vsCMakeBin = Join-Path -Path $vsInstall.InstallPath -ChildPath "Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin"
+if (Test-Path (Join-Path -Path $vsCMakeBin -ChildPath "cmake.exe"))
+{
+    $env:PATH = "$vsCMakeBin;$env:PATH"
+}
 
 # --- Verify CMake is available --------------------------------------------------
 

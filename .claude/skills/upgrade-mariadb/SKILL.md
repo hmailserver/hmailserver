@@ -103,9 +103,18 @@ with the new one (`libmariadb-<old>` -> `libmariadb-<new>`) in these files:
 | `hmailserver/installation/hMailServer64.iss` | 1 (`MARIADB_LIBS_PATH`) |
 | `README.md` | 1 (the `-Version` argument in "Building MariaDB Connector/C") |
 
-Then grep the whole repo for `libmariadb-\d` and confirm the only remaining matches are the
-intentional ones you just rewrote — there must be **zero** references to the old concrete
-version.
+Then update the old version **everywhere else** in the repo too, including comments, help
+examples and other docs. Known places:
+
+| File | What |
+|------|------|
+| `libraries/build-mariadb.ps1` | the `e.g.` in `.PARAMETER Version` and both `.EXAMPLE`s |
+| `build/Get-LibraryVersions.ps1` | the sample output (`mariadb=` line) and the comment listing `libmariadb-<ver>` |
+| `.claude/skills/upgrade-openssl/SKILL.md` | the MariaDB Connector/C DLL location |
+
+Finally grep the whole repo (excluding `*.log` and build output) for the old version, both
+`libmariadb-<old>` and the bare `<old>`. The only allowed matches are the generic examples in
+this SKILL.md (such as `3.4.9 -> 3.4.10`). Add any new place you find to the table above.
 
 **Do not** change the `libmariadb.dll` file name — it appears in `section_files_64.iss`, in
 `MySQLInterface::GetLibraryFileName_` and its 5094 error message
