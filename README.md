@@ -154,7 +154,7 @@ Fetching 7-Zip
 The backup and restore feature launches the 7-Zip command line tool to compress and read
 backup archives. It is a prebuilt binary rather than something hMailServer compiles, so the
 `libraries\build-7zip.ps1` script downloads the "7-Zip Extra" package into
-%hMailServerLibs%\7zip-&lt;Version&gt; (e.g. `7zip-26.03`) and keeps the x64 `7za.exe` and its
+%hMailServerLibs%\7zip-&lt;Version&gt; (e.g. `7zip-26.05`) and keeps the x64 `7za.exe` and its
 LGPL license text.
 
 Prerequisites:
@@ -163,7 +163,7 @@ Prerequisites:
 Run, from the repository root:
 
    <pre>
-   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version 26.03
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version 26.05
    </pre>
 
 The package is a .7z, so the script also downloads `7zr.exe` from the same release and uses
