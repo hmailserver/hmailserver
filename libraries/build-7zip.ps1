@@ -50,6 +50,7 @@ $ErrorActionPreference = "Stop"
 # downloaded unverified.
 $ArchiveHashes = @{
     "26.03" = "191894E6ACB3647FFB69CE630479FF318523B2E2B9890AA7F05C1127C2E59B8F"
+    "26.05" = "F27A8F103C84785026EDCBA1F67FAF1357225DF9D19DDB0B7760D55947141BC7"
 }
 
 # SHA-256 of each release's 7zr.exe, the standalone extractor used to unpack the .7z above.
@@ -60,6 +61,7 @@ $ArchiveHashes = @{
 # Every version listed in $ArchiveHashes needs an entry here too.
 $BootstrapHashes = @{
     "26.03" = "AD4C82FADCBDF93C03B4FC440F300509C7D60C5C2F4D183E35D9D70D6957037D"
+    "26.05" = "9BF582B894DFA665F852D7E9112B02290A1C303C2D95A21FCDC41FFCB03143B7"
 }
 
 # --- Set up a build log ---------------------------------------------------------
