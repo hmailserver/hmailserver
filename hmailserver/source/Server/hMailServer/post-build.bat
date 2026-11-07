@@ -37,7 +37,7 @@ if errorlevel 1 exit /b 1
 xcopy /F /Y "%HMS_LIBS%\postgresql-15.19\Release\libpq\*.dll" "%OUT_DIR%"
 if errorlevel 1 exit /b 1
 
-xcopy /F /Y "%HMS_LIBS%\libmariadb-3.4.9\build64\libmariadb\RelWithDebInfo\libmariadb.dll" "%OUT_DIR%"
+xcopy /F /Y "%HMS_LIBS%\libmariadb-3.4.11\build64\libmariadb\RelWithDebInfo\libmariadb.dll" "%OUT_DIR%"
 if errorlevel 1 exit /b 1
 
 REM The backup/restore feature launches this; libraries\build-7zip.ps1 fetches it.

@@ -119,7 +119,7 @@ Prerequisites:
 Run, from the repository root:
 
    <pre>
-   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.9
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-mariadb.ps1 -Version 3.4.11
    </pre>
 
 The script auto-detects the OpenSSL version to link against from the hMailServer project; pass

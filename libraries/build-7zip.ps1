@@ -27,10 +27,10 @@
       - The environment variable hMailServerLibs, pointing at your library folder.
 
 .PARAMETER Version
-    The 7-Zip version to fetch, e.g. 26.03. Must be a version listed in $ArchiveHashes.
+    The 7-Zip version to fetch, e.g. 26.05. Must be a version listed in $ArchiveHashes.
 
 .EXAMPLE
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version 26.03
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version 26.05
 #>
 [CmdletBinding()]
 param(
@@ -85,7 +85,7 @@ if (-not $ArchiveHashes.ContainsKey($Version) -or -not $BootstrapHashes.Contains
 
 $expectedHash = $ArchiveHashes[$Version]
 
-# 7-Zip names its files after the version with the dot removed: 26.03 -> 7z2603-extra.7z.
+# 7-Zip names its files after the version with the dot removed: 26.05 -> 7z2605-extra.7z.
 $versionToken = $Version -replace '\.', ''
 $archiveName = "7z$versionToken-extra.7z"
 $archiveUrl = "https://github.com/ip7z/7zip/releases/download/$Version/$archiveName"

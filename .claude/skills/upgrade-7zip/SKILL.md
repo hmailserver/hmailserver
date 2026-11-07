@@ -129,10 +129,18 @@ the hash that was actually received; work out why it differs first.
 | `hmailserver/installation/hMailServer64.iss` | 1 (`SEVENZIP_PATH`) |
 | `README.md` | 2 (the `e.g. 7zip-<ver>` example and the `-Version` argument in "Fetching 7-Zip") |
 
-Then grep the repo for `7zip-\d` and `<old version>` and confirm the only remaining matches are
-the ones you just rewrote plus the illustrative examples in `libraries\build-7zip.ps1`'s own
-comment-based help. There must be **zero** references to the old concrete version in the three
-files above.
+Then update the old version **everywhere else** in the repo too, including comments, help
+examples and other docs. Known places:
+
+| File | What |
+|------|------|
+| `libraries/build-7zip.ps1` | the `e.g.` in `.PARAMETER Version`, the `.EXAMPLE`, and the `26.05 -> 7z2605-extra.7z` comment |
+| `build/Get-LibraryVersions.ps1` | the sample output (`sevenzip=` line) |
+
+Keep the old entries in `$ArchiveHashes` and `$SevenZrHashes`; they are data, not stale
+references. Finally grep the whole repo (excluding `*.log` and build output) for `7zip-<old>`
+and the bare `<old>`. The only allowed matches are those hash entries and the generic
+examples in this SKILL.md (such as `26.03 -> 26.04`). Add any new place you find to the table above.
 
 **No CI or workflow edit is needed.** `build\Get-LibraryVersions.ps1` parses the version back out
 of `post-build.bat` and emits `sevenzip` / `sevenzip_dir`, which

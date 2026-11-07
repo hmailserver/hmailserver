@@ -98,7 +98,7 @@ Two prebuilt client libraries are compiled against OpenSSL and load
 
 - libpq, in `%hMailServerLibs%\postgresql-15.19\Release\libpq`
 - MariaDB Connector/C, in
-  `%hMailServerLibs%\libmariadb-3.4.9\build64\libmariadb\RelWithDebInfo`
+  `%hMailServerLibs%\libmariadb-3.4.11\build64\libmariadb\RelWithDebInfo`
 
 The OpenSSL 3.5.x line is ABI-stable, so neither DLL needs rebuilding for a **patch** bump
 within 3.5.x. A minor or major bump (e.g. 3.5.x -> 3.6.x or 4.x) changes the DLL names, so
