@@ -68,7 +68,7 @@ If the size of an email message exceeds this size, hMailServer will not scan it 
 
 ### Add Authentication-Results header
 
-When this option is enabled, hMailServer adds an Authentication-Results header to incoming messages, listing the DMARC, SPF and DKIM results for the message. Any Authentication-Results header already in the message which claims to come from this server is removed first, so a sender cannot fake a result. Headers added by other servers are kept.
+When this option is enabled, hMailServer adds an Authentication-Results header to incoming messages, listing the DMARC, SPF and DKIM results for the message. The SPF result is one of pass, fail, softfail, neutral, none, temperror and permerror. Any Authentication-Results header already in the message which claims to come from this server is removed first, so a sender cannot fake a result. Headers added by other servers are kept.
 
 ## Spam tests
 
@@ -80,7 +80,7 @@ When this option is enabled, hMailServer adds an Authentication-Results header t
 
 <div class="indented"> </div>
 
-<div class="indented">See <a href="http://www.openspf.org/">www.openspf.org</a> for more detail about SPF. You can set SPF records for your own domains as part  of the DNS records.</div>
+<div class="indented">See <a href="https://www.rfc-editor.org/rfc/rfc7208">RFC 7208</a> for more detail about SPF. You can set SPF records for your own domains as part  of the DNS records.</div>
 
 <div class="indented">
 <h3>Check host in the HELO command</h3>

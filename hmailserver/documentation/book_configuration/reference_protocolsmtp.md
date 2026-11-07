@@ -81,7 +81,9 @@ If you don't want to relay all outgoing messages through a specific SMTP server,
 <div class="indented">According to the SMTP specification, every line in an email message should be separated by the ASCII-codes 13 and 10. Some spammers sends messages which are not correctly formatted. Use this setting to reject these messages. Please note that legitimate email might have incorrectly formatted line endings, if the sending software contains bugs.</div>
 <div class="indented">
 <h3>Disconnect client after too many invalid commands</h3>
-Using this setting you can disconnect clients which sends to many invalid commands. For example, some spammers try to send email to a lot of different addresses on your server, hoping that your server will accept at least one of them. Using this option, you can automatically disconnect clients that tries to do this.</div>
+Using this setting you can disconnect clients which sends to many invalid commands. For example, some spammers try to send email to a lot of different addresses on your server, hoping that your server will accept at least one of them. Using this option, you can automatically disconnect clients that tries to do this.<br>
+<br>
+Every command which hMailServer rejects with a permanent error (a 5xx reply) counts as invalid, such as an unknown recipient, bad syntax, a command sent in the wrong order or a failed logon. The client is disconnected when the count goes above the configured maximum.</div>
 </div>
 </div>
 </div>
@@ -115,6 +117,15 @@ Using this setting you can disconnect clients which sends to many invalid comman
 
 This options lets you specify the maximum number of MX records per domain that hMailserver will attempt delivery to. Default value is 15.
 
+## Received header
+
+hMailServer adds a Received header to every message it receives over SMTP. Besides the client and the time, it records the SMTP envelope:
+
+`Received: from client.example.com (client.example.com [192.0.2.1])`<br>
+`by mail.example.com (envelope-from <alice@example.com>) with ESMTPS for <bob@example.com>`
+
+- *envelope-from* is the sender given in MAIL FROM. It is left out when the client has authenticated, or when the sender is empty.
+- *for* is the recipient given in RCPT TO. It is only added when the message has exactly one recipient, so that Bcc recipients are not revealed.
 
 ## Sender Rewriting Scheme (SRS)
 

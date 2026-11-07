@@ -16,6 +16,12 @@ This page describes RFC's which are relevant to hMailServer.
 - [RFC 3501](http://tools.ietf.org/html/rfc3501) - Internet Message Access Protocol, IMAP, v4
 - [RFC 1939](http://www.ietf.org/rfc/rfc1939.txt) - Post Office Protocol, POP, v3
 
+### SMTP extensions
+
+- [RFC 4616](http://tools.ietf.org/html/rfc4616) - The PLAIN SASL mechanism  
+
+ Used by SMTP AUTH PLAIN. hMailServer does not let a user act on behalf of another user, so an authorization identity is only accepted if it is the same account as the one logging on.
+
 ### Message encoding
 
 - [RFC 2047](http://www.ietf.org/rfc/rfc2047.txt) - MIME (Multipurpose Internet Mail Extensions) Part Three: Message Header Extensions for Non-ASCII Text
@@ -49,6 +55,10 @@ This page describes RFC's which are relevant to hMailServer.
   
 
 ### Other
+
+- [RFC 7208](http://tools.ietf.org/html/rfc7208) - Sender Policy Framework (SPF)  
+
+ Lets a domain owner list the servers allowed to send email for the domain. hMailServer checks incoming messages against this list. See [anti-spam settings](?page=reference_antispam).
 
 - [RFC 4871](http://tools.ietf.org/html/rfc4871) - DKIM specification  
 
