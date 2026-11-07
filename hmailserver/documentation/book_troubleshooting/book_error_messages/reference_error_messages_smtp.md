@@ -24,6 +24,10 @@ This error message is issued if grey listing is enabled, the sender is empty, an
 
 This error message is issued if grey listing is enabled, and the sender, recipient and IP address triplet does not match an existing greylisting triplet.
 
+### 451 Your message was received but it could not be saved. Please retry later.
+
+The message was received but could not be saved in the database. The sending server will try again later. To find the cause, check the hMailServer error log. It normally contains an error with more details.
+
 ### 500 Line too long
 
 If a SMTP client sends a SMTP command which hMailServer considers being too long, hMailServer issues this error. This error typically indicates a client defect or a hacking attempt.
@@ -163,6 +167,10 @@ If someone tries to send you an email and you they get this error, take one of t
 - Disable the "Check host in the HELO command" option in the spam protection settings using hMailServer Administrator or PHPWebAdmin. This option is disabled by default.
 - In the spam protection settings, select that hMailServer should deliver spam messages, but modify the message headers. Also select to modify the message subject. Then the email will be delivered, but the subject will be prepended with [SPAM].
 
+### 550 The SRS address is malformed.<br>550 The SRS address has an invalid hash.<br>550 The SRS address has expired.<br>550 No SRS secret has been configured.
+
+A bounce was sent to an address created by the [Sender Rewriting Scheme](?page=reference_protocolsmtp), but hMailServer could not decode it, so it does not know who to return it to. The address may be damaged, may not have been created by this server, may be older than the number of days addresses are valid, or the SRS secret may have changed since it was created. The error is only given if no account, alias, distribution list or catch-all address accepts the message.
+
 ### 550 Unknown user
 
 This error message is issued if the SMTP client tries to deliver an email to a domain hosted by hMailServer but the recipient account cannot be found and no catch-all address has been specified for the recipient domain.
@@ -178,10 +186,6 @@ In hMailServer it's possible to specify a maximum message size in the SMTP setti
 ### 554 Rejected
 
 If a hMailServer script running on the OnAcceptMessage event rejects a message without specifying an error message, this error is issued.
-
-### 554 Your message was received but it could not be saved. Please retry later.
-
-If the email message was received by hMailServer but could not be saved in the database, this error message is sent to the client. To resolve this issue, the hMailServer logs leading up to the error needs to be analyzed. Normally an error message with more details will be logged when this error is reported to the client. 
 
 <h3><span class="postbody">554 Rejected - Message containing bare LF's.</span></h3>
 

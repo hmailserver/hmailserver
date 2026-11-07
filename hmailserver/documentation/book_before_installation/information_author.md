@@ -13,7 +13,6 @@ The software uses a couple of third-party components and libraries.
 - Mime encoding / decoding by Jeff Lee
 - MD5 algorithm by RSA Data Security
 - Blowfish algorithm by Bruce Schneier
-- SPF library by Roger Moser
 - Boost by [boost.org](https://www.boost.org)
 - OpenSSL by [the OpenSSL Project](https://www.openssl.org/), used for SSL/TLS and cryptography
 - MariaDB Connector/C by [MariaDB](https://mariadb.com/), used to connect to MySQL and MariaDB databases
