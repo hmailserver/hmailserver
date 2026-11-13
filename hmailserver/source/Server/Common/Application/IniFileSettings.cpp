@@ -61,7 +61,6 @@ namespace HM
       indexer_quick_limit_(0),
       load_header_read_size_(0),
       load_body_read_size_(0),
-      blocked_iphold_seconds_(0),
       smtpdmax_size_drop_(0),
       backup_messages_dbonly_(false),
       add_xauth_user_ip_(false),
@@ -196,7 +195,6 @@ namespace HM
       indexer_quick_limit_ =  ReadIniSettingInteger_("Settings", "IndexerQuickLimit",1000);
       load_header_read_size_ =  ReadIniSettingInteger_("Settings", "LoadHeaderReadSize",4000);
       load_body_read_size_ =  ReadIniSettingInteger_("Settings", "LoadBodyReadSize",4000);
-      blocked_iphold_seconds_ =  ReadIniSettingInteger_("Settings", "BlockedIPHoldSeconds",0);
       smtpdmax_size_drop_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxSizeDrop",0);
       backup_messages_dbonly_ =  ReadIniSettingInteger_("Settings", "BackupMessagesDBOnly",0) == 1;
       add_xauth_user_ip_ =  ReadIniSettingInteger_("Settings", "AddXAuthUserIP",1) == 1;

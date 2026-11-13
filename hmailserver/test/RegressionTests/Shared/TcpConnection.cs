@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -263,6 +264,36 @@ namespace RegressionTests.Shared
             } while (_tcpClient.Available > 0);
 
          return messageData.ToString();
+      }
+
+      /// <summary>
+      ///    Waits for the remote end to close the connection. Data received meanwhile is discarded.
+      ///    Returns false if the connection is still open when the timeout expires.
+      /// </summary>
+      public bool WaitForDisconnect(TimeSpan timeout)
+      {
+         var stopTime = DateTime.Now + timeout;
+         var buffer = new byte[2048];
+
+         _tcpClient.ReceiveTimeout = (int) timeout.TotalMilliseconds;
+
+         try
+         {
+            var stream = _tcpClient.GetStream();
+
+            while (DateTime.Now < stopTime)
+            {
+               if (stream.Read(buffer, 0, buffer.Length) == 0)
+                  return true;
+            }
+
+            return false;
+         }
+         catch (IOException e)
+         {
+            var socketException = e.InnerException as SocketException;
+            return socketException == null || socketException.SocketErrorCode != SocketError.TimedOut;
+         }
       }
 
       public bool Peek()

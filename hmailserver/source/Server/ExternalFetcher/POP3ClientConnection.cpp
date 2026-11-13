@@ -55,6 +55,8 @@ namespace HM
       TCPConnection(connectionSecurity, io_context, context, disconnected, remote_hostname),
       account_(pAccount),
       current_state_(StateConnected),
+      uidl_status_received_(false),
+      uidl_total_size_(0),
       cur_download_(uidlresponse_.end()),
       cur_cleanup_(downloaded_messages_.end())
    {
@@ -114,6 +116,12 @@ namespace HM
 
       if (is_awaiting_multiline_response)
       {
+         if (command_buffer_.GetLength() > MaxCapaResponseSize)
+         {
+            DisconnectOnOversizedResponse_(_T("CAPA"));
+            return;
+         }
+
          bool multiline_response_completed = sRequest == "." ||
                                              !CommandIsSuccessfull_(command_buffer_);
 
@@ -172,8 +180,11 @@ namespace HM
             ParsePasswordSent_(sRequest);
             return true;
          case StateUIDLRequestSent:
-            ParseUIDLResponse_(sRequest);
-            return true;
+         {
+            AnsiString line = sRequest;
+            line.TrimRight("\r\n");
+            return ParseUIDLLine_(line) != UIDLLineStop;
+         }
          case StateQUITSent:
             return ParseQuitResponse_(sRequest);
          case StateDELESent:
@@ -361,51 +372,53 @@ namespace HM
       return;
    }
 
-   void 
-   POP3ClientConnection::ParseUIDLResponse_(const String &sData)
+   POP3ClientConnection::UIDLLineResult
+   POP3ClientConnection::ParseUIDLLine_(const AnsiString &line)
    {
-      if (CommandIsSuccessfull_(sData))
+      uidl_total_size_ += line.GetLength();
+
+      if (line.GetLength() > MaxUidlLineLength || uidl_total_size_ > (size_t) MaxUidlTotalSize)
       {
-         // We have connected successfully.
-         // Time to send the username.
-         
-         std::vector<String> vecLines = StringParser::SplitString(sData, "\r\n");
-         auto iter = vecLines.begin();
-
-         if (vecLines.size() < 3)
-         {
-            StartMailboxCleanup_();
-            return;
-         }
-
-         // Move to first line containing a message ID.
-         iter++;
-
-         while (iter != vecLines.end())
-         {
-            String sLine = (*iter);
-
-            if (sLine == _T("."))
-               break;
-
-            int iSpacePos = sLine.Find(_T(" "));
-            String sMessageIndex = sLine.Mid(0,iSpacePos);
-            String sMessageUID = sLine.Mid(iSpacePos + 1);
-
-            int iMessageIdx = _ttoi(sMessageIndex);
-            uidlresponse_[iMessageIdx] = sMessageUID;
-
-            iter++;
-         }
-
-         cur_download_ = uidlresponse_.begin();
-
-         RequestNextMessage_();
-
-         return;
+         DisconnectOnOversizedResponse_(_T("UIDL"));
+         return UIDLLineStop;
       }
 
-      QuitNow_();
+      if (!uidl_status_received_)
+      {
+         if (!CommandIsSuccessfull_(line))
+         {
+            // The server does not support UIDL. We can't fetch from this server.
+            LogPOP3String_(line, false);
+            QuitNow_();
+            return UIDLLineStop;
+         }
+
+         uidl_status_received_ = true;
+         return UIDLLineContinue;
+      }
+
+      if (line == ".")
+      {
+         cur_download_ = uidlresponse_.begin();
+         RequestNextMessage_();
+         return UIDLLineCompleted;
+      }
+
+      if (uidlresponse_.size() >= (size_t) MaxUidlEntries)
+      {
+         DisconnectOnOversizedResponse_(_T("UIDL"));
+         return UIDLLineStop;
+      }
+
+      String sLine = line;
+      int iSpacePos = sLine.Find(_T(" "));
+      String sMessageIndex = sLine.Mid(0,iSpacePos);
+      String sMessageUID = sLine.Mid(iSpacePos + 1);
+
+      int iMessageIdx = _ttoi(sMessageIndex);
+      uidlresponse_[iMessageIdx] = sMessageUID;
+
+      return UIDLLineContinue;
    }
 
    bool
@@ -545,7 +558,18 @@ namespace HM
       current_state_ = StateQUITSent;
    }
 
-   bool 
+   void
+   POP3ClientConnection::DisconnectOnOversizedResponse_(const String &command)
+   {
+      String message = Formatter::Format("The download of messages from external account {0} failed. The response to {1} was too large.", account_->GetName(), command);
+      LOG_APPLICATION(message);
+
+      command_buffer_.clear();
+      current_state_ = StateQUITSent;
+      EnqueueDisconnect();
+   }
+
+   bool
    POP3ClientConnection::ParseQuitResponse_(const String &sData)
    {
       if (CommandIsSuccessfull_(sData))
@@ -680,19 +704,33 @@ namespace HM
 
          pBuf->Empty();
 
-         if (command_buffer_.StartsWith("-ERR"))
+         // Parse complete lines as they arrive, so that only the last partial line is buffered.
+         size_t lineStart = 0;
+         size_t lineEnd;
+         while ((lineEnd = command_buffer_.find("\r\n", lineStart)) != std::string::npos)
          {
-            // The server does not support UIDL. We can't fetch from this server.
-            LogPOP3String_(command_buffer_, false);
-            QuitNow_();
-            return;
+            AnsiString line = command_buffer_.substr(lineStart, lineEnd - lineStart);
+            lineStart = lineEnd + 2;
+
+            UIDLLineResult result = ParseUIDLLine_(line);
+
+            if (result == UIDLLineStop)
+               return;
+
+            if (result == UIDLLineCompleted)
+            {
+               command_buffer_.clear();
+               EnqueueRead("");
+               return;
+            }
          }
 
-         if (command_buffer_ == ".\r\n" || command_buffer_.EndsWith("\r\n.\r\n"))
-         {
-            ParseUIDLResponse_(command_buffer_);
+         command_buffer_.erase(0, lineStart);
 
-            command_buffer_.clear();
+         if (command_buffer_.GetLength() > MaxUidlLineLength)
+         {
+            DisconnectOnOversizedResponse_(_T("UIDL"));
+            return;
          }
 
          EnqueueRead("");
@@ -709,6 +747,12 @@ namespace HM
 
          if (!ParseFirstBinary_(_firstRetrResponseBuffer))
          {
+            if (_firstRetrResponseBuffer->GetSize() > MaxRetrFirstLineSize)
+            {
+               DisconnectOnOversizedResponse_(_T("RETR"));
+               return;
+            }
+
             EnqueueRead("");
             return;
          }

@@ -47,7 +47,7 @@ namespace HM
 
       void Parse(std::shared_ptr<IMAPCommandArgument> pArgument);
       size_t WordCount() {return parsed_words_.size(); }
-      size_t ParamCount() { return parsed_words_.size() - 1; }
+      size_t ParamCount() { return parsed_words_.empty() ? 0 : parsed_words_.size() - 1; }
       
       String GetParamValue(std::shared_ptr<IMAPCommandArgument> pArguments, int iParamIndex);
 

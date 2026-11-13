@@ -30,7 +30,11 @@ function Login($username, $password)
    $obAccount = $obBaseApp->Authenticate($username, $password);
    if (!isset($obAccount))
       LoginError();
-   
+
+   // New session ID and CSRF token on login, so values from before login can't be reused.
+   session_regenerate_id(true);
+   renew_csrf_session_token();
+
    $_SESSION['session_loggedin'] = 1;
    $_SESSION['session_adminlevel'] = $obAccount->AdminLevel();
    $_SESSION['session_username'] = $obAccount->Address;

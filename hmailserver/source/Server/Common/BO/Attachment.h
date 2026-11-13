@@ -13,9 +13,9 @@ namespace HM
 	   Attachment(std::shared_ptr<MimeBody> pMessage, std::shared_ptr<MimeBody> pAttachment);
 	   virtual ~Attachment();
 
-      void SetFileName(const String &file_name);
-      void SetContent(const String &content);
+      void ReplaceWithText(const String &file_name, const String &content);
       String GetFileName();
+      bool GetEncapsulatedFileNames(std::vector<String> &file_names) const;
       int GetSize();
       void Delete();
       void SaveAs(const String &sSaveTo) const;

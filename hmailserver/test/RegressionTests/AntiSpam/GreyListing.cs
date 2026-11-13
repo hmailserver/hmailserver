@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 using System.Collections.Generic;
+using System.Threading;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
@@ -64,6 +65,37 @@ namespace RegressionTests.AntiSpam
          smtp.Send("test@example.test", recipients, "Test", "Body");
 
          Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
+      }
+
+      [Test]
+      [Description("A sender address containing the name of a later SQL parameter must not break the triplet lookup.")]
+      public void SenderContainingParameterNameShouldPassAfterInitialDelay()
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "grey@example.test", "test");
+
+         int oldDelay = _antiSpam.GreyListingInitialDelay;
+         _antiSpam.GreyListingInitialDelay = 0;
+         _antiSpam.GreyListingEnabled = true;
+
+         try
+         {
+            const string sender = "test@RECIPIENTADDRESS.example";
+
+            // First attempt creates the triplet.
+            CustomAsserts.Throws<DeliveryFailedException>(() =>
+               SmtpClientSimulator.StaticSend(sender, account.Address, "Test", "Body"));
+
+            Thread.Sleep(2000);
+
+            // The triplet must now be found and its block time has passed.
+            SmtpClientSimulator.StaticSend(sender, account.Address, "Test", "Body");
+
+            Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+         }
+         finally
+         {
+            _antiSpam.GreyListingInitialDelay = oldDelay;
+         }
       }
 
       [Test]

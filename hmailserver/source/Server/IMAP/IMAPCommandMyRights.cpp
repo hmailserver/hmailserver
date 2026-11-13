@@ -62,6 +62,10 @@ namespace HM
       if (pPermission)
          sRightsString = pPermission->GetRights();
 
+      // Without any rights, respond as if the folder does not exist so its existence is not revealed.
+      if (sRightsString.IsEmpty())
+         return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
+
       String sResponse;
       sResponse.Format(_T("* MYRIGHTS \"%s\" %s\r\n"), sOriginalFolderName.c_str(), sRightsString.c_str());
       sResponse += pArgument->Tag() + _T(" OK Myrights complete\r\n");

@@ -696,7 +696,9 @@ namespace HM
          if (connection_state_ != StateConnected)
          {
             // The write failed, but we've already started the disconnection. So we should not log the failure
-            // or enqueue a new disconnect.
+            // or enqueue a new disconnect. Release the write so the queued disconnect can run.
+            operation_queue_.Pop(IOOperation::BCTWrite);
+            ProcessOperationQueue_(0);
             return;
          }
 

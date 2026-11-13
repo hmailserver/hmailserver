@@ -105,7 +105,6 @@ namespace HM
       int GetIndexerQuickLimit () {return indexer_quick_limit_; }
       int GetLoadHeaderReadSize () {return load_header_read_size_; }
       int GetLoadBodyReadSize () {return load_body_read_size_; }
-      int GetBlockedIPHoldSeconds () {return blocked_iphold_seconds_; }
       int GetSMTPDMaxSizeDrop () {return smtpdmax_size_drop_; }
       bool GetBackupMessagesDBOnly () const { return backup_messages_dbonly_; }
       bool GetAddXAuthUserIP () const { return add_xauth_user_ip_; }
@@ -190,7 +189,6 @@ namespace HM
       int indexer_quick_limit_;
       int load_header_read_size_;
       int load_body_read_size_;
-      int blocked_iphold_seconds_;
       int smtpdmax_size_drop_;
       bool backup_messages_dbonly_;
       bool add_xauth_user_ip_;

@@ -94,6 +94,20 @@ namespace RegressionTests.IMAP
       }
 
       [Test]
+      public void TestAppendWithIncompleteTime()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "check@example.test", "test");
+         var simulator = new ImapClientSimulator();
+
+         simulator.Connect();
+         simulator.LogonWithLiteral("check@example.test", "test");
+         var result = simulator.SendSingleCommandWithLiteral("A01 APPEND INBOX \"01-Jan-2020 12:30 +0000\" {4}", "ABCD");
+         StringAssert.Contains("A01 OK", result);
+         Assert.AreEqual(1, simulator.GetMessageCount("INBOX"));
+         simulator.Disconnect();
+      }
+
+      [Test]
       public void TestDomainMaxMessageSizeLimitDisabled()
       {
          var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test", 0);

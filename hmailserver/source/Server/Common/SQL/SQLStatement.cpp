@@ -559,32 +559,60 @@ namespace HM
    String
    SQLStatement::GenerateFromCommand(const SQLCommand &command)
    {
-      String queryString = command.GetQueryString();
+      // Single pass over the query template. Substituted values are never rescanned,
+      // so a value containing a parameter name cannot pull in another parameter.
+      const String queryString = command.GetQueryString();
+      const std::list<SQLParameter> &parameters = command.GetParameters();
 
-      for(SQLParameter parameter : command.GetParameters())
+      String result;
+      int pos = 0;
+      const int length = queryString.GetLength();
+
+      while (pos < length)
       {
-         String paramName = parameter.GetName();
+         // Longest match, so that @X does not match the start of @XY.
+         const SQLParameter *match = nullptr;
+         int matchLength = 0;
 
-         if (parameter.GetType() == SQLParameter::ParamTypeInt32)
+         for (const SQLParameter &parameter : parameters)
          {
-            queryString.Replace(paramName, StringParser::IntToString(parameter.GetInt32Value()));
+            const String paramName = parameter.GetName();
+            const int nameLength = paramName.GetLength();
+
+            if (nameLength > matchLength && queryString.Mid(pos, nameLength) == paramName)
+            {
+               match = &parameter;
+               matchLength = nameLength;
+            }
          }
-         if (parameter.GetType() == SQLParameter::ParamTypeInt64)
+
+         if (match == nullptr)
          {
-            queryString.Replace(paramName, StringParser::IntToString(parameter.GetInt64Value()));
+            result += queryString[pos];
+            pos++;
+            continue;
          }
-         if (parameter.GetType() == SQLParameter::ParamTypeUnsignedInt32)
+
+         switch (match->GetType())
          {
-            queryString.Replace(paramName, StringParser::IntToString(parameter.GetUnsignedInt32Value()));
+         case SQLParameter::ParamTypeInt32:
+            result += StringParser::IntToString(match->GetInt32Value());
+            break;
+         case SQLParameter::ParamTypeInt64:
+            result += StringParser::IntToString(match->GetInt64Value());
+            break;
+         case SQLParameter::ParamTypeUnsignedInt32:
+            result += StringParser::IntToString(match->GetUnsignedInt32Value());
+            break;
+         case SQLParameter::ParamTypeString:
+            result += "'" + Escape(match->GetStringValue()) + "'";
+            break;
          }
-         else if (parameter.GetType() == SQLParameter::ParamTypeString)
-         {
-            String valueToUse = "'" + Escape(parameter.GetStringValue()) + "'";
-            queryString.Replace(paramName, valueToUse);
-         }
+
+         pos += matchLength;
       }
 
-      return queryString;
+      return result;
    }
 
    String
