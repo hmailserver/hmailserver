@@ -7,7 +7,7 @@ if (hmailGetAdminLevel() != ADMIN_SERVER)
 
 $obSettings	= $obBaseApp->Settings();
 
-$action	   = hmailGetVar("action","");
+$action	   = hmailGetPostVar("action","");
 
 if($action == "save")
 {

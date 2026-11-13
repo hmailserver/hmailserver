@@ -155,25 +155,39 @@ namespace HM
 
       while (iter != oList.end())
       {
-         std::shared_ptr<MimeBody> pBody = (*iter);
-         
-         // Create a temporary filename.
-         sLongFilename.Format(_T("%s\\%s.tmp"), IniFileSettings::Instance()->GetTempDirectory().c_str(), GUIDCreator::GetGUID().c_str());
-         pBody->WriteToFile(sLongFilename);
-
-         VirusScanningResult result = ScanFile_(sLongFilename);
-         if (result.GetVirusFound())
+         VirusScanningResult partResult = ScanPart_(*iter);
+         if (partResult.GetVirusFound())
          {
-            virusName = result.GetDetails();
-            FileUtilities::DeleteFile(sLongFilename);
+            virusName = partResult.GetDetails();
             return true;
          }
 
-         FileUtilities::DeleteFile(sLongFilename);
          iter++;
       }
 
       return false;
+   }
+
+   VirusScanningResult
+   VirusScanner::ScanPart(std::shared_ptr<MimeBody> pBody)
+   {
+      WaitForFreeScanner_();
+      VirusScannerAutoCount autoCounter;
+
+      return ScanPart_(pBody);
+   }
+
+   VirusScanningResult
+   VirusScanner::ScanPart_(std::shared_ptr<MimeBody> pBody)
+   {
+      String sFilename;
+      sFilename.Format(_T("%s\\%s.tmp"), IniFileSettings::Instance()->GetTempDirectory().c_str(), GUIDCreator::GetGUID().c_str());
+      pBody->WriteToFile(sFilename);
+
+      VirusScanningResult result = ScanFile_(sFilename);
+      FileUtilities::DeleteFile(sFilename);
+
+      return result;
    }
 
    void
@@ -203,19 +217,26 @@ namespace HM
 
       std::shared_ptr<Attachments> pAttachments = message_data->GetAttachments();
 
-      bool changes_made = false;
+      // Parts that could not be parsed are not checked. Rewriting the message drops them.
+      bool changes_made = message_data->GetMimeMessage()->IsTruncated();
 
       for (auto attachment : pAttachments->GetVector())
       {
-         // Check if attachment matches blocked file.
-         auto matching_wildcard = std::find_if(blocked_attachment_wildcards.begin(), blocked_attachment_wildcards.end(), [&attachment](std::shared_ptr<BlockedAttachment> blocked_attachment)
+         // Check the attachment and, for a forwarded message, the attachments inside it.
+         std::vector<String> file_names;
+         file_names.push_back(attachment->GetFileName());
+         bool fully_parsed = attachment->GetEncapsulatedFileNames(file_names);
+
+         auto is_blocked = [&blocked_attachment_wildcards](const String &name)
             {
-               String wildcard_text = blocked_attachment->GetWildcard();
+               return std::any_of(blocked_attachment_wildcards.begin(), blocked_attachment_wildcards.end(), [&name](std::shared_ptr<BlockedAttachment> blocked_attachment)
+                  {
+                     return StringParser::WildcardMatchNoCase(blocked_attachment->GetWildcard(), name);
+                  });
+            };
 
-               return StringParser::WildcardMatchNoCase(wildcard_text, attachment->GetFileName());
-            });
-
-         if (matching_wildcard != blocked_attachment_wildcards.end())
+         // A forwarded message that cannot be fully inspected is blocked.
+         if (!fully_parsed || std::any_of(file_names.begin(), file_names.end(), is_blocked))
          {
             // Attachment should be blocked.
             String updated_message_body = Configuration::Instance()->GetServerMessages()->GetMessage("ATTACHMENT_REMOVED");
@@ -223,9 +244,7 @@ namespace HM
             // Replace macros.
             updated_message_body.Replace(_T("%MACRO_FILE%"), attachment->GetFileName());
 
-            // Add the new
-            attachment->SetFileName(attachment->GetFileName() + ".txt");
-            attachment->SetContent(updated_message_body);
+            attachment->ReplaceWithText(attachment->GetFileName() + ".txt", updated_message_body);
 
             changes_made = true;
          }
@@ -248,6 +267,9 @@ namespace HM
    {
       AntiVirusConfiguration &antiVirusConfig = Configuration::Instance()->GetAntiVirusConfiguration();
 
+      // Becomes the first scanner error, if no scanner finds a virus.
+      VirusScanningResult outcome(VirusScanningResult::NoVirusFound, "");
+
       if (antiVirusConfig.ClamWinEnabled())
       {
          VirusScanningResult result = ClamWinVirusScanner::Scan(fileName);
@@ -255,7 +277,11 @@ namespace HM
          if (result.GetVirusFound())
             return result;
          else if (result.GetErrorOccured())
+         {
             ReportScanningError_(result);
+            if (!outcome.GetErrorOccured())
+               outcome = result;
+         }
       }
 
       if (antiVirusConfig.GetCustomScannerEnabled())
@@ -265,20 +291,28 @@ namespace HM
          if (result.GetVirusFound())
             return result;
          else if (result.GetErrorOccured())
+         {
             ReportScanningError_(result);
+            if (!outcome.GetErrorOccured())
+               outcome = result;
+         }
       }
 
       if (antiVirusConfig.GetClamAVEnabled())
       {
          VirusScanningResult result = ClamAVVirusScanner::Scan(fileName);
-         
+
          if (result.GetVirusFound())
             return result;
          else if (result.GetErrorOccured())
+         {
             ReportScanningError_(result);
+            if (!outcome.GetErrorOccured())
+               outcome = result;
+         }
       }
 
-      return VirusScanningResult(VirusScanningResult::NoVirusFound, "");
+      return outcome;
    }
 
    void 

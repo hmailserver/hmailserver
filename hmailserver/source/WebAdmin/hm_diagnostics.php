@@ -7,7 +7,7 @@ if (hmailGetAdminLevel() != 2)
 
 $obDiagnostics	= $obBaseApp->Diagnostics();
 
-$action = hmailGetVar("action", "");
+$action = hmailGetPostVar("action", "");
 
 $resultString = "";
 

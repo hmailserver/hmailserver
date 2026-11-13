@@ -8,6 +8,7 @@
 namespace HM
 {
    class Message;
+   class MimeBody;
 
    class VirusScanner  
    {
@@ -30,6 +31,7 @@ namespace HM
 
       static bool GetVirusScanningEnabled();
       static bool Scan(std::shared_ptr<Message> pMessage, String &virusName);
+      static VirusScanningResult ScanPart(std::shared_ptr<MimeBody> pBody);
       static void BlockAttachments(std::shared_ptr<Message> message);
 
       static void ResetCounter();
@@ -42,6 +44,7 @@ namespace HM
       static void WaitForFreeScanner_();
       static void ReportVirusFound(std::shared_ptr<Message> pMessage);
       static VirusScanningResult ScanFile_(const String &fileName);
+      static VirusScanningResult ScanPart_(std::shared_ptr<MimeBody> pBody);
 
       static void ReportScanningError_(const VirusScanningResult &scanningResult);
    };

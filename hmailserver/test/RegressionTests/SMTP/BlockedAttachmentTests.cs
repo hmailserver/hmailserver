@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using hMailServer;
@@ -320,6 +321,261 @@ namespace RegressionTests.SMTP
          var contents = File.ReadAllText(tempFile);
          Assert.IsTrue(contents.Contains("The attachment " + originalName + " was blocked"), contents);
          File.Delete(tempFile);
+      }
+
+      [Test]
+      public void TestBlockedAttachmentInsideEncapsulatedMessage()
+      {
+         // A blocked attachment inside a forwarded message/rfc822 part must not be delivered.
+         const string payload = "QkxPQ0tFRC1QQVlMT0FELU1BUktFUg=="; // "BLOCKED-PAYLOAD-MARKER"
+
+         var messageText = "Date: Thu, 03 Jul 2008 22:01:53 +0200\r\n" +
+                           "From: Test <test@example.test>\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: test\r\n" +
+                           "Content-Type: multipart/mixed;\r\n" +
+                           "  boundary=\"outer-boundary\"\r\n" +
+                           "\r\n" +
+                           "--outer-boundary\r\n" +
+                           "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                           "\r\n" +
+                           "Test\r\n" +
+                           "--outer-boundary\r\n" +
+                           "Content-Type: message/rfc822\r\n" +
+                           "Content-Disposition: attachment; filename=\"forwarded.eml\"\r\n" +
+                           "\r\n" +
+                           "From: Inner <inner@example.test>\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: inner\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           "Content-Type: multipart/mixed; boundary=\"inner-boundary\"\r\n" +
+                           "\r\n" +
+                           "--inner-boundary\r\n" +
+                           "Content-Type: text/plain\r\n" +
+                           "\r\n" +
+                           "Inner\r\n" +
+                           "--inner-boundary\r\n" +
+                           "Content-Type: application/octet-stream\r\n" +
+                           "Content-Transfer-Encoding: base64\r\n" +
+                           "Content-Disposition: attachment; filename=\"evil.dll\"\r\n" +
+                           "\r\n" +
+                           payload + "\r\n" +
+                           "--inner-boundary--\r\n" +
+                           "\r\n" +
+                           "--outer-boundary--\r\n";
+
+         SmtpClientSimulator.StaticSendRaw("test@example.test", "test@example.test", messageText);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         Assert.IsFalse(message.Contains(payload), message);
+         Assert.IsTrue(message.Contains("was blocked for delivery"), message);
+      }
+
+      [Test]
+      public void TestBlockedEncapsulatedMessageBecomesTextPart()
+      {
+         // The notice replacing a blocked forwarded message must not be labelled message/rfc822.
+         var messageText = "Date: Thu, 03 Jul 2008 22:01:53 +0200\r\n" +
+                           "From: Test <test@example.test>\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: test\r\n" +
+                           "Content-Type: multipart/mixed;\r\n" +
+                           "  boundary=\"outer-boundary\"\r\n" +
+                           "\r\n" +
+                           "--outer-boundary\r\n" +
+                           "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                           "\r\n" +
+                           "Test\r\n" +
+                           "--outer-boundary\r\n" +
+                           "Content-Type: message/rfc822\r\n" +
+                           "Content-Disposition: attachment; filename=\"forwarded.eml\"\r\n" +
+                           "\r\n" +
+                           "From: Inner <inner@example.test>\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: inner\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           "Content-Type: multipart/mixed; boundary=\"inner-boundary\"\r\n" +
+                           "\r\n" +
+                           "--inner-boundary\r\n" +
+                           "Content-Type: text/plain\r\n" +
+                           "\r\n" +
+                           "Inner\r\n" +
+                           "--inner-boundary\r\n" +
+                           "Content-Type: application/octet-stream\r\n" +
+                           "Content-Transfer-Encoding: base64\r\n" +
+                           "Content-Disposition: attachment; filename=\"evil.dll\"\r\n" +
+                           "\r\n" +
+                           "QUFBQQ==\r\n" +
+                           "--inner-boundary--\r\n" +
+                           "\r\n" +
+                           "--outer-boundary--\r\n";
+
+         AssertBlockedPartIsText(messageText, "forwarded.eml.txt", "message/rfc822");
+      }
+
+      [Test]
+      public void TestBlockedAttachmentBecomesTextPart()
+      {
+         // The notice must be text/plain, also when the name is only given in Content-Type.
+         var messageText = "Date: Thu, 03 Jul 2008 22:01:53 +0200\r\n" +
+                           "From: Test <test@example.test>\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: test\r\n" +
+                           "Content-Type: multipart/mixed;\r\n" +
+                           "  boundary=\"outer-boundary\"\r\n" +
+                           "\r\n" +
+                           "--outer-boundary\r\n" +
+                           "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                           "\r\n" +
+                           "Test\r\n" +
+                           "--outer-boundary\r\n" +
+                           "Content-Type: application/x-msdownload; name=\"evil.dll\"\r\n" +
+                           "Content-Transfer-Encoding: base64\r\n" +
+                           "\r\n" +
+                           "QUFBQQ==\r\n" +
+                           "--outer-boundary--\r\n";
+
+         AssertBlockedPartIsText(messageText, "evil.dll.txt", "application/x-msdownload");
+      }
+
+      private void AssertBlockedPartIsText(string messageText, string expectedName, string originalType)
+      {
+         SmtpClientSimulator.StaticSendRaw("test@example.test", "test@example.test", messageText);
+
+         var message = CustomAsserts.AssertRetrieveFirstMessage(_account.IMAPFolders.get_ItemByName("INBOX"));
+         Assert.AreEqual(1, message.Attachments.Count);
+         Assert.AreEqual(expectedName, message.Attachments[0].Filename);
+
+         // Headers of the part that now holds the notice.
+         var raw = File.ReadAllText(message.Filename);
+         var noticePart = raw.Split(new[] { "--outer-boundary" }, StringSplitOptions.None)
+            .Single(part => part.Contains(expectedName));
+         var headers = noticePart.Substring(0, noticePart.IndexOf("\r\n\r\n", 2));
+
+         StringAssert.DoesNotContain(originalType, headers.ToLowerInvariant(), raw);
+         StringAssert.Contains("text/plain", headers.ToLowerInvariant(), raw);
+      }
+
+      [Test]
+      public void TestBlockedAttachmentInsideDeeplyNestedMultipart()
+      {
+         // A blocked attachment nested deeper than the parser accepts must not be delivered.
+         const string payload = "QkxPQ0tFRC1QQVlMT0FELU1BUktFUg=="; // "BLOCKED-PAYLOAD-MARKER"
+
+         var messageText = "Date: Thu, 03 Jul 2008 22:01:53 +0200\r\n" +
+                           "From: Test <test@example.test>\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: test\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           CreateDeeplyNestedBody(payload);
+
+         SmtpClientSimulator.StaticSendRaw("test@example.test", "test@example.test", messageText);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         Assert.IsFalse(message.Contains(payload), message);
+      }
+
+      [Test]
+      public void TestBlockedAttachmentInsideDeeplyNestedEncapsulatedMessage()
+      {
+         // A forwarded message that is nested too deep to inspect must not deliver its attachment.
+         const string payload = "QkxPQ0tFRC1QQVlMT0FELU1BUktFUg=="; // "BLOCKED-PAYLOAD-MARKER"
+
+         var messageText = "Date: Thu, 03 Jul 2008 22:01:53 +0200\r\n" +
+                           "From: Test <test@example.test>\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: test\r\n" +
+                           "Content-Type: multipart/mixed;\r\n" +
+                           "  boundary=\"outer-boundary\"\r\n" +
+                           "\r\n" +
+                           "--outer-boundary\r\n" +
+                           "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                           "\r\n" +
+                           "Test\r\n" +
+                           "--outer-boundary\r\n" +
+                           "Content-Type: message/rfc822\r\n" +
+                           "Content-Disposition: attachment; filename=\"forwarded.eml\"\r\n" +
+                           "\r\n" +
+                           "From: Inner <inner@example.test>\r\n" +
+                           "To: test@example.test\r\n" +
+                           "Subject: inner\r\n" +
+                           "MIME-Version: 1.0\r\n" +
+                           CreateDeeplyNestedBody(payload) +
+                           "\r\n" +
+                           "--outer-boundary--\r\n";
+
+         SmtpClientSimulator.StaticSendRaw("test@example.test", "test@example.test", messageText);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         Assert.IsFalse(message.Contains(payload), message);
+      }
+
+      [Test]
+      public void TestBlockedAttachmentAfterPartCountLimit()
+      {
+         // A blocked attachment after the parser's part count limit must not be delivered.
+         const string payload = "QkxPQ0tFRC1QQVlMT0FELU1BUktFUg=="; // "BLOCKED-PAYLOAD-MARKER"
+         const int partCountLimit = 10000;
+
+         var messageText = new StringBuilder();
+         messageText.Append("Date: Thu, 03 Jul 2008 22:01:53 +0200\r\n");
+         messageText.Append("From: Test <test@example.test>\r\n");
+         messageText.Append("To: test@example.test\r\n");
+         messageText.Append("Subject: test\r\n");
+         messageText.Append("MIME-Version: 1.0\r\n");
+         messageText.Append("Content-Type: multipart/mixed; boundary=\"b\"\r\n");
+         messageText.Append("\r\n");
+
+         for (int i = 0; i < partCountLimit; i++)
+         {
+            messageText.Append("--b\r\n");
+            messageText.Append("Content-Type: text/plain\r\n");
+            messageText.Append("\r\n");
+            messageText.Append("x\r\n");
+         }
+
+         messageText.Append("--b\r\n");
+         messageText.Append("Content-Type: application/octet-stream\r\n");
+         messageText.Append("Content-Transfer-Encoding: base64\r\n");
+         messageText.Append("Content-Disposition: attachment; filename=\"evil.dll\"\r\n");
+         messageText.Append("\r\n");
+         messageText.Append(payload + "\r\n");
+         messageText.Append("--b--\r\n");
+
+         SmtpClientSimulator.StaticSendRaw("test@example.test", "test@example.test", messageText.ToString());
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         Assert.IsFalse(message.Contains(payload));
+      }
+
+      // Returns 26 nested multipart containers, with a blocked attachment in the innermost one.
+      private static string CreateDeeplyNestedBody(string payload)
+      {
+         const int nestingDepth = 26;
+
+         var body = new StringBuilder();
+
+         for (int i = 0; i < nestingDepth; i++)
+         {
+            body.AppendFormat("Content-Type: multipart/mixed; boundary=\"b{0}\"\r\n", i);
+            body.Append("\r\n");
+            body.AppendFormat("--b{0}\r\n", i);
+         }
+
+         body.Append("Content-Type: application/octet-stream\r\n");
+         body.Append("Content-Transfer-Encoding: base64\r\n");
+         body.Append("Content-Disposition: attachment; filename=\"evil.dll\"\r\n");
+         body.Append("\r\n");
+         body.Append(payload + "\r\n");
+
+         for (int i = nestingDepth - 1; i >= 0; i--)
+            body.AppendFormat("--b{0}--\r\n", i);
+
+         return body.ToString();
       }
 
       [Test]

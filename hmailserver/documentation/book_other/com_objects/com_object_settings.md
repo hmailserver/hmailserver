@@ -108,7 +108,7 @@ The Settings object is the root-object for all hMailServer settings which are no
 
 <div class="api_method_name">string IMAPMasterUser</div>
 
-<div class="api_description">IMAP Master user<br></div>
+<div class="api_description">The email address of the account that may log on as any other user with IMAP AUTHENTICATE PLAIN. If no domain is given, the default domain is used.<br></div>
 
 <div class="api_method_name">string IMAPPublicFolderName</div>
 

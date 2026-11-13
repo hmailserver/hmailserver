@@ -198,17 +198,6 @@ namespace HM
             message.Format(_T("Client connection from %s was not accepted. Blocked either by IP range or by connection limit."), String(remoteAddress.ToString()).c_str());
             LOG_DEBUG(message);
 
-            // Give option to hold connection for anti-pounding & hopefully minimize DoS
-            // NOTE: We really need max connections per IP as well
-            int iBlockedIPHoldSeconds = IniFileSettings::Instance()->GetBlockedIPHoldSeconds();
-
-            if (iBlockedIPHoldSeconds > 0)
-            {
-               Sleep(iBlockedIPHoldSeconds * 1000);
-               message.Format(_T("Held connection from %s for %i seconds before dropping."), String(remoteAddress.ToString()).c_str(), iBlockedIPHoldSeconds);
-               LOG_DEBUG(message);
-            }
-
             return;
          }
 

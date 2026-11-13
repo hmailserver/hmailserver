@@ -296,6 +296,23 @@ namespace HM
 
       if (literal_data_to_receive_ > 0)
       {
+         __int64 maxCommandSize = IsAuthenticated() ? MaxAuthenticatedCommandSize : MaxUnauthenticatedCommandSize;
+
+         if ((__int64) command_buffer_.GetLength() + literal_data_to_receive_ > maxCommandSize)
+         {
+            String sFirstLine = command_buffer_.Mid(0, command_buffer_.Find(_T("\r\n")));
+            int iSpace = sFirstLine.Find(_T(" "));
+            String sTag = iSpace > 0 ? sFirstLine.Mid(0, iSpace) : String(_T("*"));
+
+            command_buffer_.Empty();
+            literal_buffer_.Empty();
+            literal_data_to_receive_ = 0;
+
+            SendAsciiData(sTag + " BAD Command too long\r\n");
+            return true;
+         }
+
+
          // Tell the client that we are accepting data.
          SendAsciiData("+ Ready for additional command text.\r\n");
 

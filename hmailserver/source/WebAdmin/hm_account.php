@@ -352,7 +352,7 @@ $str_server = $obLanguage->String("Server");
                	echo "<tr bgcolor=\"$bgcolor\">";
                	echo "<td><a href=\"?page=rule&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&\">$rulename</a></td>";
                   echo "<td><a href=\"?page=rule&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&\">$enabled</a></td>";
-               	echo "<td><a href=\"?page=background_rule_save&savetype=rule&csrftoken=$csrftoken&action=delete&domainid=$domainid&accountid=$accountid&action=delete&ruleid=$ruleid\">$str_delete</a></td>";
+               	echo "<td><a href=\"javascript:PostLink('?page=background_rule_save&savetype=rule&action=delete&domainid=$domainid&accountid=$accountid&action=delete&ruleid=$ruleid')\">$str_delete</a></td>";
                	echo "</tr>";
                	
                	if ($bgcolor == "#EEEEEE")

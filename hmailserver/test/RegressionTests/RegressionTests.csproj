@@ -76,6 +76,7 @@
     <Compile Include="AntiSpam\Combinations.cs" />
     <Compile Include="AntiSpam\Basics.cs" />
     <Compile Include="AntiSpam\SpamAssassin.cs" />
+    <Compile Include="AntiSpam\SpamAssassinResponseParsing.cs" />
     <Compile Include="API\Basics.cs" />
     <Compile Include="Infrastructure\Cache.cs" />
     <Compile Include="Infrastructure\CustomAsserts.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="Shared\UtilityServices.cs" />
     <Compile Include="Stress\IMAP\ConcurrentConnectionsStressTests.cs" />
     <Compile Include="Stress\IMAP\NotificationThreadingStressTests.cs" />
+    <Compile Include="Stress\POP3\OversizedUidlResponseTests.cs" />
     <Compile Include="Stress\Scripting\MemoryUsage.cs" />    
     <Compile Include="TestResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -184,6 +186,7 @@
     <Compile Include="IMAP\Sort.cs" />
     <Compile Include="POP3\Fetching\Basics.cs" />
     <Compile Include="Shared\Pop3ServerSimulator.cs" />
+    <Compile Include="Shared\SpamdSimulator.cs" />
     <Compile Include="Security\AutoBan.cs" />
     <Compile Include="Security\SMTPAuthentication.cs" />
     <Compile Include="SMTP\Signatures.cs" />
@@ -214,6 +217,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AntiVirus\ClamAV.cs" />
+    <Compile Include="AntiVirus\ClamWin.cs" />
     <Compile Include="API\Security.cs" />
     <Compile Include="API\Utilities.cs" />
     <Compile Include="API\Permissions.cs" />

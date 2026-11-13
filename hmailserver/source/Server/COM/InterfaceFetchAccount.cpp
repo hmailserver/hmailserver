@@ -159,7 +159,7 @@ STDMETHODIMP InterfaceFetchAccount::put_AccountID(LONG newVal)
       if (!object_)
          return GetAccessDenied();
 
-      object_->SetAccountID(newVal);
+      // The owner is set by the parent collection, so that it cannot be moved to another account.
    
       return S_OK;
    }

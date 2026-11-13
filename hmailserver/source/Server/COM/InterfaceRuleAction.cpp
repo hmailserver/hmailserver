@@ -126,7 +126,7 @@ STDMETHODIMP InterfaceRuleAction::put_RuleID(long newVal)
       if (!object_)
          return GetAccessDenied();
 
-      object_->SetRuleID(newVal);
+      // The owner is set by the parent collection, so that it cannot be moved to another rule.
       return S_OK;
    }
    catch (...)

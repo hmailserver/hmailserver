@@ -110,7 +110,7 @@ else
                               <td width="25%"><?php echo "<a href=\"?page=rule_criteria&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&criteriaid=$criteriaid\">$fieldName</a>";?></td>
                               <td width="25%"><?php echo PreprocessOutput($matchType)?></td>
                               <td width="25%"><?php echo PreprocessOutput($matchValue)?></td>
-                              <td width="25%"><?php echo "<a href=\"?page=background_rule_save&csrftoken=$csrftoken&savetype=criteria&action=delete&domainid=$domainid&accountid=$accountid&&ruleid=$ruleid&criteriaid=$criteriaid\">$str_delete</a>";?></td>
+                              <td width="25%"><?php echo "<a href=\"javascript:PostLink('?page=background_rule_save&savetype=criteria&action=delete&domainid=$domainid&accountid=$accountid&&ruleid=$ruleid&criteriaid=$criteriaid')\">$str_delete</a>";?></td>
                             </tr>                           
                            <?php
                          }
@@ -140,7 +140,7 @@ else
                            ?>
                             <tr>
                               <td width="25%"><?php echo "<a href=\"?page=rule_action&action=edit&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$actionName</a>";?></td>
-                              <td width="25%"><?php echo "<a href=\"?page=background_rule_save&csrftoken=$csrftoken&savetype=action&action=delete&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid\">$str_delete</a>";?></td>
+                              <td width="25%"><?php echo "<a href=\"javascript:PostLink('?page=background_rule_save&savetype=action&action=delete&domainid=$domainid&accountid=$accountid&ruleid=$ruleid&actionid=$actionid')\">$str_delete</a>";?></td>
                             </tr>                           
                            <?php
                          }
