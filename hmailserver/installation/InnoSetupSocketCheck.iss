@@ -59,6 +59,6 @@ begin
 	if WSAStartup($0202, StringOfChar(' ', 512)) <> 0 then
 		Exit;
 
-	Result := IsPortInUse(25) or IsPortInUse(110) or IsPortInUse(143);
+	Result := IsPortInUse(25) or IsPortInUse(110) or IsPortInUse(143) or IsPortInUse(587);
 	WSACleanup();
 end;

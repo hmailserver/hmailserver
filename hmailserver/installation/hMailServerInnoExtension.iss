@@ -609,7 +609,7 @@ begin
 		begin
 			// The hMailServer isn't running, but someone is blocking the ports.
 			//
-			sMessage := 'The hMailServer Setup has detected that one or several of the TCP/IP ports 25, 110 and 143 are already in use.' + Chr(13) + Chr(10) + 'This indicates that there already is an email server running on this computer.' + Chr(13) + Chr(10) + 'If you plan to use any of these ports with hMailServer, the already existing server must be stopped.';
+			sMessage := 'The hMailServer Setup has detected that one or several of the TCP/IP ports 25, 110, 143 and 587 are already in use.' + Chr(13) + Chr(10) + 'This indicates that there already is an email server running on this computer.' + Chr(13) + Chr(10) + 'If you plan to use any of these ports with hMailServer, the already existing server must be stopped.';
 			MsgBox(sMessage, mbInformation, MB_OK);	
 		end;
 	end;	
