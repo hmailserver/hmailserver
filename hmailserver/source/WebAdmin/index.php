@@ -44,10 +44,14 @@
    if (!file_exists('./' . $page . '.php'))
       hmailHackingAttemp();
 
-   if ($_SERVER['REQUEST_METHOD'] == 'POST' || $isbackground)	
+   // Background pages change data, so they only accept POST.
+   if ($isbackground && $_SERVER['REQUEST_METHOD'] != 'POST')
+      hmailHackingAttemp();
+
+   if ($_SERVER['REQUEST_METHOD'] == 'POST')
    {
       validate_csrf_token_supplied();
-   }	
+   }
    
    // If it's a background page, run here.
    if ($isbackground)
@@ -79,13 +83,15 @@
 		<script type="text/javascript" src="include/functions.js"></script>
 		
 		<script type="text/javascript">
+		var csrfToken = "<?php echo $csrftoken;?>";
+
 		function ConfirmDelete(name, url)
 		{
 			confirm_delete = "<?php echo GetConfirmDelete();?>"
 			confirm_delete = confirm_delete.replace("%s", name);
-		 
+
 			if (confirm(confirm_delete))
-				document.location = url;
+				PostLink(url);
 		}
 		</script>
 </head>

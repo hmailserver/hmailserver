@@ -1,10 +1,11 @@
 <#
-Grant modify permissions for the hMailServer installation folder.
+Grant modify permissions for the hMailServer installation and data folders.
 
 This script will relaunch itself elevated if not already running as Administrator.
 It grants 'Everyone' Modify permissions recursively to:
   C:\Program Files (x86)\hMailServer
   C:\Program Files\hMailServer
+  C:\ProgramData\hMailServer
 
 Use this before running the test suite if your tests need write access to the
 installation directory. Run with care — granting 'Everyone' write access is
@@ -13,7 +14,8 @@ insecure on multi-user machines. Prefer running tests in a dedicated test VM.
 
 $targets = @(
     'C:\Program Files (x86)\hMailServer',
-    'C:\Program Files\hMailServer'
+    'C:\Program Files\hMailServer',
+    'C:\ProgramData\hMailServer'
 )
 
 function Test-IsElevated {

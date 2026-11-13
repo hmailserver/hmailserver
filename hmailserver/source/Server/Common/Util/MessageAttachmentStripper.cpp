@@ -8,6 +8,7 @@
 #include "../BO/ServerMessages.h"
 #include "../Persistence/PersistentMessage.h"
 #include "../Persistence/PersistentServerMessage.h"
+#include "../AntiVirus/VirusScanner.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -35,56 +36,45 @@ namespace HM
       MimeBody oMimeMessage;
       oMimeMessage.LoadFromFile(fileName);
 
-      // Assume first part is the text to keep.
+      // Keep the first text part. If there is none, keep only the notification.
+      std::shared_ptr<MimeBody> pTextPart;
+
       std::shared_ptr<MimeBody> pBody = oMimeMessage.FindFirstPart();
-
-      if (!pBody)
+      while (pBody && !pTextPart)
       {
-         // Only one part in the message. So we got nothing to do...
-         return;
-      }
-
-      while (pBody)
-      {
-
          if (pBody->IsMultiPart())
          {
             std::shared_ptr<MimeBody> pSubBody = pBody->FindFirstPart();
 
-           
-            while (pSubBody)
+            while (pSubBody && !pTextPart)
             {
                if (IsGoodTextPart_(pSubBody))
-               {
-                  WriteToDisk_(pMessage, oMimeMessage, pSubBody);
-                  return;
-               }
+                  pTextPart = pSubBody;
 
                pSubBody = pBody->FindNextPart();
             }
-
-
          }
-         
-         if (IsGoodTextPart_(pBody))
-         {
-            WriteToDisk_(pMessage, oMimeMessage, pBody);
-            return;
-         }
+
+         if (!pTextPart && IsGoodTextPart_(pBody))
+            pTextPart = pBody;
 
          pBody = oMimeMessage.FindNextPart();
       }
 
-      
+      // The text part may itself hold the virus. Unless it scans clean, keep only the notification.
+      if (pTextPart)
+      {
+         VirusScanningResult result = VirusScanner::ScanPart(pTextPart);
+         if (result.GetVirusFound() || result.GetErrorOccured())
+            pTextPart.reset();
+      }
 
+      WriteToDisk_(pMessage, oMimeMessage, pTextPart);
    }
 
    void
    MessageAttachmentStripper::WriteToDisk_(std::shared_ptr<Message> pMessage, MimeBody &oMainMessage, std::shared_ptr<MimeBody> pBody)
    {
-      if (!pBody)
-         return;
-
       AnsiString sHeader;
 
       std::vector<MimeField> oFieldList = oMainMessage.Fields();
@@ -106,7 +96,8 @@ namespace HM
             sHeader += "\r\n";
          }
          else
-         if (sName.CompareNoCase("content-type") != 0)
+         if (sName.CompareNoCase("content-type") != 0 &&
+             sName.CompareNoCase("content-transfer-encoding") != 0)
          {
             sHeader += sName;
             sHeader += ": ";
@@ -117,7 +108,7 @@ namespace HM
          iterField++;
       }
 
-      String sBody = pBody->GetRawText();
+      String sBody = pBody ? String(pBody->GetRawText()) : String();
 
       String sNotification = Configuration::Instance()->GetServerMessages()->GetMessage("VIRUS_ATTACHMENT_REMOVED");
 
@@ -138,14 +129,10 @@ namespace HM
    bool
    MessageAttachmentStripper::IsGoodTextPart_(std::shared_ptr<MimeBody> pBody)
    {
-      if (!pBody)
+      if (!pBody || pBody->IsAttachment())
          return false;
 
-      String sContentType = pBody->GetContentType();
-
-      if (sContentType.CompareNoCase(_T("text")))
-         return true;
-
-      return false;
+      String sMainType = pBody->GetMainType();
+      return sMainType.CompareNoCase(_T("text")) == 0;
    }
 }

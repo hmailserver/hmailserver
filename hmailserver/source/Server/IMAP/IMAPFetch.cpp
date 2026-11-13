@@ -51,7 +51,9 @@ namespace HM
       {
          parser_ = std::shared_ptr<IMAPFetchParser>(new IMAPFetchParser());
          String sTemp = pArgument->Command();
-         parser_->ParseCommand(sTemp);
+         IMAPResult parseResult = parser_->ParseCommand(sTemp);
+         if (parseResult.GetResult() != IMAPResult::ResultOK)
+            return parseResult;
       }
 
       // If we're going to touch the file, make sure it's there.
@@ -259,34 +261,22 @@ namespace HM
 
       if (iOctetStart == -1 && iOctetCount == -1)
       {
-         iOctetStart = 0;
-         iOctetCount = iBufferSize;
+         iOutStart = 0;
+         iOutCount = iBufferSize;
+         return;
       }
-      else
+
+      // Nothing to send if the range is invalid or starts beyond the end of the buffer.
+      if (iOctetStart < 0 || iOctetCount < 0 || iOctetStart >= iBufferSize)
       {
-         // Jump forward to the start of the buffer.
-         iBufferSize -= iOctetStart;
-
-         if (iBufferSize <= 0)
-         {
-            iOutStart = 0;
-            iOutCount = 0;
-            return;
-         }
-
-         // Check if block size is within buffer.
-         if (iOctetCount > iBufferSize)
-         {
-            // The requested total goes beyond the
-            // end of the buffer. We need to truncate
-            // the requested length so that it fits
-            // within the buffer.
-            iOctetCount = iBufferSize;
-         }
+         iOutStart = 0;
+         iOutCount = 0;
+         return;
       }
 
+      // Truncate the count so that the range fits within the buffer.
       iOutStart = iOctetStart;
-      iOutCount = iOctetCount;
+      iOutCount = std::min(iOctetCount, iBufferSize - iOctetStart);
    }
 
    std::shared_ptr<MimeBody>

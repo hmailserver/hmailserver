@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using hMailServer;
 using NUnit.Framework;
+using RegressionTests.Infrastructure;
 using RegressionTests.POP3.Fetching;
 using RegressionTests.Shared;
 
@@ -33,7 +34,12 @@ namespace RegressionTests.POP3
 
       private FetchAccount CreateFetchAccount()
       {
-         var fa = _account.FetchAccounts.Add();
+         return CreateFetchAccount(_account, _serverPort);
+      }
+
+      private static FetchAccount CreateFetchAccount(Account account, int serverPort)
+      {
+         var fa = account.FetchAccounts.Add();
 
          fa.Enabled = true;
          fa.MinutesBetweenFetch = 10;
@@ -42,7 +48,7 @@ namespace RegressionTests.POP3
          fa.Password = "test";
          fa.UseSSL = false;
          fa.ServerAddress = "localhost";
-         fa.Port = _serverPort;
+         fa.Port = serverPort;
          fa.ProcessMIMERecipients = false;
          fa.DaysToKeepMessages = -1;
          fa.UseAntiSpam = false;
@@ -166,6 +172,79 @@ namespace RegressionTests.POP3
 
          StringAssert.Contains("Received: from example.com", downloadedMessage);
          StringAssert.Contains("Hello!", downloadedMessage);
+      }
+
+      [Test]
+      [Description("A large mailbox gives a UIDL response over 20 MB. It should still be downloaded.")]
+      public void TestLargeUidlResponse()
+      {
+         using (var pop3Server = CreateServer())
+         {
+            // About 24 MB. The server disconnects when the first padding message is requested.
+            pop3Server.PaddingUidCount = 300000;
+            pop3Server.SecondsToWaitBeforeTerminate = 120;
+            pop3Server.StartListen();
+
+            var fetchAccount = CreateFetchAccount();
+            fetchAccount.DownloadNow();
+            pop3Server.WaitForCompletion();
+            LockHelper.WaitForUnlock(fetchAccount);
+         }
+
+         Pop3ClientSimulator.AssertMessageCount(_account.Address, "test", 1);
+         var downloadedMessage = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         StringAssert.Contains("Hello!", downloadedMessage);
+      }
+
+      [TestCase(Pop3ServerSimulator.OversizedResponseType.Capa, "CAPA")]
+      [TestCase(Pop3ServerSimulator.OversizedResponseType.UidlLine, "UIDL")]
+      [TestCase(Pop3ServerSimulator.OversizedResponseType.UidlLongLines, "UIDL")]
+      [TestCase(Pop3ServerSimulator.OversizedResponseType.RetrFirstLine, "RETR")]
+      [Description("hMailServer should disconnect instead of buffering a never-ending response.")]
+      public void TestOversizedResponseShouldDisconnect(Pop3ServerSimulator.OversizedResponseType responseType,
+         string command)
+      {
+         AssertOversizedResponseDisconnects(_account, _serverPort, responseType, command);
+      }
+
+      internal static void AssertOversizedResponseDisconnects(Account account, int serverPort,
+         Pop3ServerSimulator.OversizedResponseType responseType, string command)
+      {
+         FetchAccount fetchAccount;
+
+         using (var pop3Server = new Pop3ServerSimulator(1, serverPort, new List<string> { _message }))
+         {
+            pop3Server.OversizedResponse = responseType;
+            // The UIDL total size limit is 100 MB.
+            pop3Server.OversizedResponseSize = responseType == Pop3ServerSimulator.OversizedResponseType.UidlTotalSize
+               ? 120 * 1024 * 1024
+               : 50 * 1024 * 1024;
+            pop3Server.SecondsToWaitBeforeTerminate = 120;
+            pop3Server.StartListen();
+
+            fetchAccount = CreateFetchAccount(account, serverPort);
+
+            // CAPA is only sent when STARTTLS may be used.
+            if (responseType == Pop3ServerSimulator.OversizedResponseType.Capa)
+            {
+               fetchAccount.ConnectionSecurity = eConnectionSecurity.eCSSTARTTLSOptional;
+               fetchAccount.Save();
+            }
+
+            fetchAccount.DownloadNow();
+            pop3Server.WaitForCompletion();
+
+            Assert.IsTrue(pop3Server.ClientDisconnectedDuringOversizedResponse,
+               "hMailServer kept reading the oversized response");
+         }
+
+         LockHelper.WaitForUnlock(fetchAccount);
+         ServiceRestartDetector.ValidateProcessId();
+
+         var expectedMessage = string.Format(
+            "The download of messages from external account {0} failed. The response to {1} was too large.",
+            fetchAccount.Name, command);
+         Assert.IsTrue(LogHandler.DefaultLogContains(expectedMessage), "Log did not contain: " + expectedMessage);
       }
    }
 }

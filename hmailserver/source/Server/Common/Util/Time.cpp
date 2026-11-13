@@ -522,7 +522,7 @@ namespace HM
       // Parse time
       String sPart2 = vecParts[1];
       std::vector<String> vecTimeParts = StringParser::SplitString(sPart2, ":");
-      if (vecDateParts.size() != 3 )
+      if (vecTimeParts.size() != 3)
          return "";
       
       long lHour = _ttoi(vecTimeParts[0]);

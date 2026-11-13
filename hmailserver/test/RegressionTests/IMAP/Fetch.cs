@@ -920,5 +920,33 @@ namespace RegressionTests.IMAP
 
          sim.Disconnect();
       }
+
+      [TestCase("1 BODY.PEEK[TEXT]<-100.200>")]
+      [TestCase("1 BODY.PEEK[1]<-100.200>")]
+      [TestCase("1 BODY.PEEK[]<-100.200>")]
+      [TestCase("1 BODY.PEEK[HEADER]<-100.200>")]
+      [TestCase("1 BODY.PEEK[TEXT]<0.-1>")]
+      [TestCase("1 BODY.PEEK[1]<0.-1>")]
+      [TestCase("1 BODY.PEEK[]<0.-1>")]
+      [TestCase("1 BODY.PEEK[TEXT]<-1.10>")]
+      public void PartialFetch_NegativeStartOrCountIsRejected(string command)
+      {
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBodyContent");
+         ImapClientSimulator.AssertMessageCount(account.Address, "test", "Inbox", 1);
+
+         var sim = new ImapClientSimulator();
+         sim.ConnectAndLogon(account.Address, "test");
+         sim.SelectFolder("INBOX");
+
+         var result = sim.Fetch(command);
+         Assert.IsTrue(result.StartsWith("A17 BAD"), result);
+
+         // The session must still work afterwards.
+         result = sim.Fetch("1 BODY.PEEK[TEXT]<0.5>");
+         Assert.IsTrue(result.Contains("BODY[TEXT]<0> {5}"), result);
+
+         sim.Disconnect();
+      }
    }
 }

@@ -216,6 +216,9 @@ namespace RegressionTests.Shared
          if (antiVirus.ClamAVHost != "localhost")
             antiVirus.ClamAVHost = "localhost";
 
+         if (antiVirus.ClamWinEnabled)
+            antiVirus.ClamWinEnabled = false;
+
          if (antiVirus.NotifySender)
             antiVirus.NotifySender = false;
 

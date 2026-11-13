@@ -482,6 +482,13 @@ namespace HM
       bool IsEncapsulatedRFC822Message() const;
       std::shared_ptr<MimeBody> LoadEncapsulatedMessage() const;
 
+      // Collects file names of attachments inside an encapsulated message, recursively.
+      // Returns false if the message is nested too deeply or could not be parsed.
+      bool GetEncapsulatedFileNames(std::vector<String> &file_names, int depth = 0) const;
+
+      // True if parts were dropped while loading, because of nesting depth or part count limits.
+      bool IsTruncated() const;
+
    public:
 	   // overrides
 	   virtual void Clear();
@@ -489,7 +496,7 @@ namespace HM
 	   // serialization
 	   virtual void Store(AnsiString &output, bool bIncludeHeader=true) const;
    
-      virtual size_t Load(const char* pszData, size_t nDataSize, size_t &index, bool &part_loaded);
+      virtual size_t Load(const char* pszData, size_t nDataSize, size_t &index, bool &part_loaded, int depth = 0);
 
    protected:
 
@@ -502,6 +509,7 @@ namespace HM
       size_t body_byte_offset_ = 0;    // Byte offset where body starts in source file (after headers + blank line)
       size_t body_byte_end_ = 0;       // Byte offset one past last meaningful body byte (end of closing boundary marker)
       bool body_modified_ = false;     // True if any body content was changed
+      bool truncated_ = false;         // True if child parts were dropped during Load()
       size_t last_header_size_ = 0;    // Header size captured from last Load() call
       size_t last_multipart_end_ = 0;  // Position right after "--boundary--" closing marker, or 0 if not multipart
 
