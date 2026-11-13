@@ -148,6 +148,7 @@ namespace HM
       bool show_body_structure_NonExtensible;
 
       bool set_seen_;
+      bool invalid_partial_;
       
       std::vector<BodyPart> parts_to_look_at_;
    };

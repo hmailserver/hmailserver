@@ -55,10 +55,13 @@ namespace HM
       String sDebugMessage = Formatter::Format("ClamWin: {0}. Return code: {1}", sCommandLine, exitCode);
       LOG_DEBUG(sDebugMessage);
 
-      if (exitCode == 1)
+      // clamscan exits with 0 if clean, 1 if a virus was found and 2 if an error occurred.
+      if (exitCode == 0)
+         return VirusScanningResult(VirusScanningResult::NoVirusFound, Formatter::Format("Return code: {0}", exitCode));
+      else if (exitCode == 1)
          return VirusScanningResult(VirusScanningResult::VirusFound, "Unknown");
       else
-         return VirusScanningResult(VirusScanningResult::NoVirusFound, Formatter::Format("Return code: {0}", exitCode));
+         return VirusScanningResult("ClamWinVirusScanner::Scan", Formatter::Format("Scan failed. Return code: {0}", exitCode));
 
    }
 }

@@ -711,5 +711,41 @@ namespace RegressionTests.Infrastructure
 
          Pop3ClientSimulator.AssertMessageCount(account2.Address, "test", 5);
       }
+
+      [Test]
+      [Category("Accounts")]
+      [Description("A negative X-hMailServer-LoopCount supplied by the sender must not extend the forward loop limit.")]
+      public void NegativeLoopCountHeaderShouldNotExtendForwardLoopLimit()
+      {
+         _settings.RuleLoopLimit = 5;
+
+         var accountA = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "loop-a@example.test", "test");
+         var accountB = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "loop-b@example.test", "test");
+
+         accountA.ForwardAddress = accountB.Address;
+         accountA.ForwardEnabled = true;
+         accountA.ForwardKeepOriginal = true;
+         accountA.Save();
+
+         accountB.ForwardAddress = accountA.Address;
+         accountB.ForwardEnabled = true;
+         accountB.ForwardKeepOriginal = true;
+         accountB.Save();
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.SendRaw("sender@example.test", accountA.Address,
+            "X-hMailServer-LoopCount: -20\r\n" +
+            "Subject: Loop test\r\n" +
+            "\r\n" +
+            "This is the body");
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         // Loop counts 0..5 are delivered, alternating between A and B.
+         Pop3ClientSimulator.AssertMessageCount(accountA.Address, "test", 3);
+         Pop3ClientSimulator.AssertMessageCount(accountB.Address, "test", 3);
+
+         CustomAsserts.AssertReportedError("Maximum forward loop count reached.");
+      }
    }
 }

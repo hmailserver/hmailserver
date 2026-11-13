@@ -92,7 +92,6 @@ For each of the settings below, hMailServer normally uses the Max value. When th
 - SMTPCMinTimeout / SMTPCMaxTimeout - Timeout, in seconds, for SMTP sessions where hMailServer is delivering to another server. Default 30 and 600 seconds.
 - POP3DMinTimeout / POP3DMaxTimeout - Timeout, in seconds, for POP3 sessions where a client is downloading from hMailServer. Default 10 and 600 seconds.
 - POP3CMinTimeout / POP3CMaxTimeout - Timeout, in seconds, for POP3 sessions where hMailServer is downloading from an external account. Default 30 and 900 seconds.
-- BlockedIPHoldSeconds - The number of seconds hMailServer should keep a refused connection open before dropping it. Connections are refused when the client does not match any IP range, or when a connection limit has been reached. Holding the connection slows down clients which reconnect over and over. Default 0, which means that refused connections are dropped immediately.
 
 #### Logging
 

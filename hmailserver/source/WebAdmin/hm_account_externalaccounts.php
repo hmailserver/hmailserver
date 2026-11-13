@@ -51,8 +51,8 @@ for ($i = 0; $i < $Count; $i++)
 	echo "<tr bgcolor=\"$bgcolor\">";
 	echo "<td><a href=\"?page=account_externalaccount&action=edit&domainid=$domainid&accountid=$accountid&faid=$FAID\">$Name</a></td>";
 	echo "<td><a href=\"?page=account_externalaccount&action=edit&domainid=$domainid&accountid=$accountid&faid=$FAID\">$ServerAddress</a></td>";
-	echo "<td><a href=\"?page=background_account_externalaccount_save&csrftoken=$csrftoken&action=delete&domainid=$domainid&accountid=$accountid&faid=$FAID\">$str_delete</a></td>";
-	echo "<td><a href=\"?page=background_account_externalaccount_save&csrftoken=$csrftoken&action=downloadnow&domainid=$domainid&accountid=$accountid&faid=$FAID\">$str_downloadnow</a></td>";
+	echo "<td><a href=\"javascript:PostLink('?page=background_account_externalaccount_save&action=delete&domainid=$domainid&accountid=$accountid&faid=$FAID')\">$str_delete</a></td>";
+	echo "<td><a href=\"javascript:PostLink('?page=background_account_externalaccount_save&action=downloadnow&domainid=$domainid&accountid=$accountid&faid=$FAID')\">$str_downloadnow</a></td>";
 	echo "</tr>";
 	
 	if ($bgcolor == "#EEEEEE")

@@ -1038,6 +1038,39 @@ namespace RegressionTests.IMAP
          simulator.Disconnect();
       }
 
+      [Test]
+      public void TestHugeLiteralBeforeLoginIsRejected()
+      {
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+
+         var result = simulator.Send("A01 LOGIN {100000000}");
+
+         Assert.IsFalse(result.StartsWith("+"), result);
+         StringAssert.StartsWith("A01 ", result);
+
+         simulator.Disconnect();
+      }
+
+      [Test]
+      public void TestHugeLiteralAfterLoginIsRejected()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "literal@example.test", "test");
+
+         var simulator = new ImapClientSimulator();
+         simulator.ConnectAndLogon("literal@example.test", "test");
+
+         var result = simulator.Send("A01 SEARCH TEXT {100000000}");
+
+         Assert.IsFalse(result.StartsWith("+"), result);
+         StringAssert.StartsWith("A01 ", result);
+
+         // The connection is still usable after the rejection.
+         Assert.IsTrue(simulator.SelectFolder("INBOX"));
+
+         simulator.Disconnect();
+      }
+
 
       [Test]
       public void TestLogin()
@@ -1551,6 +1584,93 @@ namespace RegressionTests.IMAP
 
          if (sWelcomeMessage != "* OK HOWDYHO IMAP\r\n")
             throw new Exception("ERROR - Wrong welcome message.");
+      }
+
+      [Test]
+      [Description("Unbalanced parentheses leave the command parser without words. SETACL must reject the command.")]
+      public void TestSetAclWithUnbalancedParenthesis()
+      {
+         _settings.IMAPACLEnabled = true;
+
+         AssertCommandRejectedAndServerAlive("A01 SETACL INBOX user (", false);
+      }
+
+      [Test]
+      [Description("Unbalanced parentheses leave the command parser without words. GETQUOTAROOT must reject the command.")]
+      public void TestGetQuotaRootWithUnbalancedParenthesis()
+      {
+         _settings.IMAPQuotaEnabled = true;
+
+         AssertCommandRejectedAndServerAlive("A01 GETQUOTAROOT (", false);
+      }
+
+      [Test]
+      [Description("Unbalanced parentheses leave the command parser without words. SORT must reject the command.")]
+      public void TestSortWithUnbalancedParenthesis()
+      {
+         _settings.IMAPSortEnabled = true;
+
+         AssertCommandRejectedAndServerAlive("A01 SORT (", true);
+      }
+
+      [Test]
+      [Description("An account named like the master user in another domain must not be accepted as master user.")]
+      public void TestMasterUserFromOtherDomainIsRejected()
+      {
+         var otherDomain = SingletonProvider<TestSetup>.Instance.AddDomain("other.test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "victim@example.test", "test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(otherDomain, "master@other.test", "attacker");
+
+         _settings.IMAPSASLPlainEnabled = true;
+         _settings.IMAPMasterUser = "master";
+
+         var result = AuthenticatePlain("victim@example.test", "master@other.test", "attacker");
+         StringAssert.DoesNotContain("A01 OK", result);
+      }
+
+      [Test]
+      [Description("A master user given as a full address can log on as a user in any domain.")]
+      public void TestMasterUserWithFullAddress()
+      {
+         var otherDomain = SingletonProvider<TestSetup>.Instance.AddDomain("other.test");
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "master@example.test", "secret");
+         SingletonProvider<TestSetup>.Instance.AddAccount(otherDomain, "user@other.test", "test");
+
+         _settings.IMAPSASLPlainEnabled = true;
+         _settings.IMAPMasterUser = "master@example.test";
+
+         var result = AuthenticatePlain("user@other.test", "master@example.test", "secret");
+         StringAssert.Contains("A01 OK LOGIN completed", result);
+      }
+
+      private static string AuthenticatePlain(string authzid, string authcid, string password)
+      {
+         var token = Convert.ToBase64String(Encoding.ASCII.GetBytes(authzid + "\0" + authcid + "\0" + password));
+
+         var simulator = new ImapClientSimulator();
+         simulator.Connect();
+         var result = simulator.SendSingleCommand("A01 AUTHENTICATE PLAIN " + token);
+         simulator.Disconnect();
+         return result;
+      }
+
+      private void AssertCommandRejectedAndServerAlive(string command, bool selectInbox)
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "parser@example.test", "test");
+
+         var simulator = new ImapClientSimulator();
+         simulator.ConnectAndLogon("parser@example.test", "test");
+         if (selectInbox)
+            Assert.IsTrue(simulator.SelectFolder("INBOX"));
+
+         var result = simulator.SendSingleCommand(command);
+         StringAssert.StartsWith("A01 BAD", result);
+         simulator.Disconnect();
+
+         // A new session verifies that the server survived the command.
+         var verifier = new ImapClientSimulator();
+         Assert.IsTrue(verifier.ConnectAndLogon("parser@example.test", "test"));
+         verifier.Disconnect();
       }
    }
 }

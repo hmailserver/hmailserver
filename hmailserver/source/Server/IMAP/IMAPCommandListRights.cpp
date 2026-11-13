@@ -9,6 +9,7 @@
 #include "IMAPConfiguration.h"
 
 #include "../Common/BO/IMAPFolder.h"
+#include "../Common/BO/ACLPermission.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -51,6 +52,9 @@ namespace HM
       std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
       if (!pFolder)
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
+
+      if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionAdminister))
+         return IMAPResult(IMAPResult::ResultNo, "ACL: Administer permission denied (Required for LISTRIGHTS command).");
 
       // Always produce the same output.
       String sIdentifier = pParser->Word(2)->Value();

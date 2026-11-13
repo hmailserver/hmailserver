@@ -110,13 +110,13 @@ namespace HM
 				if (sDefaultDomain.IsEmpty())
 					return IMAPResult(IMAPResult::ResultNo, "Invalid user name. Please use full email address as user name.");
 
-				imapmasteruser = DefaultDomain::ApplyDefaultDomain(imapmasteruser);
 				authzid = DefaultDomain::ApplyDefaultDomain(authzid);
 			}
-			else
-				imapmasteruser += "@" + StringParser::ExtractDomain(authcid);
 
-			if (imapmasteruser.compare(authcid))
+			// The master user is a single account, so it must resolve to a full address.
+			imapmasteruser = DefaultDomain::ApplyDefaultDomain(imapmasteruser);
+
+			if (imapmasteruser.Find(_T("@")) == -1 || imapmasteruser.CompareNoCase(authcid) != 0)
 				return IMAPResult(IMAPResult::ResultBad, "Invalid master user.");
 		}
 

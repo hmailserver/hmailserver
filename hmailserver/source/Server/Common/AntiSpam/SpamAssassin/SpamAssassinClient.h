@@ -40,7 +40,7 @@ namespace HM
 
       void Cleanup_();
       void FinishTesting_();
-      int ParseFirstBuffer_(std::shared_ptr<ByteBuffer> pBuffer) const;
+      bool ParseFirstBuffer_(std::shared_ptr<ByteBuffer> pBuffer, int &contentLength) const;
       bool SendFileContents_(const String &sFilename);
 
       String command_buffer_;
@@ -52,5 +52,8 @@ namespace HM
       bool &test_completed_;
 
       size_t total_result_bytes_written_;
+
+      // Response data received before the end of the spamd header.
+      std::shared_ptr<ByteBuffer> header_buffer_;
   };
 }

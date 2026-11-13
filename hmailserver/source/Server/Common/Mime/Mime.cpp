@@ -1050,7 +1050,52 @@ namespace HM
       return pEncapsulatedMessage;
    }
 
-   String 
+   bool
+      MimeBody::GetEncapsulatedFileNames(std::vector<String> &file_names, int depth) const
+   {
+      if (!IsEncapsulatedRFC822Message())
+         return true;
+
+      const int MaxNestingDepth = 25;
+      if (depth > MaxNestingDepth)
+         return false;
+
+      try
+      {
+         // Decode in case the part has a transfer encoding, as mail clients do.
+         AnsiString content;
+         std::unique_ptr<MimeCodeBase> pCoder(MimeEnvironment::CreateCoder(GetTransferEncoding()));
+         pCoder->SetInput(GetContent(), GetContentLength(), false);
+         pCoder->GetOutput(content);
+
+         std::shared_ptr<MimeBody> inner_message = std::shared_ptr<MimeBody>(new MimeBody);
+         size_t index = 0;
+         bool part_loaded;
+         inner_message->Load(content.c_str(), content.GetLength(), index, part_loaded);
+
+         if (!part_loaded || inner_message->IsTruncated())
+            return false;
+
+         BodyList attachments;
+         inner_message->GetAttachmentList(inner_message, attachments);
+
+         for (auto attachment : attachments)
+         {
+            file_names.push_back(attachment->GetUnicodeFilename());
+
+            if (!attachment->GetEncapsulatedFileNames(file_names, depth + 1))
+               return false;
+         }
+      }
+      catch (...)
+      {
+         return false;
+      }
+
+      return true;
+   }
+
+   String
       MimeBody::GenerateFileNameFromEncapsulatedSubject(bool unicode) const
    {
       if (!IsEncapsulatedRFC822Message())
@@ -1380,7 +1425,8 @@ namespace HM
       // If body content was not modified and we have a source file, serialize only
       // headers (using raw_line_ for unmodified fields) and copy body from disk.
       // This preserves exact byte sequences required for DKIM signature validity.
-      if (!bodyModified && !source_file_.IsEmpty())
+      // A truncated message is always rewritten, so parts that were not loaded are dropped.
+      if (!bodyModified && !IsTruncated() && !source_file_.IsEmpty())
       {
          AnsiString headerBuffer;
          MimeHeader::Store(headerBuffer);  // includes trailing blank line \r\n
@@ -1510,6 +1556,21 @@ namespace HM
    {
       return (int) bodies_.size();
    }
+
+   bool MimeBody::IsTruncated() const
+   {
+      if (truncated_)
+         return true;
+
+      for (const auto& child : bodies_)
+      {
+         if (child->IsTruncated())
+            return true;
+      }
+
+      return false;
+   }
+
    // remove and delete a child body part
    void MimeBody::ErasePart(std::shared_ptr<MimeBody> pBP)
    {
@@ -1721,9 +1782,18 @@ namespace HM
    }
 
    // load a body part from string buffer
-   size_t MimeBody::Load(const char* pszData, size_t nDataSize, size_t &index, bool &part_loaded)
+   size_t MimeBody::Load(const char* pszData, size_t nDataSize, size_t &index, bool &part_loaded, int depth)
    {
+      // Deep nesting would exhaust the stack. Fail the part so the parent drops it.
+      const int MaxNestingDepth = 25;
+      if (depth > MaxNestingDepth)
+      {
+         part_loaded = false;
+         return 0;
+      }
+
       part_loaded = true;
+      truncated_ = false;
       index++;
       part_index_ = index;
 
@@ -1794,9 +1864,8 @@ namespace HM
       const char* pszBound1 = GetBoundaryEnd(pszData, pszEnd, strBoundary.c_str());
 
       int counter = 10000;
-      while (pszBound1 != NULL && pszBound1 < pszEnd && counter > 0)
+      while (pszBound1 != NULL && pszBound1 < pszEnd)
       {
-         counter--;
          // pszBound1 points at the start of "\r\n--boundary". Move past the
          // boundary text so we can inspect what terminates this boundary line.
          const char* pszAfterBoundary = pszBound1 + strBoundary.size();
@@ -1842,6 +1911,14 @@ namespace HM
 
          const char* pszStart = pszAfterBoundary + 2;
 
+         if (counter == 0)
+         {
+            // Too many parts. The remaining parts are not loaded.
+            truncated_ = true;
+            break;
+         }
+         counter--;
+
          // look for the next boundary
          const char* pszBound2 = GetBoundaryEnd(pszStart, pszEnd, strBoundary.c_str());
 
@@ -1854,15 +1931,15 @@ namespace HM
          bodies_.push_back(pBP);
 
          bool part_loaded;
-         size_t nInputSize = pBP->Load(pszStart, nEntitySize, part_index_, part_loaded);
+         size_t nInputSize = pBP->Load(pszStart, nEntitySize, part_index_, part_loaded, depth + 1);
          if (!part_loaded)
          {
             ErasePart(pBP);
+            truncated_ = true;
             return nInputSize;
          }
          pszBound1 = pszBound2;
       }
-
 
       return (int)(pszEnd - pszDataBegin);
    }

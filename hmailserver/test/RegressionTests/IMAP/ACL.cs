@@ -544,6 +544,113 @@ namespace RegressionTests.IMAP
          imapClientSimulator.Disconnect();
       }
 
+      [Test]
+      public void GetAclRequiresAdministerPermission()
+      {
+         var owner = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "acl-owner@example.test", "test");
+         var reader = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "acl-reader@example.test", "test");
+
+         var folder = _settings.PublicFolders.Add("Share1");
+         folder.Save();
+
+         var ownerPermission = folder.Permissions.Add();
+         ownerPermission.PermissionAccountID = owner.ID;
+         ownerPermission.PermissionType = eACLPermissionType.ePermissionTypeUser;
+         ownerPermission.set_Permission(eACLPermission.ePermissionAdminister, true);
+         ownerPermission.Save();
+
+         var readerPermission = folder.Permissions.Add();
+         readerPermission.PermissionAccountID = reader.ID;
+         readerPermission.PermissionType = eACLPermissionType.ePermissionTypeUser;
+         readerPermission.set_Permission(eACLPermission.ePermissionLookup, true);
+         readerPermission.set_Permission(eACLPermission.ePermissionRead, true);
+         readerPermission.Save();
+
+         var imapClientSimulator = new ImapClientSimulator();
+         imapClientSimulator.Connect();
+         imapClientSimulator.LogonWithLiteral(reader.Address, "test");
+         var result = imapClientSimulator.GetACL("#Public.Share1");
+         imapClientSimulator.Disconnect();
+
+         Assert.IsTrue(result.StartsWith("A06 NO"), result);
+         Assert.IsFalse(result.Contains(owner.Address), result);
+      }
+
+      [Test]
+      public void GetAclDeniedForUserWithoutRights()
+      {
+         var owner = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "acl-owner@example.test", "test");
+         var outsider = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "acl-outsider@example.test", "test");
+
+         var folder = _settings.PublicFolders.Add("Share1");
+         folder.Save();
+
+         var permission = folder.Permissions.Add();
+         permission.PermissionAccountID = owner.ID;
+         permission.PermissionType = eACLPermissionType.ePermissionTypeUser;
+         permission.set_Permission(eACLPermission.ePermissionAdminister, true);
+         permission.Save();
+
+         var imapClientSimulator = new ImapClientSimulator();
+         imapClientSimulator.Connect();
+         imapClientSimulator.LogonWithLiteral(outsider.Address, "test");
+         var result = imapClientSimulator.GetACL("#Public.Share1");
+         imapClientSimulator.Disconnect();
+
+         Assert.IsTrue(result.StartsWith("A06 NO"), result);
+         Assert.IsFalse(result.Contains(owner.Address), result);
+      }
+
+      [Test]
+      public void ListRightsRequiresAdministerPermission()
+      {
+         var reader = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "acl-reader@example.test", "test");
+
+         var folder = _settings.PublicFolders.Add("Share1");
+         folder.Save();
+
+         var permission = folder.Permissions.Add();
+         permission.PermissionAccountID = reader.ID;
+         permission.PermissionType = eACLPermissionType.ePermissionTypeUser;
+         permission.set_Permission(eACLPermission.ePermissionLookup, true);
+         permission.set_Permission(eACLPermission.ePermissionRead, true);
+         permission.Save();
+
+         var imapClientSimulator = new ImapClientSimulator();
+         imapClientSimulator.Connect();
+         imapClientSimulator.LogonWithLiteral(reader.Address, "test");
+         var result = imapClientSimulator.ListRights("#Public.Share1", reader.Address);
+         imapClientSimulator.Disconnect();
+
+         Assert.IsTrue(result.StartsWith("A10 NO"), result);
+      }
+
+      [Test]
+      public void MyRightsDoesNotRevealFolderWithoutRights()
+      {
+         var owner = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "acl-owner@example.test", "test");
+         var outsider = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "acl-outsider@example.test", "test");
+
+         var folder = _settings.PublicFolders.Add("Share1");
+         folder.Save();
+
+         var permission = folder.Permissions.Add();
+         permission.PermissionAccountID = owner.ID;
+         permission.PermissionType = eACLPermissionType.ePermissionTypeUser;
+         permission.set_Permission(eACLPermission.ePermissionAdminister, true);
+         permission.Save();
+
+         var imapClientSimulator = new ImapClientSimulator();
+         imapClientSimulator.Connect();
+         imapClientSimulator.LogonWithLiteral(outsider.Address, "test");
+         var existingResult = imapClientSimulator.GetMyRights("#Public.Share1");
+         var missingResult = imapClientSimulator.GetMyRights("#Public.DoesNotExist");
+         imapClientSimulator.Disconnect();
+
+         // A folder the user has no rights to must look the same as a missing one.
+         Assert.AreEqual(missingResult, existingResult);
+      }
+
       /// <summary>
       ///    Test that if you create a folder named #public.Share1, both #public and #public.Share1
       ///    are listed in the LIST response.

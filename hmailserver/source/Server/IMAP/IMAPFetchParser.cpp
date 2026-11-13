@@ -35,6 +35,7 @@ namespace HM
       show_body_structure_ = false;
       set_seen_ = false;
       show_body_structure_NonExtensible = false;
+      invalid_partial_ = false;
    }
 
    IMAPFetchParser::~IMAPFetchParser()
@@ -288,6 +289,9 @@ namespace HM
          iter++;
       }
 
+      if (invalid_partial_)
+         return IMAPResult(IMAPResult::ResultBad, "Invalid partial range.");
+
       return IMAPResult();
    }
 
@@ -316,9 +320,20 @@ namespace HM
 
          String sPartial = sNewName.Mid(iStart, iEnd - iStart);
          int iDotPos = sPartial.Find(_T("."));
-         
-         oPart.octet_start_ = _ttoi(sPartial.Mid(0, iDotPos));
-         oPart.octet_count_ = _ttoi(sPartial.Mid(iDotPos+1));
+
+         String sStart = sPartial.Mid(0, iDotPos);
+         String sCount = sPartial.Mid(iDotPos+1);
+
+         // RFC 3501: partial = "<" number "." nz-number ">"
+         if (iDotPos <= 0 || sCount.IsEmpty() ||
+             !StringParser::ValidateString(sStart, "0123456789") ||
+             !StringParser::ValidateString(sCount, "0123456789"))
+         {
+            invalid_partial_ = true;
+         }
+
+         oPart.octet_start_ = _ttoi(sStart);
+         oPart.octet_count_ = _ttoi(sCount);
 
          // Remove the octets part from the description.
          String sBefore = sNewName.Mid(0, iStart - 1);
