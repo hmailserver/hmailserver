@@ -65,10 +65,6 @@ const
 	// How long to wait for the hMailServer service to stop before giving up.
 	SERVICE_STOP_TIMEOUT_MS     = 60000;
 
-  // BEGIN .NET INSTALLER	
-  mdacURL = 'http://download.microsoft.com/download/4/a/a/4aafff19-9d21-4d35-ae81-02c48dcbbbff/MDAC_TYP.EXE';
-  dotnet20URL = 'http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/dotnetfx.exe';
-  // END .NET INSTALLER	
 
 function ControlService(hService :HANDLE; dwControl :cardinal;var ServiceStatus :SERVICE_STATUS) : boolean;
 external 'ControlService@advapi32.dll stdcall';		
@@ -85,33 +81,8 @@ external 'OpenSCManagerA@advapi32.dll stdcall';
 function QueryServiceStatus(hService :HANDLE;var ServiceStatus :SERVICE_STATUS) : boolean;
 external 'QueryServiceStatus@advapi32.dll stdcall';
 
-function CheckPorts(): Integer;
-external 'CheckPorts@files:ISC.DLL stdcall';
+#include "InnoSetupSocketCheck.iss"
 
-
-function isxdl_Download(hWnd: Integer; URL, Filename: PAnsiChar): Integer;
-external 'isxdl_Download@files:isxdl.dll stdcall';
-
-procedure isxdl_AddFile(URL, Filename: PAnsiChar);
-external 'isxdl_AddFile@files:isxdl.dll stdcall';
-
-procedure isxdl_AddFileSize(URL, Filename: PAnsiChar; Size: Cardinal);
-external 'isxdl_AddFileSize@files:isxdl.dll stdcall';
-
-function isxdl_DownloadFiles(hWnd: Integer): Integer;
-external 'isxdl_DownloadFiles@files:isxdl.dll stdcall';
-
-procedure isxdl_ClearFiles;
-external 'isxdl_ClearFiles@files:isxdl.dll stdcall';
-
-function isxdl_IsConnected: Integer;
-external 'isxdl_IsConnected@files:isxdl.dll stdcall';
-
-function isxdl_SetOption(Option, Value: PAnsiChar): Integer;
-external 'isxdl_SetOption@files:isxdl.dll stdcall';
-
-function isxdl_GetFileName(URL: PAnsiChar): PAnsiChar;
-external 'isxdl_GetFileName@files:isxdl.dll stdcall';
 
 // get Windows Installer version
 procedure DecodeVersion(const Version: cardinal; var a, b : word);
@@ -634,7 +605,7 @@ begin
 	// on one of hour ports.
 	if (Result = true) then
 	begin
-		if (IsServiceRunning('hMailServer') <> True) And (CheckPorts() < 0) then
+		if (IsServiceRunning('hMailServer') <> True) And ArePortsInUse() then
 		begin
 			// The hMailServer isn't running, but someone is blocking the ports.
 			//

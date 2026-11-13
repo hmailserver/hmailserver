@@ -1,5 +1,4 @@
 [Files]
-Source: isxdl.dll; DestDir: {tmp}; Flags: dontcopy
 Source: "License.rtf"; DestDir: "{app}\Bin"; Flags: ignoreversion; Components: server admintools;
 
 ; 3'rd party dependencies
@@ -17,6 +16,5 @@ Source: "..\source\Addons\Events\*.*"; DestDir: "{app}\Events"; Flags: onlyifdoe
 Source: "..\source\WebAdmin\*.*"; DestDir: "{app}\PHPWebAdmin"; Flags: recursesubdirs; Components: admintools;
 Source: "..\source\Translations\*"; Excludes: "CVS,.cvsignore,.#*"; DestDir: "{app}\Languages"; Components: server admintools;
 
-Source: ISC.dll; Flags: dontcopy
 Source: ".\Extras\public_suffix_list.dat"; DestDir: "{app}\Bin";  Flags: ignoreversion; Components: server;
 Source: ".\Extras\dh2048.pem"; DestDir: "{app}\Bin";  Flags: ignoreversion; Components: server;
