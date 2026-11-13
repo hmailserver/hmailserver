@@ -142,6 +142,25 @@ namespace RegressionTests.AntiSpam.DMARC
          Assert.IsTrue(text.Contains("Rejected by DMARC. (outlook.com)"), text);
       }
 
+      [Test]
+      [Description("An invalid DKIM signature whose key record is in test mode (t=y) must not authenticate the From domain.")]
+      public void TestInvalidSignatureWithTestModeKeyFailsDmarc()
+      {
+         _antiSpam.DMARCHonorPolicy = true;
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@example.test", "test");
+
+         // dkimtestmode._domainkey.hmailserver.com publishes a key with t=y, and hmailserver.com
+         // publishes p=reject. The signature below was not made with that key.
+         string message =
+            "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hmailserver.com; s=dkimtestmode;\r\n" +
+            "\th=From:Subject; bh=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=; b=AAAAAAAAAAAAAAAAAAAAAAAAAAAA\r\n" +
+            GetMessage_("sender@hmailserver.com");
+
+         CustomAsserts.Throws<DeliveryFailedException>(() =>
+            SmtpClientSimulator.StaticSendRaw(account.Address, account.Address, message));
+      }
+
       private static string GetMessage_(string fromAddress)
       {
          return "From: " + fromAddress + "\r\n" +

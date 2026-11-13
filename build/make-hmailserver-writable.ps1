@@ -1,5 +1,5 @@
 <#
-Grant modify permissions for the hMailServer installation folder.
+Grant modify permissions for the hMailServer installation and data folders.
 
 This script will relaunch itself elevated if not already running as Administrator.
 It grants 'Everyone' Modify permissions recursively to:

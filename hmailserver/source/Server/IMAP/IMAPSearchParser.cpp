@@ -125,6 +125,9 @@ namespace HM
          pSimpleParser->Parse(pArgument);
          pSimpleParser->UnliteralData();
 
+         if (pSimpleParser->WordCount() < 1)
+            return IMAPResult(IMAPResult::ResultBad, "Incorrect sort command.");
+
          std::shared_ptr<IMAPSimpleWord> pSort = pSimpleParser->Word(0);
          if (pSort->Paranthezied())
          {

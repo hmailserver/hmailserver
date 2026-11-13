@@ -56,7 +56,7 @@ for ($i = 0; $i < $Count; $i++)
 	echo "<td width=\"20%\">";
 	if ($currentaccountid != $accountid)
    {
-      echo "<a href=\"javascript:ConfirmDelete('$accountaddress_escaped', '?page=background_account_save&csrftoken=$csrftoken&action=delete&domainid=$domainid&accountid=$accountid')\">$str_delete</a>";
+      echo "<a href=\"javascript:ConfirmDelete('$accountaddress_escaped', '?page=background_account_save&action=delete&domainid=$domainid&accountid=$accountid')\">$str_delete</a>";
    }
 
 	else "</td>";

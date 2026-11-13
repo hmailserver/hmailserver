@@ -11,6 +11,7 @@
 
 
 #include "../Common/BO/IMAPFolder.h"
+#include "../Common/BO/ACLPermission.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -40,7 +41,7 @@ namespace HM
 
       if (pParser->Word(1)->Clammerized())
       {
-         sOriginalFolderName = pArgument->Literal(0);
+         sFolderName = pArgument->Literal(0);
          sOriginalFolderName = sFolderName;
       }
       else
@@ -54,6 +55,9 @@ namespace HM
       std::shared_ptr<IMAPFolder> pFolder = pConnection->GetFolderByFullPath(sFolderName);
       if (!pFolder)
          return IMAPResult(IMAPResult::ResultBad, "Folder could not be found.");
+
+      if (!pConnection->CheckPermission(pFolder, ACLPermission::PermissionAdminister))
+         return IMAPResult(IMAPResult::ResultNo, "ACL: Administer permission denied (Required for GETACL command).");
 
       String sResponse = IMAPACLHelper::CreateACLList(pFolder, sOriginalFolderName);
       sResponse += pArgument->Tag() + _T(" OK GetAcl complete\r\n");

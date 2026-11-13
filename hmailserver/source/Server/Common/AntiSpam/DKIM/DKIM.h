@@ -55,6 +55,7 @@ namespace HM
    private:
 
       bool ValidateHeaderContents_(const DKIMParameters &signatureParams);
+      static bool IsValidCanonicalization_(const AnsiString &method);
       bool ValidateBodyHash_(const String &fileName, const DKIMParameters &signatureParams, std::shared_ptr<Canonicalization> canonicalization);
       bool ValidateDNSEntry_(const DKIMParameters &entryParams, const DKIMParameters &headerParams);
       Result VerifyHeaderHash_(AnsiString canonicalizedHeader, const AnsiString &tagA, AnsiString &tagB, const AnsiString &publicKeyString);
@@ -62,6 +63,7 @@ namespace HM
       Result RetrievePublicKey_(const DKIMParameters &signatureParams, AnsiString &publicKey, AnsiString &flags);
       AnsiString GetDKIMWithoutSignature_(AnsiString value);
       AnsiString GetSignatureDomain_(AnsiString headerValue);
+      bool HasFlag_(const AnsiString &flags, const AnsiString &flag);
 
       String BuildSignatureHeader_(const String &tagA, const String &tagD, const String &tagS, const String &tagC, const String &tagQ, const String &fieldList, const String &bodyHash, const String &signatureString);
       std::shared_ptr<Canonicalization> CreateCanonicalization_(Canonicalization::CanonicalizeMethod method);

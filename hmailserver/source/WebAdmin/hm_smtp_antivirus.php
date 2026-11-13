@@ -8,7 +8,7 @@ if (hmailGetAdminLevel() != 2)
 $obSettings	= $obBaseApp->Settings();
 $obAntivirus	= $obSettings->AntiVirus();
 
-$action	   = hmailGetVar("action","");
+$action	   = hmailGetPostVar("action","");
 
 $str_delete = $obLanguage->String("Remove");
 
@@ -74,22 +74,19 @@ function testVirusScanner(scannerType)
 			  document.getElementById('ClamAVTestResult').innerHTML = "";
 			  var clamAVHost = document.getElementById('ClamAVHost').value;
 			  var clamAPort = document.getElementById('ClamAVPort').value;
-			  var url = "index.php?page=background_ajax_virustest&csrftoken=<?php echo $csrftoken?>&TestType=ClamAV&Hostname="+ clamAVHost + "&Port=" + clamAPort;
-			  sendRequest(url, "ClamAVTestResult");
+			  sendRequest({page: "background_ajax_virustest", TestType: "ClamAV", Hostname: clamAVHost, Port: clamAPort}, "ClamAVTestResult");
 		  break;
 	      case "ClamWin":
 			  document.getElementById('ClamWinTestResult').innerHTML = "";
 			  var executable = document.getElementById('clamwinexecutable').value;
 			  var database = document.getElementById('clamwindbfolder').value;
-			  var url = "index.php?page=background_ajax_virustest&csrftoken=<?php echo $csrftoken?>&TestType=ClamWin&Executable="+ executable + "&DatabaseFolder=" + database;
-			  sendRequest(url, "ClamWinTestResult");
+			  sendRequest({page: "background_ajax_virustest", TestType: "ClamWin", Executable: executable, DatabaseFolder: database}, "ClamWinTestResult");
 		  break;
 		  case "External":
 			  document.getElementById('ExternalTestResult').innerHTML = "";
 			  var executable = document.getElementById('customscannerexecutable').value;
 			  var returnValue = document.getElementById('customscannerreturnvalue').value;
-			  var url = "index.php?page=background_ajax_virustest&csrftoken=<?php echo $csrftoken?>&TestType=External&Executable="+ executable + "&ReturnValue=" + returnValue;
-			  sendRequest(url, "ExternalTestResult");
+			  sendRequest({page: "background_ajax_virustest", TestType: "External", Executable: executable, ReturnValue: returnValue}, "ExternalTestResult");
 			  break;
 		  default:
 			alert(scannerType);
@@ -100,14 +97,13 @@ function testVirusScanner(scannerType)
    }
 }
 
-function sendRequest(url, responseDiv)
+function sendRequest(parameters, responseDiv)
 {
-   httpObject.open("GET", url, true);
-   httpObject.send(null);
    httpObject.onreadystatechange = function()
 	 {
 		printResponse(httpObject, responseDiv);
 	} ;
+   PostAjax(httpObject, parameters);
 }
 
 function printResponse(httpObject, elementName)
@@ -259,7 +255,7 @@ function printResponse(httpObject, elementName)
                         <td><?php echo PreprocessOutput($description);?></td>                     
                         <td>
                         <?php
-                           echo "<a href=\"?page=background_blocked_attachment_save&csrftoken=$csrftoken&action=delete&id=$id\">$str_delete</a>";
+                           echo "<a href=\"javascript:PostLink('?page=background_blocked_attachment_save&action=delete&id=$id')\">$str_delete</a>";
                         ?>
                         </td>                     
                      </tr>

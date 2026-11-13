@@ -75,7 +75,15 @@ namespace HM
       bool ParseStateSTLSSent_(const String &sData);
       void ParseUsernameSent_(const String &sData);
       void ParsePasswordSent_(const String &sData);
-      void ParseUIDLResponse_(const String &sData);
+      enum UIDLLineResult
+      {
+         UIDLLineContinue,
+         UIDLLineCompleted,
+         UIDLLineStop
+      };
+
+      UIDLLineResult ParseUIDLLine_(const AnsiString &line);
+      // Parses one line of the UIDL response. Stop means no more data should be read.
       void ParseRETRResponse_(const String &sData);
       bool ParseQuitResponse_(const String &sData);
       void ParseDELEResponse_(const String &sData);
@@ -93,6 +101,9 @@ namespace HM
       void QuitNow_();
       // Sends a QUIT message and switch over to
       // quit-state
+
+      void DisconnectOnOversizedResponse_(const String &command);
+      // Disconnects without QUIT, since the server is still sending.
 
       std::shared_ptr<FetchAccountUIDList> GetUIDList_();
 
@@ -136,6 +147,9 @@ namespace HM
      
       AnsiString command_buffer_;
 
+      bool uidl_status_received_;
+      size_t uidl_total_size_;
+
       std::map<int ,String> uidlresponse_;
       // The messages on the server (id,UID)
 
@@ -159,5 +173,12 @@ namespace HM
       std::shared_ptr<FetchAccountUIDList> fetch_account_uidlist_;
 
       std::shared_ptr<ByteBuffer> _firstRetrResponseBuffer;
+
+      // Limits for responses that are buffered in memory before being parsed.
+      static const int MaxCapaResponseSize = 65536;
+      static const int MaxUidlLineLength = 256;
+      static const int MaxUidlEntries = 1000000;
+      static const int MaxUidlTotalSize = 100 * 1024 * 1024;
+      static const int MaxRetrFirstLineSize = 8192;
   };
 }

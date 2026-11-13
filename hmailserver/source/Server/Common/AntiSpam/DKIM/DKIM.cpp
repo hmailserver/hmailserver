@@ -281,9 +281,10 @@ namespace HM
 
          signatureResults.push_back(std::make_pair(GetSignatureDomain_(signatureField.second), signatureResult));
 
+         // Keep the strongest failure, so a later neutral signature can't hide it.
          if (signatureResult == Pass)
             anySignaturePassed = true;
-         else
+         else if (signatureResult == PermFail || (signatureResult == TempFail && result == Neutral))
             result = signatureResult;
       };
 
@@ -299,6 +300,20 @@ namespace HM
       signatureParams.Load(headerValue);
 
       return signatureParams.GetValue("d");
+   }
+
+   // The t= tag is a colon-separated list of flags.
+   bool
+   DKIM::HasFlag_(const AnsiString &flags, const AnsiString &flag)
+   {
+      for (AnsiString item : StringParser::SplitString(flags, ":"))
+      {
+         item.Trim();
+         if (item == flag)
+            return true;
+      }
+
+      return false;
    }
 
    DKIM::Result 
@@ -333,18 +348,23 @@ namespace HM
       }
       else
       {
-         if (method.Find("/") > 0)
+         int slashPos = method.Find("/");
+         if (slashPos >= 0)
          {
-            std::vector<AnsiString> vec = StringParser::SplitString(method, "/");    
-
-            headerMethod = vec[0];
-            bodyMethod = vec[1];
+            headerMethod = method.Mid(0, slashPos);
+            bodyMethod = method.Mid(slashPos + 1);
          }
          else
          {
             headerMethod = method;
             bodyMethod = "simple";
          }
+      }
+
+      if (!IsValidCanonicalization_(headerMethod) || !IsValidCanonicalization_(bodyMethod))
+      {
+         LOG_DEBUG("DKIM: Header in message incomplete. Unsupported canonicalization. Aborting DKIM test.");
+         return Neutral;
       }
 
       if (headerMethod == "simple")
@@ -366,7 +386,7 @@ namespace HM
          return res;
       }
 
-      bool testMode = flags.Find("y") >= 0;
+      bool testMode = HasFlag_(flags, "y");
 
       if (testMode)
       {
@@ -376,7 +396,7 @@ namespace HM
       if (!ValidateBodyHash_(fileName, signatureParams, bodyCanonicalization))
       {
          LOG_DEBUG("DKIM: Validation of body hash failed.");
-         return testMode ? Pass : PermFail;
+         return testMode ? Neutral : PermFail;
       }
 
       AnsiString tagH = signatureParams.GetValue("h");
@@ -401,7 +421,7 @@ namespace HM
 
       Result result = VerifyHeaderHash_(canonicalizedHeader, tagA, tagB, publicKeyString);
 
-      return testMode ? Pass : result;
+      return testMode ? Neutral : result;
    }
 
    DKIM::Result
@@ -582,6 +602,12 @@ namespace HM
       return true;
    }
 
+   bool
+   DKIM::IsValidCanonicalization_(const AnsiString &method)
+   {
+      return method == "simple" || method == "relaxed";
+   }
+
    DKIM::Result
    DKIM::RetrievePublicKey_(const DKIMParameters &signatureParams, AnsiString &publicKey, AnsiString &flags)
    {
@@ -639,7 +665,7 @@ namespace HM
 
       flags = dnsKeyParams.GetValue("t");
 
-      if (flags.Find("s") >= 0)
+      if (HasFlag_(flags, "s"))
       {
          /*
             Flag: s

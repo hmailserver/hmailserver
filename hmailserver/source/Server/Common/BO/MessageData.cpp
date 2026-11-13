@@ -834,7 +834,9 @@ namespace HM
       if (sRulesProcessed.IsEmpty())
          return 0;
 
-      return _ttoi(sRulesProcessed);
+      // The header may come from the sender. A negative value would extend the loop limit.
+      int loopCount = _ttoi(sRulesProcessed);
+      return loopCount < 0 ? 0 : loopCount;
    }
 
    void

@@ -108,17 +108,23 @@ namespace HM
       // Parse the response and see if a virus was reported.
       try
       {
-         const regex expression("^stream.*: (.*) FOUND$");
+         const regex foundExpression("^stream.*: (.*) FOUND$");
+         const regex okExpression("^stream.*: OK$");
          cmatch what;
-         if (regex_match(readData.c_str(), what, expression))
+         if (regex_match(readData.c_str(), what, foundExpression))
          {
             LOG_DEBUG("Virus detected: " + what[1]);
             return VirusScanningResult(VirusScanningResult::VirusFound, String(what[1]));
          }
-         else
+         else if (regex_match(readData.c_str(), okExpression))
          {
             LOG_DEBUG("No virus detected: " + readData);
             return VirusScanningResult(VirusScanningResult::NoVirusFound, Formatter::Format("Result: {0}", readData));
+         }
+         else
+         {
+            // For example "INSTREAM size limit exceeded. ERROR". The message was not scanned.
+            return VirusScanningResult("ClamAVVirusScanner::Scan", Formatter::Format("Unexpected response from ClamAV: {0}", readData));
          }
       }
       catch (std::runtime_error&) // regex_match will throw runtime_error if regexp is too complex.

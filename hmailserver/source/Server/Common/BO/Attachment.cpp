@@ -38,15 +38,20 @@ namespace HM
       return attachment_->GetUnicodeFilename();
    }
 
-   void
-   Attachment::SetFileName(const String &file_name)
+   bool
+   Attachment::GetEncapsulatedFileNames(std::vector<String> &file_names) const
    {
-      attachment_->SetFileName(file_name);
+      return attachment_->GetEncapsulatedFileNames(file_names);
    }
 
-   void 
-   Attachment::SetContent(const String &content)
+   void
+   Attachment::ReplaceWithText(const String &file_name, const String &content)
    {
+      // Replace the type and disposition too, so clients don't read the text as the original type.
+      // The type must be set before the file name, since the name may be stored in Content-Type.
+      attachment_->SetContentType("text/plain", "");
+      attachment_->SetDisposition("attachment", "");
+      attachment_->SetFileName(file_name);
       attachment_->SetUnicodeText(content);
    }
 

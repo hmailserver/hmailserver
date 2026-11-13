@@ -193,6 +193,9 @@ namespace HM
       String command_buffer_;
       bool is_idling_;
 
+      static const int MaxUnauthenticatedCommandSize = 65536;
+      static const int MaxAuthenticatedCommandSize = 1048576;
+
       int literal_data_to_receive_;
       String literal_buffer_;
 

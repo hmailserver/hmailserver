@@ -24,7 +24,8 @@ namespace HM
                                           bool &testCompleted) :
                TCPConnection(CSNone, io_context, context, disconnected, ""),
                test_completed_(testCompleted),
-               total_result_bytes_written_(0)
+               total_result_bytes_written_(0),
+               header_buffer_(std::make_shared<ByteBuffer>())
    {
       TimeoutCalculator calculator;
       SetTimeout(calculator.Calculate(IniFileSettings::Instance()->GetSAMinTimeout(), IniFileSettings::Instance()->GetSAMaxTimeout()));
@@ -141,14 +142,41 @@ namespace HM
    {
       if (!result_)
       {
+         // The header may arrive in several reads. Collect it before parsing.
+         const size_t maxHeaderSize = 8192;
+         header_buffer_->Add(pBuf);
+
+         if (!StringParser::Search(header_buffer_->GetCharBuffer(), header_buffer_->GetSize(), "\r\n\r\n"))
+         {
+            if (header_buffer_->GetSize() > maxHeaderSize)
+            {
+               LOG_DEBUG("The response from SpamAssasin was not valid. Aborting. The header was too large.\r\n");
+               EnqueueDisconnect();
+               return;
+            }
+
+            EnqueueRead();
+            return;
+         }
+
+         pBuf = header_buffer_;
+
          String logMessage;
          logMessage.Format(_T("Parsing response from SpamAssassin. Session %d"), GetSessionID());
          LOG_DEBUG(logMessage);
 
+         int contentLength = 0;
+         if (!ParseFirstBuffer_(pBuf, contentLength))
+         {
+            // The result is ignored, since test_completed_ is never set.
+            EnqueueDisconnect();
+            return;
+         }
+
+         spam_dsize_ = contentLength;
+
          result_ = std::shared_ptr<File>(new File);
          result_->Open(FileUtilities::GetTempFileName(), File::OTAppend);
-
-         spam_dsize_ = ParseFirstBuffer_(pBuf);
       }
 
       // Append output to the file
@@ -195,28 +223,34 @@ namespace HM
      else 
      {
 		 String logMessage;
-		 logMessage.Format(_T("SA: Temp file size did not match what Spamd reported! (temp: %d, spamd: %d). Reverting to original message file."),FileUtilities::FileSize(sTempFile),spam_dsize_);
+		 logMessage.Format(_T("SA: Temp file size did not match what Spamd reported! (temp: %d, spamd: %Iu). Reverting to original message file."),FileUtilities::FileSize(sTempFile),spam_dsize_);
          LOG_DEBUG(logMessage);
 	  }
      
      test_completed_ = true;
    }
 
-   int
-   SpamAssassinClient::ParseFirstBuffer_(std::shared_ptr<ByteBuffer> pBuffer) const
+   bool
+   SpamAssassinClient::ParseFirstBuffer_(std::shared_ptr<ByteBuffer> pBuffer, int &contentLength) const
    {
       // Don't send first line, since it's the Result header.
       char *pHeaderEndPosition = StringParser::Search(pBuffer->GetCharBuffer(), pBuffer->GetSize(), "\r\n\r\n");
       if (!pHeaderEndPosition)
       {
          LOG_DEBUG("The response from SpamAssasin was not valid. Aborting. Expected a header.\r\n");
-         return -1;
+         return false;
       }
-            
+
       size_t headerLength = pHeaderEndPosition - pBuffer->GetCharBuffer();
       AnsiString spamAssassinHeader(pBuffer->GetCharBuffer(), headerLength);
 
       std::vector<AnsiString> headerLines = StringParser::SplitString(spamAssassinHeader, "\r\n");
+      if (headerLines.size() < 2)
+      {
+         LOG_DEBUG(Formatter::Format("The response from SpamAssasin was not valid. Aborting. Expected a result line and a Content-length header, Got: {0}\r\n", spamAssassinHeader));
+         return false;
+      }
+
       AnsiString firstLine = headerLines[0];
       AnsiString secondLine = headerLines[1];
 
@@ -226,7 +260,7 @@ namespace HM
          // a header in the result
 
          LOG_DEBUG(Formatter::Format("The response from SpamAssasin was not valid. Aborting. Expected: SPAMD/1.1 0 EX_OK, Got: {0}\r\n", firstLine));
-         return -1;
+         return false;
       }
 
       if (!secondLine.StartsWith("Content-length:"))
@@ -234,7 +268,7 @@ namespace HM
          // We should never get here, since we should always have
          // a header in the result
          LOG_DEBUG(Formatter::Format("The response from SpamAssasin was not valid. Aborting. Expected: Content-Length:<value>, Got: {0}\r\n", secondLine));
-         return -1;
+         return false;
       }
 
       // Extract the second line from the first buffer. This buffer
@@ -243,22 +277,21 @@ namespace HM
       if (contentLengthHeader.size() != 2)
       {
          LOG_DEBUG(Formatter::Format("The response from SpamAssasin was not valid. Aborting. Content-Length header not properly formatted. Expected: Content-Length:<value>, Got: {0}\r\n", secondLine));
-         return -1;
+         return false;
       }
 
-      int contentLength;
       std::string sConSize = contentLengthHeader[1].Trim();
-      if (!StringParser::TryParseInt(sConSize, contentLength))
+      if (!StringParser::TryParseInt(sConSize, contentLength) || contentLength <= 0)
       {
         LOG_DEBUG(Formatter::Format("The response from SpamAssasin was not valid. Aborting. Content-Length header not properly formatted. Expected: Content-Length:<value>, Got: {0}\r\n", secondLine));
-	     return -1;
+	     return false;
       }
 
       // Remove the SA header lines from the result.
       size_t iEndingBytesSize = pBuffer->GetSize() - headerLength - 4; // 4 due to header ending with \r\n\r\n.
       pBuffer->Empty(iEndingBytesSize);
 
-      return contentLength;
+      return true;
    }
 
    /*
