@@ -11,7 +11,7 @@ define("STIMAP", 5);
 	
 $obStatus      = $obBaseApp->Status();
 $serverstate	= $obBaseApp->ServerState();
-$action  		= hmailGetVar("action","");
+$action  		= hmailGetPostVar("action","");
 
 $statusstarttime = $obStatus->StartTime();
 $statusprocessedmessages = $obStatus->ProcessedMessages();

@@ -5,7 +5,7 @@ if (!defined('IN_WEBADMIN'))
 if (hmailGetAdminLevel() != ADMIN_SERVER)
 	hmailHackingAttemp();
 
-$action	   = hmailGetVar("action","");   
+$action	   = hmailGetPostVar("action","");   
    
 $obSettings	= $obBaseApp->Settings();
 $antiSpamSettings = $obSettings->AntiSpam;

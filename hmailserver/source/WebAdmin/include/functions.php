@@ -38,6 +38,15 @@ function hmailGetVar($p_varname, $p_defaultvalue = null, $p_isnumeric = false)
 	return $retval;
 }
 
+// Reads a POST-only variable. Use for values that trigger changes, so they are CSRF-checked.
+function hmailGetPostVar($p_varname, $p_defaultvalue = null)
+{
+	if (isset($_POST[$p_varname]))
+		return $_POST[$p_varname];
+
+	return $p_defaultvalue;
+}
+
 
 function hmailGetUserDomainName($username)
 {
@@ -348,26 +357,20 @@ function GetHasRuleAccess($domainid, $accountid)
 
 function generate_random_string()
 {
-	if (function_exists("openssl_random_pseudo_bytes"))	
-	{
-		$bytes = openssl_random_pseudo_bytes(10);
-		return bin2hex($bytes);
-	} 
-	else 
-	{
-		$value = mt_rand();
-		return sha1(strval($value));
-	}
+	return bin2hex(random_bytes(16));
 }
 
 function ensure_csrf_session_token_exists()
 {
 	 if (isset($_SESSION["session_csrf_token"]) && !empty($_SESSION["session_csrf_token"]))
 		 return;
-	
-	$token = generate_random_string();
-	
-	$_SESSION["session_csrf_token"] = $token;
+
+	renew_csrf_session_token();
+}
+
+function renew_csrf_session_token()
+{
+	$_SESSION["session_csrf_token"] = generate_random_string();
 }
 
 function get_csrf_session_token()
@@ -385,9 +388,10 @@ function validate_csrf_token_supplied()
 
 	$expected_token = get_csrf_session_token();
 	
-	$actual_token = hmailGetVar("csrftoken");
-	
-	if (strcmp($expected_token, $actual_token) !== 0)
+	// Only accept the token in the request body, so it never ends up in URLs.
+	$actual_token = hmailGetPostVar(CSRF_TOKEN_PARAMNAME);
+
+	if (!is_string($actual_token) || !hash_equals($expected_token, $actual_token))
 	{
 		echo "Invalid CSRF token.";
 		die;

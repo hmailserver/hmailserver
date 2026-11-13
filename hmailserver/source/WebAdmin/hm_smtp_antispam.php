@@ -8,7 +8,7 @@ if (hmailGetAdminLevel() != 2)
 $obSettings	= $obBaseApp->Settings();
 $obAntiSpam	= $obSettings->AntiSpam;
 
-$action	   = hmailGetVar("action","");
+$action	   = hmailGetPostVar("action","");
 
 $antiSpamSettings = $obSettings->AntiSpam;
 
@@ -104,11 +104,12 @@ function TestSpamAssassinConnection()
    {
       document.getElementById('SpamAssassinTestResult').innerHTML = "";
       
-      var url = "index.php?page=background_ajax_spamassassintest&csrftoken=<?php echo $csrftoken?>&Hostname="+ document.getElementById('SpamAssassinHost').value + "&Port=" + document.getElementById('SpamAssassinPort').value;
-      
-      httpObject.open("GET", url, true);
-      httpObject.send(null);
       httpObject.onreadystatechange = HandleSpamAssassinTestResult;
+      PostAjax(httpObject, {
+         page: "background_ajax_spamassassintest",
+         Hostname: document.getElementById('SpamAssassinHost').value,
+         Port: document.getElementById('SpamAssassinPort').value
+      });
       
    }
 }

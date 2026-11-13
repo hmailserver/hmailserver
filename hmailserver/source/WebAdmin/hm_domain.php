@@ -194,7 +194,7 @@ $MaxNumberOfDistributionListsEnabledChecked = hmailCheckedIf1($MaxNumberOfDistri
                      </td>                     
                      <td>
                      <?php
-                        echo "<a href=\"?page=background_domain_name_save&csrftoken=$csrftoken&action=delete&domainid=$domainid&aliasid=$aliasid\">$str_delete</a>";
+                        echo "<a href=\"javascript:PostLink('?page=background_domain_name_save&action=delete&domainid=$domainid&aliasid=$aliasid')\">$str_delete</a>";
                      ?>
                      </td>                     
                      </tr>
